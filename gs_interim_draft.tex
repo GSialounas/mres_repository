@@ -12,6 +12,7 @@
 \usepackage{url}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
+\usepackage{indentfirst}
 
 \makeatletter
 \def\BState{\State\hskip-\ALG@thistlm}
@@ -61,106 +62,221 @@
 \thispagestyle{empty}
 \newpage
 \tableofcontents
+\thispagestyle{empty}
+\newpage
 \setcounter{page}{1}
 
 
 \section{Introduction and Motivation}
-First I will say a few things about the motivation behind the project and motivate adaptivity form both a computational cost and a planet earth perspective.
-\subsection{background}
+
+It is often the case when modelling physical phenomena that we need to solve a complicated Partial Differential Equation (PDE).  Such models may result in systems of equations which are computationally expensive to solve.  One way to overcome this difficulty is to use some physical reasoning to simplify the model of equations into a simpler model.  The justification is that the simpler model describes the physical system adequately even with the loss of information incurred through the simplification.  
+
+Situations calling for such simplifications abound.  As an example consider oceanic flow: very close to bottom of the ocean, which we suppose is a fixed boundary, one will need to make use of the Navier-Stokes equations in order to accurately flow characteristics in the boundary layer.  Far-afield however, where viscocity is not important, one can accurately describe the flow with the Euler equations.  
+
+The natural problem with this approach are cases in which we actually do need to make use of the complex model in a small part of the domain in order to produce reliable, accurate results.   The mathematical challenge that arises is in the coupling of the simple and complex models so that we retain the savings from using the former in the majority of the domain and the accuracy from using the latter in specific parts of the domain as necessary.
+
+This model refinement can be based on knowledge available $\textit{a priori}$, which informs the decomposition of the domain or on results made available $\textit{a posteriori}$, i.e. during the computation.
+
+The aim of this project will be to develop a strategy to adaptively choose an appropriate model to approximate over specific parts of the domain in real time.  The specific example we will considered is flow governed by Stokes's equations, to be reduced to the vectorial Laplacian in parts of the domain where pressure is constant.  The reduction will be based on localised error estimates.  We will examine the errors due to numerical approximation and also due to the model reduction itself.
+
+The rest of the project is structured as follows.  In \S \ref{sec_back} we present work that has been previously done in the area.  In \S \ref{sec_mathform} we describe Stokes's equations, introduce their weak form and show that the resulting problem is well-posed.  In \S \ref{sec_adaptivity} we  describe adaptivity and how it will be implemented in this project in greater depth.  In \S \ref{sec_numerics} we present some preliminary results that are produced with the Deal II software (see \cite{BangerthHartmannKanschat2007}), which  will be used for the numerical implementation component of the project.  We conclude the report in \S \ref{sec_conclusion}, where we also discuss the next steps.
+
+\section{Background}\label{sec_back}
 In this section I will present some of the work that has already been done on adaptivity.
 
-\section{Mathematical Formulation}
-In this section we present the vectorial Stoke's problem and its formulation in weak form.  
-\section{Stoke's Problem}
-We consider Stoke's Problem in a domain $\Omega = \left[0,1\right]^2 \subset \mathbb{R}^2$:
-\begin{eqnarray}\label{stokes_eq}
-	-\Delta\textbf{u} + \nabla p &=& \textbf{f} \\ \label{incomp_eq}
-	\nabla\cdot \textbf{u}&=& 0\\ 
-\textbf{u}|_{\partial\Omega}&=&0 \label{bc_eq}
-\end{eqnarray}
-where boldface indicates vectors.  In (\ref{stokes_eq}) and (\ref{incomp_eq}) $\textbf{u},\, f$ and $p$ represent the velocity, the forcing and the pressure respectively.  In this case we have used zero (Dirichlet) boundary conditions. Stoke's equation is used to describe very slow flows (in the limit as the Reynold's number tends to zero).  Such flows might include the motion of the fluid very close to a solid boundary or the flow of magma in the Earth's mantle.  
+\section{Mathematical Formulation}\label{sec_mathform}
+In this section we present Stokes's equations and their weak form.   These are used to describe very slow flows (in the limit as the Reynold's number tends to zero).  Such flows might include the motion of the fluid very close to a solid boundary or the flow of magma in the Earth's mantle.  
+\subsection{Stoke's Problem}
+Stoke's problem in a domain $\Omega = \left[0,1\right]^2 \subset \mathbb{R}^2$ involves finding $\left(\textbf{u},p\right)$ such that:
+\begin{equation}\label{stokes_eq}
+\begin{aligned}
+	-\Delta\textbf{u} + \nabla p &= \textbf{f} \\ 
+	\nabla\cdot \textbf{u}&= 0\\ 
+\textbf{u}|_{\partial\Omega}&=0 
+\end{aligned}
+\end{equation}
+where boldface indicates vectors.  In (\ref{stokes_eq}), $\textbf{u},\, \textbf{f}$ and $p$ represent the velocity, the forcing and the pressure respectively.  In this case we have used zero (Dirichlet) boundary conditions. 
 \subsection{Weak Formulation}
-We obtain the weak form of (\ref{stokes_eq}) and (\ref{incomp_eq}) by multiplying the equations with test functions $\textbf{v}$ and $q$ and integrating by parts.  This gives us:
-\begin{eqnarray}
+We obtain the weak form of (\ref{stokes_eq}) by multiplying the equations with test functions $\textbf{v}$ and $q$ and integrating by parts.  This gives us:
+\begin{eqnarray}\label{form-a}
 	a\left(\textbf{u},\textbf{v}\right) + b\left(\textbf{v},p\right) &=& F\left(\textbf{v}\right)\quad \forall 
-\textbf{v} \in \textbf{H}^1_0\left(\Omega\right)^2 \text{ and} \\
-	b\left(\textbf{u},q\right)&=&0 \quad \quad\quad\forall q \in L^2\left(\Omega\right),
+\textbf{v} \in \mathbb{V} \text{ and} \\\label{form-b}
+	b\left(\textbf{u},q\right)&=&0 \quad \quad\quad\forall q \in \mathbb{P},
 \end{eqnarray}
 where 
 \begin{eqnarray}\label{weak-a}
-	a\left(\textbf{u},\textbf{v}\right)&=&\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}\;\mathrm{d}x \text, \\\label{weak-b}
-	b\left(\textbf{v},q\right) &=& \int_{\Omega}-\left(\nabla \cdot \textbf{u}\right)q\;\mathrm{d}x \text{ and}\\\label{weak-F}
-    F\left(\text{v}\right) &=& \int_{\Omega}\textbf{f}\cdot \textbf{v} \;\mathrm{d}x.
+	a\left(\textbf{u},\textbf{v}\right)&=&\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}\;\mathrm{d}x, \\\label{weak-b}
+	b\left(\textbf{v},q\right) &=& \int_{\Omega}-\left(\nabla \cdot \textbf{v}\right)q\;\mathrm{d}x \text{ and}\\\label{weak-F}
+    F\left(\textbf{v}\right) &=& \int_{\Omega}\textbf{f}\cdot \textbf{v} \;\mathrm{d}x,
 \end{eqnarray}
-An inspection of (\ref{weak-a})-(\ref{weak-F}) will show that we will need $\textbf{u}, \textbf{v}\in \textbf{H}^{1}_{0}\left(\Omega\right)^2$ and $p,\, q \in L^2\left(\Omega\right)$.  Note that we will take the $(\cdot)^2$ in $\textbf{H}^{1}_{0}\left(\Omega\right)^2$ to indicate that we require both components of functions in this space to reside in $\textbf{H}^{1}_{0}\left(\Omega\right)$.
-\subsection{Well Posedness}
-We will introduce some notation that will be used for the analysis in this section.  We will adopt the same notation as \cite{Chen2016} for ease of cross-checking, as the analysis in this section relies heavily on results presented therein. We firstly reiterate the spaces we will use for the analysis and present the associated norms:
+The function spaces $\mathbb{V}$ and $\mathbb{P}$ are defined as follows:
 \begin{eqnarray}
 \mathbb{V}&=&\textbf{H}^1_0\left(\Omega\right)^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2}, \\
-\mathbb{P}&=&\textbf{L}^2_0\left(\Omega\right)=\left\lbrace q\in L^2: \int_\Omega q\;\mathrm{d}x=0\right\rbrace\text{, with norm: } \left|\left|q\right|\right|_{L^2 }
+\mathbb{P}&=&L^2_0\left(\Omega\right)=\left\lbrace q\in L^2: \int_\Omega q\;\mathrm{d}x=0\right\rbrace\text{, with norm: } \left|\left|q\right|\right|_{L^2}
 \end{eqnarray}
-We will also define two important concepts in terms of proving well-posedness: coercivity and boundedness.
+Note that by the $(\cdot)^2$ in $\textbf{H}^{1}_{0}\left(\Omega\right)^2$ we indicate that we are dealing with vectorial functions with two components.
+\subsection{Well Posedness}
+We will introduce some notation that will be used for the analysis in this section.  We will adopt the same notation as \cite{Chen2016} for ease of cross-checking, as the analysis in this section relies heavily on results presented therein. 
+We will also be frequently making use of the symbol
+\begin{equation}
+	\lesssim \nonumber,
+\end{equation}
+which we we will define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  We will also define two important concepts in terms of proving well-posedness: coercivity and boundedness.
 \theoremstyle{definition}
 \begin{definition}{Coercivity and boundedness} (see \cite{brenner2007mathematical}: Definition 2.5.2)
-	A bilinear form $a\left(\cdot,\cdot\right)$ on a normed linear space $H$ is said  to be bounded (or continuous) if $\exists C\leq \infty$ such that
+	An (abstract) bilinear form $a\left(\cdot,\cdot\right)$ on a normed linear space $H$ is said  to be bounded (or continuous) if $\exists C > 0$ such that
 	\begin{equation}
-		\left|a\left(u,v\right)\right|\leq C \left|\left|u\right|\right|_H\left|\left|v\right|\right|_H \quad \forall u,v \in H
+		\left|a\left(u,v\right)\right|\leq C \left|\left|u\right|\right|_H\left|\left|v\right|\right|_H \quad \forall u,v \in H\nonumber
 	\end{equation}
 	and coercive on $V\subset H$ if $\exists$ $\alpha > 0$ such that
 	\begin{equation}
-	a\left(v,v\right)\geq \alpha \left|\left|v\right|\right|_H^2\quad \forall v \in V.
+	a\left(v,v\right)\geq \alpha \left|\left|v\right|\right|_H^2\quad \forall v \in V\nonumber.
 	\end{equation}
 \end{definition}
-\subsubsection{PDE}
-There are four components to proving the well-posedness for the pde:
+\subsubsection{PDE}\label{PDE_cont}
+There are four components to proving the well-posedness of (\ref{stokes_eq}):
 	 \begin{eqnarray}\label{coerc_a}
-	\inf_{\textbf{u}\in \mathbb{V}}\sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{u}\right| \left|\textbf{v}\right|}&=&\alpha>0,\\\label{coerc_b}
-			\inf_{q\in \mathbb{P}}\sup_{\textbf{u}\in \mathbb{V}}\frac{b\left(\textbf{u},q\right)}{\left|\textbf{u}\right|  \left|\left|q\right|\right|}&=&\beta>0,\\\label{cont_a}
+	\inf_{\textbf{u}\in \mathbb{V}}\sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{u}\right|_1 \left|\textbf{v}\right|_1}&=&\alpha>0,\\\label{coerc_b}
+			\inf_{q\in \mathbb{P}}\sup_{\textbf{u}\in \mathbb{V}}\frac{b\left(\textbf{u},q\right)}{\left|\textbf{u}\right|_1 \left|\left|q\right|\right|_{L^2}}&=&\beta>0,\\\label{cont_a}
 		a\left(\textbf{u},\textbf{v}\right)&\leq& C_a\left|\textbf{u}\right|_1\left|\textbf{v}\right|_1,\, \forall \textbf{u},\textbf{v} \in \mathbb{V}\text{ and}\\\label{cont_b}
-		b\left(\textbf{u},q\right)&\leq& C_b\left|\textbf{u}\right|_1\left|\left|q\right|\right|,\,\forall \textbf{u} \in \mathbb{V},\, q \in \mathbb{P}.
+		b\left(\textbf{u},q\right)&\leq& C_b\left|\textbf{u}\right|_1\left|\left|q\right|\right|_{L^2},\,\forall \textbf{u} \in \mathbb{V},\, q \in \mathbb{P}.
 	\end{eqnarray}
-Briefly, (\ref{coerc_a}) and (\ref{coerc_b}) correspond to the stability of the bi-linear forms specified in (\ref{weak-a}) and (\ref{weak-b}) respectively, while (\ref{cont_a}) and (\ref{cont_b}) correspond to their boundedness, in the same order.  It is relatively easier to show that conditions (\ref{weak-a}), (\ref{cont_a}) and (\ref{cont_b}) hold than to show (\ref{weak-b}) holds, so we will start with the latter.  However, firstly we will introduce a result that implies (\ref{weak-b}) holds.  The result can be found in \cite{Chen2016} as Lemma 1.4.
+Briefly, (\ref{coerc_a}) and (\ref{coerc_b}) correspond to the stability of the bi-linear forms specified in (\ref{weak-a}) and (\ref{weak-b}) respectively, while (\ref{cont_a}) and (\ref{cont_b}) correspond to their boundedness, in the same order. It is worth noting that (\ref{weak-b}) is perhaps more widely known as the $\textit{inf-sup}$ condition (see \cite{brenner2007mathematical}: \S 12). It is relatively easier to show that conditions (\ref{weak-a}), (\ref{cont_a}) and (\ref{cont_b}) hold than to show (\ref{weak-b}) holds, so we will start with the latter.  However, firstly we will introduce a result that implies (\ref{weak-b}) holds.  The result can be found in \cite{Chen2016} as Lemma 1.4.
 \begin{lemma}\label{Lemma_equiv}
 	For any $q\in L^2_0\left(\Omega\right), \exists \textbf{v}\in \textbf{H}^1_0\left(\Omega\right)$ such that
 	\begin{equation}
-		\nabla \cdot \left(\textbf{v}\right) = q \text{ and } \left|\left|\textbf{v}\right|\right| \lesssim  \left|q\right|.\nonumber 
+		\nabla \cdot \left(\textbf{v}\right) = q \text{ and } \left|\textbf{v}\right|_1 \lesssim \left|\left|q\right|\right|_{L^2}\nonumber.
 	\end{equation}
 	Consequently, the inf-sup condition, (\ref{coerc_b}), holds.
 \end{lemma}
 \begin{proof}
 	See \cite{Chen2016}: Lemma 1.4
 \end{proof}
-We will use the statement of \ref{Lemma_equiv} to show that it implies (\ref{coerc_b}).  Consider (\ref{weak-b}).  We choose $\textbf{v}$ so that the result in Lemma (\ref{Lemma_equiv}) holds. We will label this $\textbf{v}$ as $\textbf{v}_q$ to remember the dependence on $q$.   Hence
+We will use the statement of Lemma \ref{Lemma_equiv} to show it implies (\ref{coerc_b}).  Consider (\ref{weak-b}).  We choose $\textbf{v}$ so that the result in Lemma (\ref{Lemma_equiv}) holds. We will label this $\textbf{v}$ as $\textbf{v}_q$ to remember the dependence on $q$.   Hence
 \begin{eqnarray}
-b\left(\textbf{v}_q,q\right) &=& \left|\left|q\right|\right|^2 \quad\text{by Lemma \ref{Lemma_equiv}  and defn of } \left|\left|\cdot\right|\right|,\\
-&\gtrsim& \left|\left|q\right|\right| \left|\textbf{v}_q\right|_1\quad \text{by Lemma \ref{Lemma_equiv}},\\
-\Rightarrow\frac{b\left(\textbf{v}_q,q\right)}{\left|\textbf{v}_q\right|_1} &\gtrsim& \left|\left|q\right|\right|,\quad \left|\textbf{v}_q\right|_1\neq 0,\\
-\Rightarrow \sup_{\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} &\gtrsim& \left|\left|q\right|\right|,\\
-\Rightarrow \inf_{q\in \mathbb{P}}\frac{1}{\left|\left|q\right|\right|}\sup_{\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} &\gtrsim& 1
+b\left(\textbf{v}_q,q\right) &=& \left|\left|q\right|\right|_{L^2}^2 \quad\text{by Lemma \ref{Lemma_equiv}  and defn of } \nonumber \left|\left|\cdot\right|\right|_{L^2},\\
+&\gtrsim& \left|\left|q\right|\right|_{L^2} \left|\textbf{v}_q\right|_1\quad \text{by Lemma \ref{Lemma_equiv}}.\nonumber
 \end{eqnarray}
-Since $\left|\left|q\right|\right|$ does not depend on $\textbf{v}$, we can move it inside the supremum to obtain the required result, i.e. (\ref{weak-b}) $\qedsymbol$ .  Next, we show that (\ref{coerc_a}) holds.  This is implied by the fact that (\ref{weak-a}) is coercive:
+Now, assuming that $\left|\textbf{v}_q\right|_1$, which we assume not to be zero and take the supremum over $\textbf{v}\in \mathbb{V}$ to get:
+\begin{equation}
+\sup_{\textbf{0}\neq\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} \gtrsim \left|\left|q\right|\right|_{L^2}.\nonumber
+\end{equation}
+Now we divide throughout by $\left|\left|q\right|\right|$, which we also assume not to be equal to zero, and take the $\inf$ of that, which we can do since the inequality is required to hold for all $q\in \mathbb{P}$:
+\begin{equation}
+\inf_{q\in \mathbb{P}}\frac{1}{\left|\left|q\right|\right|_{L^2}}\sup_{\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} \gtrsim 1 \nonumber.
+\end{equation}
+Lastly, since $q$ does not depend on the choice of $\textbf{v}$, we can move it inside the supremum to obtain the required result, i.e. (\ref{coerc_b}) $\qedsymbol$ .  
+
+Next, we show that (\ref{coerc_a}) holds.  This is implied by the fact that (\ref{weak-a}) is coercive:
 \begin{eqnarray}
 		a\left(\textbf{u},\textbf{u}\right)&=&\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}\;\mathrm{d}x,\nonumber\\
 		&=&\int_{\Omega}\sum_{i}\nabla u_i \cdot \nabla u_i\;\mathrm{d}x\text{ and}\nonumber\\
 		&=&\left|\textbf{u}\right|_1^2,\nonumber
 \end{eqnarray}
-which is the coercivity condition with equality and $\alpha = 1$.  Now we show that  the coercivity of $a\left(\cdot,\cdot\right)$ implies (\ref{weak-a}).  Since $a\left(\cdot,\cdot\right)$ is coercive), we have that
-\begin{eqnarray}
-a\left(\textbf{u},\textbf{u}\right)&\geq& \alpha  \left|\textbf{u}\right|_1^2 \nonumber \\
-\Rightarrow \frac{a\left(\textbf{u},\textbf{u}\right)}{\left|\textbf{u}\right|_1}&\geq& \alpha \left|\textbf{u}\right|_1 \nonumber\\
-\Rightarrow  \sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{v}\right|_1} &\geq& \alpha \left|\textbf{u}\right|_1\nonumber\\
-\Rightarrow \sup_{\textbf{u}\in \mathbb{V}}\sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{v}\right|_1} &\geq& \alpha>0\nonumber.
-\end{eqnarray}
+which is the coercivity condition with equality and $\alpha = 1$.  Now we show that  the coercivity of $a\left(\cdot,\cdot\right)$ implies (\ref{coerc_a}.  Since $a\left(\cdot,\cdot\right)$ is coercive, we have that
+\begin{equation}
+a\left(\textbf{u},\textbf{u}\right)\geq \alpha  \left|\textbf{u}\right|_1^2 \nonumber.
+\end{equation}
+We divide throughout by $\left|\textbf{u}\right|_1$, which we assume not to be zero. 
+\begin{equation}
+\frac{a\left(\textbf{u},\textbf{u}\right)}{\left|\textbf{u}\right|_1}\geq \alpha \left|\textbf{u}\right|_1 \nonumber
+\end{equation}
+ Then we take the supremum on the left-hand side over all $\textbf{v}\in\mathbb{V}$:
+ \begin{equation}
+ \sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{v}\right|_1}\geq \alpha \left|\textbf{u}\right|_1\nonumber
+ \end{equation}
+ Since this result hold for any $\textbf{u}\in \mathbb{V}$ then it also holds for the infimum over $\textbf{u}$:
+\begin{equation}
+\inf_{\textbf{u}\in \mathbb{V}}\sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{v}\right|_1\left|\textbf{u}\right|_1} \geq \alpha>0\nonumber.
+\end{equation}
 Lastly, (\ref{cont_a}) and (\ref{cont_b}) follow from an application of the Cauchy-Schwarz inequality on the corresponding bilinear forms.
-\subsubsection{Discrete form}
-Same as for PDE but for discrete case
+\subsubsection{Discrete form of the $\textit{inf-sup}$ condition}\label{PDE_disc}
+In \S \ref{PDE_cont} we consider (\ref{weak-a}) and \ref{weak-b} in the setting of infinite-dimensional function spaces.  In practice we will be dealing with a finite-dimensional version of these.  Hence, we need to show that the discrete, finite-dimensional problem is also well-posed:
+\begin{eqnarray}
+		a\left(\textbf{u}_h,\textbf{v}\right) + b\left(\textbf{v},p_h\right) &=& F\left(\textbf{v}\right)\quad \forall 
+	\textbf{v} \in \mathbb{V}_h \text{ and} \\
+	b\left(\textbf{u}_h,q\right)&=&0 \quad \quad\quad\forall q \in\mathbb{P}_h,
+\end{eqnarray}
+where $\mathbb{V}_h\subset\mathbb{V}$ and $\mathbb{P}_h\subset\mathbb{P}$.  In this case, the discrete version of the $\textit{inf-sup}$ condition, (\ref{coerc_b}), is given by
+\begin{equation}\label{coerc_b_disc}
+	\inf_{q\in \mathbb{P}_h}\sup_{\textbf{u}\in \mathbb{V}_h}\frac{b\left(\textbf{u},q\right)}{\left|\textbf{u}\right|_1 \left|\left|q\right|\right|_{L^2}}=\beta>0.
+\end{equation}
+In order to show that (\ref{coerc_b_disc}) holds we will first introduce some results and definitions. Firstly, we define the Fortin operator:
+\theoremstyle{definition}
+\begin{definition}{Fortin Operator} (\cite{Chen2016}: Definition 2.1)\label{Fortin_defn}
+	A linear operator $\Pi_h: \mathbb{V} \rightarrow \mathbb{V}_h$ is called a Fortin Operator if:
+	\begin{enumerate}
+	\item$b\left(\Pi_h v, q_h\right)=b\left(v, q_h\right)\quad \forall q_h \in \mathbb{P}_h,$
+	\item $\left|\left|\Pi_h v\right|\right|_{\mathbb{V}}\leq C\left|\left|v\right|\right|_\mathbb{V}.$
+	\end{enumerate}
+\end{definition}
+\begin{theorem}\label{theorem_inf_sup_disc}
+	Assume the continuous inf-sup condition, (\ref{coerc_b}) holds and there exists a Fortin Operator $\Pi_h$, then the discrete inf-sup condition (\ref{coerc_b_disc}) holds.
+\end{theorem}
+\begin{proof}
+	Since the continuous $\textit{inf-sup}$ condition (\ref{coerc_b}) holds then we know from Lemma \ref{Lemma_equiv} that for any $q\in \mathbb{P}_h \subset \mathbb{P}$ $\exists \textbf{v}\in \mathbb{V}$ such that
+	\begin{equation}
+		b\left(\textbf{v}, q_h\right)\geq \beta \left|\textbf{v}\right|_1\left|\left|q_h\right|\right|_{L^2} \text{ and } \left|\textbf{v}\right|_1 \lesssim \left|\left|q_h\right|\right|_{L^2}. \nonumber
+	\end{equation} 
+We have assumed that $\exists$ $\Pi_h$ and from item 1 of this definition we can choose $\textbf{v}=\Pi_h \textbf{v}\in \mathbb{V}_h$ such that
+\begin{equation}
+	b\left(\Pi_h\textbf{v},q_h\right) =b \left(\textbf{v},q_h\right). \nonumber
+\end{equation}
+Since (\ref{coerc_b}) holds, we have that
+\begin{eqnarray}
+b \left(\textbf{v},q_h\right)&\geq& \beta \left|\textbf{v}\right|_1\left|\left|q_h\right|\right|_{L^2} \nonumber \\
+&\geq& \frac{\beta}{C} \left|\Pi_h\textbf{v}\right|_1\left|\left|q_h\right|\right|_{L^2}\quad \text{from item 2 of Definition \ref{Fortin_defn}}. \nonumber
+\end{eqnarray}
+Hence, the discrete $\textit{inf-sup}$ condition holds.
+\end{proof}
+\subsubsection{Existence-Uniqueness}
+In the case of the continuous problem, we use (\ref{coerc_a})-(\ref{cont_b}) to show that a solution to (\ref{stokes_eq}) exists and is unique. Firstly, we let 
+\begin{equation}
+	\textbf{v}=\textbf{u},\, q =p
+\end{equation}
+so that (\ref{form-a}) and (\ref{form-b}) respectively become
+\begin{eqnarray}\label{nform-a}
+\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{u}+\left(\nabla \cdot \textbf{u}\right)p\;\mathrm{d}x  &=&\int_{\Omega}\textbf{f}\cdot \textbf{u} \;\mathrm{d}x
+ \text{ and} \\\label{nform-b}
+\int_{\Omega}\left(\nabla \cdot \textbf{u}\right)p\;\mathrm{d}x&=& 0.
+\end{eqnarray}
+We now substitute (\ref{nform-b}) in (\ref{nform-a}) to obtain
+\begin{equation}
+\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{u}\;\mathrm{d}x  =\int_{\Omega}\textbf{f}\cdot \textbf{u} \;\mathrm{d}x.
+\end{equation}
+Notice that the left-hand side is equal to $\left|\textbf{u}\right|_1^2$.  We apply the Cauchy-Schwarz inequality to get
+\begin{equation}\label{cauchy-a}
+\left|\textbf{u}\right|_1^2\leq\left|\left|\textbf{f}\right|\right|_{L^2}\left|\left|\textbf{u}\right|\right|_{L^2}.
+\end{equation}
+We would now like to bound the right-hand side such that we obtain a bound based on problem data.  We can do this using Poincar\'e's inequality:
+\begin{equation}
+\left|\left|\textbf{u}\right|\right|_{L^2}\leq C_p\left|\textbf{u}\right|_1\text{, } C_p>0
+\end{equation}
+Interested readers can find further details on this inequality and its applicability  in (e.g.) \cite{brenner2007mathematical}: \S 5.3.  We use this in (\ref{cauchy-a}) to get
+\begin{equation}\label{cauchy-b}
+\left|\textbf{u}\right|_1^2\leq C_p\left|\left|\textbf{f}\right|\right|_{L^2} \left|\textbf{u}\right|_1.
+\end{equation}
+Hence, 
+\begin{equation}
+\left|\textbf{u}\right|_1\leq C_p\left|\left|\textbf{f}\right|\right|_{L^2}.
+\end{equation}
+We now try to obtain a bound for the bilinear form $b\left(\textbf{u},q\right)$.  The $inf-sup$ condition, (\ref{coerc_b}), implies that
+\begin{equation}
+\beta \left|\left|q\right|\right|_{L^2}\leq \sup_{\textbf{v}\in \mathbb{V}, \,\left|\textbf{v}\right|_{L^2}\leq1}  b\left(\textbf{v},q\right)\quad  \forall q \in L^2
+\end{equation}
+We now choose $q=p$, which gives 
+\begin{eqnarray}
+\beta \left|\left|p\right|\right|_{L^2} &\leq& \sup_{\textbf{v}\in \mathbb{V}, \,\left|\textbf{v}\right|_{L^2}\leq1}  b\left(\textbf{v},p\right)\\
+&=& \sup \left(\int_{\Omega}\textbf{f}\cdot\textbf{v} -\nabla\textbf{u}:\nabla\textbf{v}\right)\\
+\text{Cauchy-Schwarz: }&\leq& \sup \left(\left|\left|\textbf{f}\right| \right|\left|\left|\textbf{u}\right|\right|+\left|\left|\nabla\textbf{u}\right|\right| \left|\left|\nabla{\textbf{v}}\right|\right|\right)\\
+&=&\sup \left[\left(C_p\left|\left|\textbf{f}\right| \right|+ \left|\left|\nabla{\textbf{v}}\right|\right|\right)\right] \left|\left|\nabla\textbf{u}\right|\right|\\
+\end{eqnarray}
 \subsubsection{Linear System}
 In here I will present the linear system arising from the PDE and explain what we will need for it to have a unique solution (I will also show that analysis with the Shur complement etc.)
-
-\section{Adaptivity}
+\section{Adaptivity}\label{sec_adaptivity}
 In this section I will explain how I will implement model adaptivity to go from the Stoke's problem to the Poisson problem.
 
-\section{Deal.II}
+\section{Deal.II}\label{sec_numerics}
 Deal.II is a C++, open-source, finite element library which we will be using for the implementation of the computatinal aspects of this project.  As a benchmark we will be solving the following problem:
 \begin{eqnarray}
 \label{benchmark_u}
@@ -172,29 +288,48 @@ Deal.II is a C++, open-source, finite element library which we will be using for
 \end{eqnarray}
 where $\textbf{x}=\left(x,y\right)^T$.    We will substitute (\ref{benchmark_u}) and (\ref{benchmark_p}) as exact solutions (\ref{stokes_eq})to obtain the forcing $\textbf{f}$.  We will use this benchmark example to test for convergence in our model.
 \subsection{Computational results}
-We are solving (\ref{stokes_eq})-(\ref{bc_eq}) using deal.ii with an adaptive mesh.  Figure \ref{fig_stokes_sol}  shows the magnitude of $\textbf{u}$ plotted at each of 5 refinement cycles required to solve the problem for $\left(\textbf{u}, p\right)$ given by (\ref{benchmark_u}) and (\ref{benchmark_p}).  The convergence results are shown in Table \ref{tablebenchmark_convergence}.
+We are solving (\ref{stokes_eq}) using deal.ii with an adaptive mesh.  Figure \ref{fig_stokes_sol}  shows the magnitude of $\textbf{u}$ plotted at each of 5 refinement cycles required to solve the problem for $\left(\textbf{u}, p\right)$ given by (\ref{benchmark_u}) and (\ref{benchmark_p}).  The convergence results are shown in Table \ref{tablebenchmark_convergence}.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=10cm]{stokes_cg_velocities}
-	\caption{The magnitude of $\textbf{u}$ plotted at each refinement cycle to (\ref{stokes_eq})-(\ref{incomp_eq}) with $\textbf{u}$ given by (\ref{benchmark_u}).}
+	\caption{The magnitude of $\textbf{u}$ plotted at each refinement cycle to (\ref{stokes_eq}) with $\textbf{u}$ given by (\ref{benchmark_u}).}
 	\label{fig_stokes_sol}
 \end{figure}
 \begin{table}[H]
 	\begin{center}
 		\begin{tabular}{|c|c|c|c|c|c|} \hline
 	refinement cycle & cells & dofs & $||p-p_h||_{L^2}$ & $||u-u_h||_{L^2}$ & $||u-u_h||_{H^1}$\\ \hline
-	0 & 64 & 679 & 0.0510 & 0.0108 & 0.4482\\ \hline
-	1 & 136 & 1431 & 0.1090 & 0.0099 & 0.4152\\ \hline
-	2 & 352 & 3635 & 0.0979 & 0.0071 & 0.2941\\ \hline
-	3 & 856 & 8615 & 0.0237 & 0.0010 & 0.0821\\ \hline
-	4 & 2128 & 21115 & 0.0120 & 0.0006 & 0.0528\\ \hline
-	5 & 5128 & 50427 & 0.0024 & 0.0001 & 0.0151\\ \hline
+0 & 64 & 679 & 5.1016e-02 & 1.0815e-02 & 4.4823e-01\\ \hline
+1 & 136 & 1431 & 1.0905e-01 & 9.9175e-03 & 4.1524e-01\\ \hline
+2 & 352 & 3635 & 9.7928e-02 & 7.1343e-03 & 2.9415e-01\\ \hline
+3 & 856 & 8615 & 2.3689e-02 & 9.6017e-04 & 8.2062e-02\\ \hline
+4 & 2128 & 21115 & 1.1988e-02 & 6.2091e-04 & 5.2756e-02\\ \hline
+5 & 5128 & 50427 & 2.4096e-03 & 8.6223e-05 & 1.5147e-02\\ \hline
 		\end{tabular}
 	\caption{Convergence for $\textbf{u}$ and $p$ in different norms.}
 	\label{tablebenchmark_convergence}
 	\end{center}
 \end{table}
-\section{Concluding remarks}
+The results in the table are illustrated in Figures \ref{fig_pL2}-\ref{fig_uH1}.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{p_h_L2}
+	\caption{Pressure error in $L^2$: $\left|\left|p-p_h\right|\right|_{L^2}$.}
+	\label{fig_pL2}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{u_uh_L2}
+	\caption{Velocity error (magnitude) in $L^2$: $\left|\left|u-u_h\right|\right|_{L^2}$.}
+	\label{fig_uL2}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{u_uh_H1}
+	\caption{Velocity error (magnitude) in $H^1$: $\left|\left|u-u_h\right|\right|_{H^1}$.}
+	\label{fig_uH1}
+\end{figure}
+\section{Concluding remarks}\label{sec_conclusion}
 \section{Next steps}
 \bibliography{biblio_draft}
 \bibliographystyle{ieeetr}
