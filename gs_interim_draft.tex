@@ -13,11 +13,11 @@
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
 \usepackage{indentfirst}
-
+\usepackage[percent]{overpic}
 \makeatletter
 \def\BState{\State\hskip-\ALG@thistlm}
 \makeatother
-
+\usepackage{mathtools}
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
@@ -27,7 +27,7 @@
 \crefname{section}{§}{§§}
 \Crefname{section}{§}{§§}
 \newcommand{\R}{\mathbb{R}}
- 
+ \usepackage{stmaryrd}
  \usepackage{graphicx}
  \usepackage{caption}
  \usepackage{subcaption}
@@ -96,7 +96,7 @@ Stoke's problem in a domain $\Omega = \left[0,1\right]^2 \subset \mathbb{R}^2$ i
 \end{aligned}
 \end{equation}
 where boldface indicates vectors.  In (\ref{stokes_eq}), $\textbf{u},\, \textbf{f}$ and $p$ represent the velocity, the forcing and the pressure respectively.  In this case we have used zero (Dirichlet) boundary conditions. 
-\subsection{Weak Formulation}
+\subsection{Weak Formulation}\label{weak-form-stokes}
 We obtain the weak form of (\ref{stokes_eq}) by multiplying the equations with test functions $\textbf{v}$ and $q$ and integrating by parts.  This gives us:
 \begin{eqnarray}\label{form-a}
 	a\left(\textbf{u},\textbf{v}\right) + b\left(\textbf{v},p\right) &=& F\left(\textbf{v}\right)\quad \forall 
@@ -105,17 +105,17 @@ We obtain the weak form of (\ref{stokes_eq}) by multiplying the equations with t
 \end{eqnarray}
 where 
 \begin{eqnarray}\label{weak-a}
-	a\left(\textbf{u},\textbf{v}\right)&=&\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}\;\mathrm{d}x, \\\label{weak-b}
-	b\left(\textbf{v},q\right) &=& \int_{\Omega}-\left(\nabla \cdot \textbf{v}\right)q\;\mathrm{d}x \text{ and}\\\label{weak-F}
-    F\left(\textbf{v}\right) &=& \int_{\Omega}\textbf{f}\cdot \textbf{v} \;\mathrm{d}x,
+	a\left(\textbf{u},\textbf{v}\right)&=&\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}, \\\label{weak-b}
+	b\left(\textbf{v},q\right) &=& \int_{\Omega}-q\left(\nabla \cdot \textbf{v}\right) \text{ and}\\\label{weak-F}
+    F\left(\textbf{v}\right) &=& \int_{\Omega}\textbf{f}\cdot \textbf{v} ,
 \end{eqnarray}
 The function spaces $\mathbb{V}$ and $\mathbb{P}$ are defined as follows:
-\begin{eqnarray}
-\mathbb{V}&=&\textbf{H}^1_0\left(\Omega\right)^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2}, \\
-\mathbb{P}&=&L^2_0\left(\Omega\right)=\left\lbrace q\in L^2: \int_\Omega q\;\mathrm{d}x=0\right\rbrace\text{, with norm: } \left|\left|q\right|\right|_{L^2}
+\begin{eqnarray}\label{fspace_V}
+\mathbb{V}&=&\textbf{H}^1_0\left(\Omega\right)^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega\right)}, \\\label{fspace P}
+\mathbb{P}&=&L^2_0\left(\Omega\right)=\left\lbrace q\in L^2\left(\Omega\right): \int_\Omega q=0\right\rbrace\text{, with norm: } \left|\left|q\right|\right|_{L^2\left(\Omega\right)}
 \end{eqnarray}
-Note that by the $(\cdot)^2$ in $\textbf{H}^{1}_{0}\left(\Omega\right)^2$ we indicate that we are dealing with vectorial functions with two components.
-\subsection{Well Posedness}
+Note that by the $(\cdot)^2$ in $\textbf{H}^{1}_{0}\left(\Omega\right)^2$ we indicate that we are dealing with vectorial functions with two components. Henceforth, we will adopt the notation $\left|\textbf{u}\right|_1$ and $\left|\left|q\right|\right|_{L^2}$ for the norms pertaining to the function spaces specified in (\ref{fspace_V}) and (\ref{fspace P}).  The reader should take it for granted that the quantity is taken over the domain $\Omega$ rather than just, say, the boundary $\partial \Omega$, unless the context explicitly specifies otherwise.
+\subsection{Well Posedness}\label{sec_wellposed}
 We will introduce some notation that will be used for the analysis in this section.  We will adopt the same notation as \cite{Chen2016} for ease of cross-checking, as the analysis in this section relies heavily on results presented therein. 
 We will also be frequently making use of the symbol
 \begin{equation}
@@ -229,8 +229,8 @@ b \left(\textbf{v},q_h\right)&\geq& \beta \left|\textbf{v}\right|_1\left|\left|q
 \end{eqnarray}
 Hence, the discrete $\textit{inf-sup}$ condition holds.
 \end{proof}
-\subsubsection{Existence-Uniqueness}
-In the case of the continuous problem, we use (\ref{coerc_a})-(\ref{cont_b}) to show that a solution to (\ref{stokes_eq}) exists and is unique. Firstly, we let 
+\subsubsection{Stability bounds}
+In the case of the continuous problem, we use (\ref{coerc_a})-(\ref{cont_b}) to show that a solution to (\ref{stokes_eq}) is stable. Firstly, we let 
 \begin{equation}
 	\textbf{v}=\textbf{u},\, q =p
 \end{equation}
@@ -248,34 +248,110 @@ Notice that the left-hand side is equal to $\left|\textbf{u}\right|_1^2$.  We ap
 \begin{equation}\label{cauchy-a}
 \left|\textbf{u}\right|_1^2\leq\left|\left|\textbf{f}\right|\right|_{L^2}\left|\left|\textbf{u}\right|\right|_{L^2}.
 \end{equation}
-We would now like to bound the right-hand side such that we obtain a bound based on problem data.  We can do this using Poincar\'e's inequality:
-\begin{equation}
+We would now like to bound the right-hand side such that we obtain a bound based on problem data.  We can do this by using Poincar\'e's inequality:
+\begin{equation} 
 \left|\left|\textbf{u}\right|\right|_{L^2}\leq C_p\left|\textbf{u}\right|_1\text{, } C_p>0
 \end{equation}
 Interested readers can find further details on this inequality and its applicability  in (e.g.) \cite{brenner2007mathematical}: \S 5.3.  We use this in (\ref{cauchy-a}) to get
 \begin{equation}\label{cauchy-b}
 \left|\textbf{u}\right|_1^2\leq C_p\left|\left|\textbf{f}\right|\right|_{L^2} \left|\textbf{u}\right|_1.
 \end{equation}
-Hence, 
-\begin{equation}
+Hence we obtain a bound on $\left|\textbf{u}\right|_1$, 
+\begin{equation}\label{bound-u-cont}
 \left|\textbf{u}\right|_1\leq C_p\left|\left|\textbf{f}\right|\right|_{L^2}.
 \end{equation}
-We now try to obtain a bound for the bilinear form $b\left(\textbf{u},q\right)$.  The $inf-sup$ condition, (\ref{coerc_b}), implies that
-\begin{equation}
+We now try to obtain a bound for $\left|\left|p\right|\right|_{L^2}$ in terms of the problem data, $\textbf{f}$.  The $inf-sup$ condition, (\ref{coerc_b}), implies that
+\begin{equation}\nonumber
 \beta \left|\left|q\right|\right|_{L^2}\leq \sup_{\textbf{v}\in \mathbb{V}, \,\left|\textbf{v}\right|_{L^2}\leq1}  b\left(\textbf{v},q\right)\quad  \forall q \in L^2
 \end{equation}
 We now choose $q=p$, which gives 
-\begin{eqnarray}
-\beta \left|\left|p\right|\right|_{L^2} &\leq& \sup_{\textbf{v}\in \mathbb{V}, \,\left|\textbf{v}\right|_{L^2}\leq1}  b\left(\textbf{v},p\right)\\
-&=& \sup \left(\int_{\Omega}\textbf{f}\cdot\textbf{v} -\nabla\textbf{u}:\nabla\textbf{v}\right)\\
-\text{Cauchy-Schwarz: }&\leq& \sup \left(\left|\left|\textbf{f}\right| \right|\left|\left|\textbf{u}\right|\right|+\left|\left|\nabla\textbf{u}\right|\right| \left|\left|\nabla{\textbf{v}}\right|\right|\right)\\
-&=&\sup \left[\left(C_p\left|\left|\textbf{f}\right| \right|+ \left|\left|\nabla{\textbf{v}}\right|\right|\right)\right] \left|\left|\nabla\textbf{u}\right|\right|\\
+\begin{eqnarray}\nonumber
+\beta \left|\left|p\right|\right|_{L^2} &\leq& \sup_{\textbf{v}\in \mathbb{V}, \,\left|\textbf{v}\right|_1\leq1}  b\left(\textbf{v},p\right)\\\nonumber
+&=& \sup \left(\int_{\Omega}\textbf{f}\cdot\textbf{v} -\nabla\textbf{u}:\nabla\textbf{v}\right)\\\nonumber
+\text{Cauchy-Schwarz: }&\leq& \sup \left(\left|\left|\textbf{f}\right| \right|_{L^2} \left|\left|\textbf{v}\right|\right|_{L^2}+\left|\textbf{u}\right|_1 \left|\textbf{v}\right|_1\right)\\\nonumber
+\text{Poincar\'e's: }&=&\sup \left[\left(C_p\left|\left|\textbf{f}\right| \right|_{L^2}+ \left|\textbf{u}\right|_1\right) \left|\textbf{v}\right|_1\right] \\\nonumber
+\left|\textbf{v}\right|_1\leq 1\text{:} &\leq&C_p\left|\left|\textbf{f}\right| \right|_{L^2}+ \left|\textbf{u}\right|_1\\\nonumber
+\text{Using }\left(\ref{bound-u-cont}\right):&\leq&2C_p\left|\left|\textbf{f}\right| \right|_{L^2}
 \end{eqnarray}
+Hence, we have also obtained a stability bound on $\left|\left|p\right|\right|_{L^2}$ :
+\begin{equation}\label{bound-p-cont}
+\left|\left|p\right|\right|_{L^2} \leq \frac{2C_p}{\beta}\left|\left|\textbf{f}\right|\right|_{L^2}.
+\end{equation}
+Bounds (\ref{bound-u-cont}) and (\ref{bound-p-cont}) show that the solution to (\ref{stokes_eq}) is stable:
+\begin{equation}
+\left|\textbf{u}\right|_1+\left|\left|p\right|\right|_{L^2} \leq\left( C_p+\frac{2C_p}{\beta}\right)\left|\left|\textbf{f}\right|\right|_{L^2}.
+\end{equation}
+In conclusion, in this section we have shown that our problem has a unique, stable solution.
 \subsubsection{Linear System}
 In here I will present the linear system arising from the PDE and explain what we will need for it to have a unique solution (I will also show that analysis with the Shur complement etc.)
 \section{Adaptivity}\label{sec_adaptivity}
-In this section I will explain how I will implement model adaptivity to go from the Stoke's problem to the Poisson problem.
+The main objective in this project is to develop a strategy for switching between Stokes equation and Poisson equation in different parts of our domain.  In this section we will consider a domain which is divided into sub-domains based on the equations governing the flow in each subdomain.  Specifically, we want to find $\left(\textbf{u},p\right)$ that satisfies:
+\begin{equation}
+	\begin{aligned}\label{stokes_eq_adapt}
+\text{In $\Omega_{1}$: }  -\Delta\textbf{u} + \nabla p &= \textbf{f} \\ 
+	\nabla\cdot \textbf{u}&= 0
+	\end{aligned}
+\end{equation}
+\begin{equation}\label{poisson_eq_adapt}
+\text{In $\Omega_{2}$: }-\Delta\textbf{u}= \textbf{f}
+\end{equation}
+with boundary conditions given by
+\begin{equation}\label{bc_adapt}
+	\textbf{u}= 0 \text{\quad on $\partial \Omega$}.
+\end{equation}
+The domain is shown in Figure \ref{fig_domain}.  Naturally, we would like to know whether the problem given by (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) has a unique, stable solution.  In order to do this we will first derive the variational form for (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) and then we will repeat some of the procedures from \S \ref{sec_wellposed} to show that our problem is well-posed.
+\begin{figure}[H]
+	\centering
+	\begin{overpic}[width=0.6\textwidth]{domain}
+		\centering
+		\put (20,30) {\huge$\displaystyle\Omega_{1}$}
+		\put (70,30) {\huge$\displaystyle\Omega_{2}$}
+		\put (50,30) {\huge$\displaystyle\mathcal{I}$}
+		\put (87,52) {\huge$\displaystyle\partial \Omega$}
+		\put (54,11) {\huge$\displaystyle \textbf{n}_1$}
+		\linethickness{1pt}
+		\put(47,10){\color{red}\vector(1,0){10}}
+		\put (54,11) {\huge$\displaystyle \textbf{n}_1$}
+		\linethickness{1pt}
+		\put(99,30){\color{red}\vector(1,0){10}}
+		\put (106,31) {\huge$\displaystyle \textbf{n}_2$}
+	\end{overpic}
+	\caption{Domain for the adaptive problem, with subdomains $\Omega_{1}$ (Stokes equations), $\Omega_{2}$ (Poisson equation)and boundary $\partial \Omega$ with homogeneous Dirichlet boundary conditions. The interface $\mathcal{I}$ separates the part of the domain where we solve each of the two problems.  The unit vectors $\textbf{n}_1$ and $\textbf{n}_2$ are the outward normals to $\Omega_{1}$ and $\Omega_{2}$ respectively.}
+	\label{fig_domain}
+\end{figure} 
+\subsection{Variational Form}
+In this section we derive a variational form for (\ref{stokes_eq_adapt})-(\ref{poisson_eq_adapt}).  We begin by testing the first and second equations in  (\ref{stokes_eq_adapt}) with test functions $\textbf{v}\in \mathbb{V}$ and $q\in \mathbb{P}$, where  $\mathbb{V}$ and $\mathbb{P}$ have been defined in (\ref{fspace_V}) and (\ref{fspace P}) respectively. We integrate the resulting equations by parts to obtain:
+\begin{equation}\label{weak_stokes_1}
+\begin{aligned}
+\int_{\Omega_1}\nabla \textbf{u}^{\left(1\right)} : \nabla \textbf{v}+p\left(\nabla \cdot \textbf{v}\right) +\int_{\mathcal{I}} p\textbf{v}\cdot \textbf{n}_1-\textbf{v}\cdot\left(\textbf{n}_1\cdot\nabla\textbf{u}^{\left(1\right)}\right) &=\int_{\Omega_1}\textbf{f}\cdot \textbf{v}  \quad \forall  \textbf{v}\in \mathbb{V}\\
+\int_{\Omega_1}q\left(\nabla \cdot \textbf{u}^{\left(1\right)}\right) &= 0\quad \forall q\in \mathbb{P},
+\end{aligned}
+\end{equation}
+for subdomain $\Omega_1$ and
+\begin{equation}\label{weak_poisson}
+\int_{\Omega_2}\nabla \textbf{u}^{\left(2\right)} : \nabla \textbf{v} - \int_{\mathcal{I}} \textbf{v}\cdot\left(\textbf{n}_2\cdot\nabla\textbf{u}^{\left(2\right)}\right)= \int_{\Omega_2}\textbf{f}\cdot \textbf{v}  \quad \forall  \textbf{v}\in \mathbb{V}
+\end{equation}
+for $\Omega_2$, where the unit vectors $\textbf{n}_1$ and $\textbf{n}_2$ are the outward normals to $\Omega_{1}$ and $\Omega_{2}$ respectively and $\nabla \textbf{u}^1$ and $\nabla \textbf{u}^2$ are the flux gradients in the two subdomains. Notice that the boundary integrals are taken over $\mathcal{I}$ rather than over $\partial \Omega_{1}$ and $\partial \Omega_{2}$ because $\textbf{v}=\textbf{0}$ on $ \partial \Omega = \partial \Omega_1\cup \Omega_{2}\setminus \mathcal{I}$.   
 
+Before we proceed, we introduce a jump operator, which is simply a notational convenience for expressing the jump of a quantity across an discontinuity.  Consider a (vector) quantity, $\textbf{b}$, whose values at either side of a curve $e$ in $\Omega$ are $\textbf{b}^{\left(1\right)}$ and $\textbf{b}^{\left(2\right)}$.  In this case, $e = \mathcal{I}$, the interface between the two subdomains.  Then, the jump accross $\mathcal{I}$ is given by:
+\begin{equation}
+\llbracket \textbf{u} \rrbracket \coloneqq \textbf{n}_1\cdot \textbf{u}^{\left(1\right)}-\textbf{n}_2\cdot  \textbf{u}^{\left(2\right)}.
+\end{equation}
+The next step is to combine (\ref{weak_stokes_1}) and (\ref{weak_poisson}) into a single variational form over the whole of $\Omega$:
+\begin{equation}\label{weak_total}
+\begin{aligned}
+\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}+\int_{\Omega_1}p\left(\nabla \cdot \textbf{v}\right) +\int_{\mathcal{I}} p\textbf{v}\cdot \textbf{n}_1-\textbf{v}\cdot\llbracket\nabla\textbf{u}\rrbracket &=\int_{\Omega}\textbf{f}\cdot \textbf{v} \quad \forall  \textbf{v}\in \mathbb{V}\\
+\int_{\Omega_1}q\left(\nabla \cdot \textbf{u}\right) &= 0\quad \forall q\in \mathbb{P},
+\end{aligned}
+\end{equation}
+Now we set $\textbf{v}=\textbf{u}$  and $q=p$ in (\ref{weak_total}).  The latter gives $\int_{\Omega_1}p\left(\nabla \cdot \textbf{u}^1\right)=0$.  Hence, (\ref{weak_total}) simplifies to:
+\begin{equation}
+	\left|\textbf{u}\right|_1^2 + \int_{\mathcal{I}}p\textbf{u}\cdot \textbf{n}_1-\textbf{u}\cdot\llbracket \textbf{u}\rrbracket =\int_{\Omega_1}\textbf{f}\cdot \textbf{v}   \quad \forall  \textbf{v}\in \mathbb{V}.
+\end{equation}
+In order to proceed from this point we require that on $\mathcal{I}$
+\begin{equation}
+p\textbf{u}\cdot \textbf{n}_1-\textbf{u}\cdot\llbracket \textbf{u}\rrbracket=0
+\end{equation}
 \section{Deal.II}\label{sec_numerics}
 Deal.II is a C++, open-source, finite element library which we will be using for the implementation of the computatinal aspects of this project.  As a benchmark we will be solving the following problem:
 \begin{eqnarray}
