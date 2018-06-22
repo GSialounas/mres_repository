@@ -9,6 +9,7 @@
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{definition}[theorem]{Definition}
+\newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{lemma}[theorem]{Lemma}
 \usepackage{url}
 \usepackage{algorithm}
@@ -606,6 +607,100 @@ We substitute these bounds in (\ref{weak_stokes_firstuppbound}) to obtain
 \end{aligned}
 \end{equation}
 We regroup this terms to obtain a bound which is summable over the elements:
+
+
+\section{A-posteriori Verf{\"u}rth}
+In this section we present an alternative a-posteriori analysis for the Stokes problem.  This approach is presented in \cite{verfurth2013posteriori} and there are some differences between it and what we did so far.  Namely,  we consider a norm on the tuple space $\mathbb{V}\times\mathbb{P}$.
+Firstly, consider a bilinear mapping $B$ and a linear functional $\ell$.  We want to find $\phi\in X$ such that 
+\begin{equation}\label{var_prob_verf}
+	B\left(\phi,\psi\right)=\langle\ell,\psi\rangle_Y\quad \forall \psi \in Y.
+\end{equation}
+We now present conditions for the well-posedness of this problem.
+\begin{proposition}{$\textbf{Well-posedness of (\ref{var_prob_verf})}$} (See \cite{verfurth2013posteriori}: \S 4.1.1: Proposition 4.1)\label{prop_well_pos_verf}
+Assume that the space Y is reflexive, that
+\begin{equation}
+	\sup_{\phi \in X}B\left(\phi,\psi\right)>0
+\end{equation}
+holds for all $\psi\in Y\setminus \lbrace 0 \rbrace$ and that
+\begin{equation}
+	\inf_{\phi\in X\setminus \lbrace0\rbrace}\sup_{\psi \in Y\setminus \lbrace0\rbrace}\frac{B\left(\phi,\psi\right)>0}{\left|\left|\phi\right|\right|_X\left|\left|\psi\right|\right|_Y}=\beta > 0.
+\end{equation}
+Then (\ref{var_prob_verf}) admits a unique solution for every right-hand side $\ell\in Y^*$ - where $Y^*$ is the dual of $Y$- and the solution depends continuously on the right-hand side.
+\end{proposition}
+Next we present a saddle-point formulation of the Stokes problem.  We do this so that we can express our problem in a form which allows us to use Proposition \ref{prop_well_pos_verf} to show that it is well-posed.  Firstly we need to express our problem in terms of the framework presented in (\ref{var_prob_verf}).  In particular, we present the spaces, bilinear forms and linear functionals as well as the norms we will be using.
+\begin{equation}\label{verf_eqns}
+\begin{aligned}
+X=Y&=\textbf{H}^1_0\left(\Omega\right)^d\times L^2_0\left(\Omega\right),\\
+\left|\left|\left(\textbf{u},p\right)\right|\right|_X&=\left\lbrace \left|\left|\nabla\textbf{u}\right|\right|^2 + \left|\left|p\right|\right|^2\right\rbrace^{1/2},\\
+B\left(\left(\textbf{u},p\right),\left(\textbf{v},q\right)\right)&=\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v} - \int_{\Omega} p \nabla\cdot\textbf{v} + \int_{\Omega} q \nabla\cdot\textbf{u},\\
+\langle \ell\,,\left(\textbf{v},q\right) \rangle &= \int_{\Omega}\textbf{f}\cdot \textbf{v}
+\end{aligned}
+\end{equation}
+In order to show that, our variational formulation for the Stokes problem admits a unique solution  we include another result from \cite{verfurth2013posteriori}.
+
+\begin{proposition}{$\textbf{inf-sup condition for saddle-point formulation}$} (See \cite{verfurth2013posteriori}: \S 4.10: Proposition 4.69 for a proof)\label{prop_well_pos_verf_saddle}
+	The bilinear form $B$ in (\ref{verf_eqns}) satisfies
+	\begin{equation}\small
+	\inf_{\left(\textbf{w},r\right)\in X\setminus \lbrace0\rbrace}\sup_{\left(\textbf{v},q\right) \in X\setminus \lbrace0\rbrace}\frac{B\left(\left(\textbf{v},q\right),\left(\textbf{w},r\right)\right)>0}{\left|\left|\left(\textbf{v},q\right)\right|\right|_X\left|\left|\left(\textbf{w},r\right)\right|\right|_X}=
+	\inf_{\left(\textbf{v},q\right) \in X\setminus \lbrace 0\rbrace}\sup_{\left(\textbf{w},r\right)\in X\setminus \lbrace0\rbrace}\frac{B\left(\left(\textbf{v},q\right),\left(\textbf{w},r\right)\right)>0}{\left|\left|\left(\textbf{v},q\right)\right|\right|_X\left|\left|\left(\textbf{w},r\right)\right|\right|_X}\geq \frac{\beta^2}{1+\beta^2},
+	\end{equation}
+	where $\beta$ is the same constant as in (\ref{coerc_b}).
+\end{proposition}
+The results in Proposition \ref{prop_well_pos_verf_saddle} imply that the bilinear form $B$ satisfies the conditions of Proposition \ref{prop_well_pos_verf}.  Hence, our problem is well posed.
+\subsection{Finite Element approximation}
+In this section we present the finite element approximation to our saddle-point formulation of the Stokes Problem (see (\ref{verf_eqns})).  Firstly we introduce the notation for the spaces we will be searching in for our approximate solutions:
+\begin{eqnarray}
+	\mathbb{V}_T&\subset&\textbf{H}^1_0\left(\Omega\right)^d,\\
+	P_T&\subset& L^2_0\left(\Omega\right).
+\end{eqnarray}
+Our approximate version of the forms and norm in (\ref{verf_eqns}) are then as follows:
+\begin{equation}\label{verf_eqns_approx}
+\begin{aligned}
+X_T=Y_T&=\mathbb{V}_T\times P_T,\\
+B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_{\Omega}\nabla \textbf{u}_T : \nabla \textbf{v}_T - \int_{\Omega} p_T \nabla\cdot\textbf{v}_T + \int_{\Omega} q_T \nabla\cdot\textbf{u}_T,\\
+\langle \ell_T\,,\left(\textbf{v}_T,q_T\right) \rangle &= \int_{\Omega}\textbf{f}\cdot \textbf{v}_T.
+\end{aligned}
+\end{equation}
+The subscript $T$ indicates the triangulation of $\Omega$ that we are considering.
+Our approximate method will be stable if it satisfies the discrete version of (\ref{coerc_b}).  Namely, there exists a constant $\widetilde{\beta}>0$ such that
+\begin{equation}\label{verf_inf_sup}
+	\inf_{q_T\in \mathbb{P}_T\setminus \lbrace 0 \rbrace}\sup_{\textbf{v}_T\in \mathbb{V}_T\setminus \lbrace 0 \rbrace}\frac{\int_{\Omega}q_T\nabla\cdot\textbf{v}_T}{\left|\textbf{v}_T\right|_1 \left|\left|q\right|\right|_{L^2}}=\widetilde{\beta}>0.
+\end{equation}
+Analogously, assume that our bilinear form $B$ satisfies the discrete version of (\ref{verf_inf_sup}).  Then our finite element problem also admits a unique solution that depends continuously on the right-hand side \cite{verfurth2013posteriori}.
+\subsection{Residual a-posteriori estimates}
+Introduction of further terminology.  This information is identical to that presented in \cite{verfurth2013posteriori} \S $4.1$.  Given Banach Spaces $X$ and $Y$ with norms $\left|\left|\cdot\right|\right|_X$ and $\left|\left|\cdot\right|\right|_Y$ respectively we define
+\begin{itemize}
+\item $\mathcal{L}\left(X,Y\right)$ to be the space of continuous linear mappings from $X$ to $Y$ with norm 
+\begin{equation}
+\left|\left|L\right|\right|_{\mathcal{L}\left(X,Y\right)} = \sup_{\phi \in X\setminus\lbrace 0\rbrace}\frac{\left|\left|L\phi\right|\right|_Y}{\left|\left|\phi\right|\right|_X}.
+\end{equation}
+\item $Y^*$ to be the dual space of $Y$ (the space of continuous linear functionals on $Y$).
+\item $\langle \cdot,\cdot\rangle_Y$ to be the dual pairing of $Y^*$ and $Y$
+\item $\mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ is the space of continuous bi-linear mappings from $X\times Y$ to $\mathbb{R}$ with norm
+\begin{equation}
+\left|\left|B\right|\right|_{\mathcal{L}^2\left(X,Y,\mathbb{R}\right)} = \sup_{\phi \in X\setminus\lbrace 0\rbrace}\sup_{\psi \in Y\setminus\lbrace 0\rbrace}\frac{\left|B\left(\phi,\psi\right)\right|_Y}{\left|\left|\phi\right|\right|_X\left|\left|\psi\right|\right|_Y}.
+\end{equation}
+\end{itemize}
+ The spaces $\mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ and $\mathcal{L}\left(X,Y^*\right)$ are isomorphic.  The isomorphism is given by 
+ \begin{equation}\label{verf_isomorphism}
+B\left(\phi,\psi\right)=\langle L\phi,\psi\rangle_Y\quad \forall \phi \in X\text{ and }\forall \psi \in Y,
+ \end{equation}
+ where $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ corresponds to $L\in \mathcal{L}\left(X,Y^*\right)$.  In our case, (\ref{verf_isomorphism}) is actually
+ \begin{equation}\label{verf_isomorphism_case}
+ B\left(\left(\textbf{v},q\right),\left(\textbf{w},r\right)\right)=\langle L\left(\textbf{v},q\right),\left(\textbf{w},r\right)\rangle_Y\quad \forall \left(\textbf{v},q\right) \in X\text{ and }\forall \left(\textbf{w},r\right) \in Y.
+ \end{equation}
+ Then,in general, given a $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ and $\ell \in Y^*$ the problem is to find $\phi \in X$ such that 
+ \begin{equation}
+ 	B\left(\phi,\psi\right)=\langle\ell,\psi\rangle_Y\quad \forall \psi \in Y.
+ \end{equation}
+ In our specific case we want to find $\left(\textbf{u},p\right)$ such that 
+ \begin{equation}\label{verf_var_case}
+ B\left(\left(\textbf{u},p\right),\left(\textbf{v},q\right)\right)=\langle\ell,\left(\textbf{v},q\right)\rangle_Y\quad \forall \left(\textbf{v},q\right) \in Y.
+ \end{equation}
+ We now make use of the isomorphism (\ref{verf_isomorphism_case}) to write (\ref{verf_var_case}) in the form find  $\left(\textbf{v},q\right)$ such that
+ \begin{equation}
+  L\left(\textbf{u},p\right)=\ell.
+ \end{equation}
 \section{Concluding remarks and next steps}\label{sec_conclusion}
 In this report we have shown the well-posedness of the Stokes problem and of the adaptive continuous problem.  We have also implemented the Stokes problem in Deal.II in order to acquire some familiarity with this software library.  The next steps will be to carry out the a-posteriori analysis of Stokes and for adaptive Stokes and to implement the latter  in Deal.II.  
 
