@@ -34,9 +34,9 @@
  \usepackage{caption}
  \usepackage{subcaption}
  \usepackage[english]{babel}
-
-
-
+\usepackage{color}
+\newcommand{\hilight}[1]{\colorbox{yellow}{#1}}
+\usepackage{soul}
 
 \usepackage{listings}
 \usepackage{color}
@@ -424,47 +424,7 @@ We are solving (\ref{stokes_eq}) using Deal.II with an adaptive mesh.  Figure \r
 	\caption{loglog plots of errors }
 	\label{fig_errors}
 \end{figure}
-\section{A-posteriori error Analysis}
-The solution to (\ref{stokes_eq}) satisfies
-\begin{equation}\label{stokes_cont_sat}
-\begin{aligned}
- \int_{\Omega}\nabla\textbf{u}:\nabla\textbf{v}+p\nabla\cdot\textbf{v} &=\int_{\Omega}f\textbf{v} \quad \forall 
-	\textbf{v} \in \mathbb{V}_h \text{ and} \\
-	\int_{\Omega}q\nabla\cdot\textbf{u}&=0\quad \quad\quad\forall q \in\mathbb{P}_h,
-	\end{aligned}
-\end{equation}
-while the solution to the discrete version satisfies
-\begin{equation}\label{stokes_disc_sat}
-\begin{aligned}
-  \int_{\Omega}\nabla\textbf{u}_h:\nabla\textbf{v}+p_h\nabla\cdot\textbf{v} &=\int_{\Omega}f\textbf{v} \quad \forall 
- \textbf{v} \in \mathbb{V}_h \text{ and} \\
- \int_{\Omega}q\nabla\cdot\textbf{u}_h&=0\quad \quad\quad\forall q \in\mathbb{P}_h.
- \end{aligned}
-\end{equation}
-We express the true error for velocity and pressure as 
-\begin{eqnarray}
-	\textbf{e}_u &=& \textbf{u}-\textbf{u}_h,\\
-	e_p &=& p-p_h.
-\end{eqnarray}
-Now we subtract (\ref{stokes_disc_sat}) from (\ref{stokes_cont_sat}) to get an equation in terms of the difference between the actual solution and the computed approximation.
-\begin{equation}\label{stokes_disc_sat_2}\small
-\begin{aligned}\small
-\int_{\Omega}\nabla\left(\textbf{u}-\textbf{u}_h\right):\nabla\textbf{v}+\left(p-p_h\right)\nabla\cdot\textbf{v} &=\int_{\Omega}f\textbf{v} -\nabla\textbf{u}_h:\nabla\textbf{v}-p_h\nabla\cdot\textbf{v} \quad \forall 
-\textbf{v} \in \mathbb{V}_h, \\
-\int_{\Omega}q\nabla\cdot\left(\textbf{u}-\textbf{u}_h\right)&=0\quad \quad\quad\forall q \in\mathbb{P}_h.
-\end{aligned}
-\end{equation}
-Observe that due the zero divergence requirement, the second equation in (\ref{stokes_disc_sat_2}) reduces to 
-\begin{equation}
-\int_{\Omega}-q\nabla\cdot\left(\textbf{u}_h\right)=0\quad \quad\quad\forall q \in\mathbb{P}_h.
-\end{equation}
-Now we choose $\textbf{v}=\textbf{u}-\textbf{u}_h$ and $q=p-p_h$ and substitute it in (\ref{stokes_disc_sat_2}) to get
-\begin{eqnarray}\small
-\begin{aligned}
-\left|\textbf{u}-\textbf{u}_h\right|^2_{1}-\int_{\Omega}\left(p-p_h\right)\nabla\cdot\textbf{u}_h&=\int_{\Omega}f\left(\textbf{u}-\textbf{u}_h\right) -\nabla\textbf{u}_h:\nabla\left(\textbf{u}-\textbf{u}_h\right)-p_h\nabla\cdot\left(\textbf{u}-\textbf{u}_h\right)+\left(p-p_h\right)\nabla\cdot\textbf{u}_h, \\
-\int_{\Omega}q\nabla\cdot\left(\textbf{u}-\textbf{u}_h\right)&=0\quad \quad\quad\forall q \in\mathbb{P}_h.
-\end{aligned}
-\end{eqnarray}
+
 \section{A-posteriori 2}
 \subsection{Upper bound}
 Consider a bilinear form $A$ and a linear form $B$,
@@ -610,7 +570,9 @@ We regroup this terms to obtain a bound which is summable over the elements:
 
 
 \section{A-posteriori Verf{\"u}rth}
-In this section we present an alternative a-posteriori analysis for the Stokes problem.  This approach is presented in \cite{verfurth2013posteriori} and there are some differences between it and what we did so far.  In order to present the analysis in this section clearly and in an ordered, transparent manner we will follow the same strategy as \cite{verfurth2013posteriori}. Namely,  we will first present results and notation which apply to an abstract variational problem.  These results will be useful in obtaining upper and lower a-posteriori bounds.  After presenting the general results, we will tailor them to the variational formulation of the Stokes problem, which is what interests us.
+In this section we present an alternative a-posteriori analysis for the Stokes problem.  This approach is presented in \cite{verfurth2013posteriori} and there are some differences between it and what we did so far.  In order to present the analysis in this section clearly and in an ordered, transparent manner we will follow the same strategy as \cite{verfurth2013posteriori}. Namely,  we will first present results and notation which apply to an abstract variational problem.  These results will be useful in obtaining upper and lower a-posteriori bounds.  After presenting the general results, we will tailor them to the variational formulation of the Stokes problem, which is what interests us. 
+
+\hl{Note to Tristan and Oliver:  I will make a section to explain dual spaces, dual norms and any other concepts I didn't explain properly throughout the text}
 \subsection{Abstract Problems-Framework}\label{sec_abst_var_prob}
 \subsubsection{Abstract Variational Problem}\label{subsec_verf_abst_var_prob}
 This information is identical to that presented in \cite{verfurth2013posteriori} \S $4.1$.  Given Banach Spaces $X$ and $Y$ with norms $\left|\left|\cdot\right|\right|_X$ and $\left|\left|\cdot\right|\right|_Y$ respectively we define
@@ -710,7 +672,41 @@ In order to show that, our variational formulation for the Stokes problem is wel
 	\end{equation}
 	where $\beta$ is the same constant as in Proposition \ref{prop_well_pos_verf_saddle_1}.
 \end{proposition}
-Proposition \ref{prop_well_pos_verf_saddle} implies that the bilinear form $B$ satisfies the conditions of Proposition \ref{prop_well_pos_verf}.  Together with Proposition \ref{prop_well_pos_verf_saddle_1} they imply that  our problem is well-posed.
+A reasonable question to ask at this point is why we need Proposition \ref{prop_well_pos_verf_saddle_1}.  We need it because we use it to prove that Proposition \ref{prop_well_pos_verf_saddle} holds.  In turn, Proposition \ref{prop_well_pos_verf_saddle} implies that the bilinear form $B$ satisfies the conditions of Proposition \ref{prop_well_pos_verf}.  Hence, our variational formulation of the Stokes problem is well-posed.  In order to demonstrate how Proposition \ref{prop_well_pos_verf_saddle_1} contributes towards the proof for the well-posedness of our variational formulation of the Stokes problem, we include the proof that Proposition \ref{prop_well_pos_verf_saddle} holds from \cite{verfurth2013posteriori} (see \S4.10.1: Proposition 4.69).  In the proof that follows note that we emit the result that proves the equality and focus on the inequality.
+\begin{proof}
+Chose an arbitrary element $\left(\textbf{v},q\right)\in X\setminus \lbrace 0 \rbrace$ and keep it fixed in waht follows.  The definition of B immediately implies that 
+\begin{equation}
+B\left(\left(\textbf{v},q\right),\left(\textbf{v},q\right)\right)= \left|\left|\nabla \textbf{v}\right|\right|^2.
+\end{equation}
+Due to Proposition \ref{prop_well_pos_verf_saddle_1}, there exists a velocity field $\textbf{w}_q$ with
+\begin{equation}
+\left|\left|\nabla \textbf{w}_q\right|\right|=1 \quad \text{and}\quad \int_{\Omega}q \text{div} \textbf{w}_q \geq \beta \left|\left|q\right|\right|^2.
+\end{equation}
+Therefore, for every $\delta > 0$
+\begin{equation}\small
+\begin{aligned}\small
+B\left(\left(\textbf{v},q\right),\left(\textbf{v}-\delta\left|\left|q\right|\right|\textbf{w}_q,q\right)\right) &= B\left(\left(\textbf{v},q\right),\left(\textbf{v},q\right)\right)-\delta\left|\left|q\right|\right|B\left(\left(\textbf{v},q\right),\left(\textbf{w}_q,0\right)\right)\\
+&=\left|\left|\nabla \textbf{v}\right|\right|^2 -  \delta\left|\left|q\right|\right|\int_{\Omega}\nabla\textbf{v}:\nabla\textbf{w}_q +\delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{w}_q\right|\right|\\
+&\geq \left|\left|\nabla \textbf{v}\right|\right|^2 -  \delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{v}\right|\right| +\delta \beta \left|\left|q\right|\right|^2\\
+&= \left|\left|\nabla \textbf{v}\right|\right|^2 -  \delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{v}\right|\right| +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2\\& + \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2 +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2 - \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2
+\end{aligned}
+\end{equation}
+Now we use the result
+\begin{equation}
+a^2+b^2\geq 2ab \nonumber
+\end{equation}
+with \begin{equation}
+a=\sqrt{\frac{\delta}{2\beta}}\left|\left|\nabla\textbf{v}\right|\right|\text{ and } b = \sqrt{\frac{\delta \beta }{2}}\left|\left|q\right|\right|
+\end{equation}
+to show that the quantity in the last equality in is greater than
+\begin{equation}
+\begin{aligned}
+&\left|\left|\nabla \textbf{v}\right|\right|^2 -  \delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{v}\right|\right| +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2 + \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2 +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2 - \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2\\
+&\geq \left|\left|\nabla \textbf{v}\right|\right|^2 -  \delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{v}\right|\right| +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2 + \delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{v}\right|\right|- \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2\\
+&=\left(1-\frac{delta}{2\beta}\right)\left|\left|\nabla \textbf{v}\right|\right|^2 +\frac{\delta\beta}{2}\left|\left|q\right|\right|^2.
+\end{aligned}
+\end{equation}
+\end{proof}
 \subsection{Stokes-Problem: Finite Element approximation}
 In this section we present the finite element approximation to (\ref{verf_eqns}).  The finite element spaces we are looking will be
 \begin{eqnarray}
@@ -726,7 +722,7 @@ B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_
 \langle \ell_T\,,\left(\textbf{v}_T,q_T\right) \rangle &= \int_{\Omega}\textbf{f}\cdot \textbf{v}_T.
 \end{aligned}
 \end{equation}
-Our approximate problem will be well-posed if the discrete version of Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} are satisfied for all triangulations $T$ that we consider.  This is ensured if we choose our finite element spaces for the velocity $V_T$ andthe pressure $P_T$ in (\ref{verf_eqns_approx}) appropriately.
+Our approximate problem will be well-posed if the discrete version of Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} are satisfied for all triangulations $T$ that we consider.  This is ensured if we choose our finite element spaces for the velocity $V_T$ and the pressure $P_T$ in (\ref{verf_eqns_approx}) appropriately.
 There are many such choices (see \cite{verfurth2013posteriori}: \S 4.10.2 for multiple examples) but we will be only use the Taylor-Hood element, which is a well-known, stable choice for the Stokes equation:
 \begin{eqnarray}
 \begin{aligned}
@@ -736,19 +732,160 @@ P_T&=S^{1,0}\left(T\right)\cap L^2_0\left(\Omega\right).
 \end{eqnarray}
 This choice ensures that the forms we introduced in (\ref{verf_eqns_approx}) fulfil the conditions in Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle}.  This in turn ensures that the conditions in Proposition \ref{prop_well_pos_verf_disc} are met.  Hence, our discrete problem - i.e. find $\left(\textbf{u}_T, p_T\right)$ such that (\ref{verf_eqns_approx}) holds for all $\left(\textbf{v}_T,q_T\right)\in V_T\times P_T$ - is well-posed.
 \subsection{Residual a-posteriori estimates}
-Introduction of further terminology.  In our case, (\ref{verf_isomorphism}) is actually
- \begin{equation}\label{verf_isomorphism_case}
- B\left(\left(\textbf{v},q\right),\left(\textbf{w},r\right)\right)=\langle L\left(\textbf{v},q\right),\left(\textbf{w},r\right)\rangle_Y\quad \forall \left(\textbf{v},q\right) \in X\text{ and }\forall \left(\textbf{w},r\right) \in Y.
- \end{equation}
+In this section we would like to obtain information about what conditions we expect our a-posteriori error indicators to fulfil.  These conditions are summarised by \cite{verfurth2013posteriori} in the form of Theorem \ref{verf_thm_apost_bounds} (see\cite{verfurth2013posteriori}: Theorem 4.7).  Essentially, this result gives us general upper and lower bounds on a-posteriori error indicators, subject to certain conditions.  The content of this section is just a summary of the exposition in \S4.1.4 of \cite{verfurth2013posteriori}, which we follow closely.  
+
+In order to present this result we  will firstly summarise the analysis from \cite{verfurth2013posteriori}, which leads to it.  Later on we will use it to show that our a-posteriori error-indicator for the Stokes problem fulfils the conditions of the theorem and hence bounds the error from above and from below as set forth by Theorem \ref{verf_thm_apost_bounds}.  
+
+Firstly, assume that (\ref{prop_well_pos_verf}) and (\ref{prop_well_pos_verf_disc}) are satisfied.  Hence, our abstract variational problem, (\ref{verf_eqn_var}) and its discretization, (\ref{verf_eqn_disc}) are both well-posed.   We denote by $\phi$ and $\phi_T$ the solutions of (\ref{verf_eqn_var}) and (\ref{verf_eqn_disc}) respectively. We now use the isomorphism,  (\ref{verf_isomorphism}), to get a bound on our error, $\phi-\phi_T$ as follows:
+\begin{equation}
+L\left(\phi-\phi_T\right)=\ell -L\phi_T
+\end{equation}
+implies
+\begin{equation}\label{verf_infdim_err_bounds}
+\left|\left|L\right|\right|^{-1}_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\ell-L\phi_T\right|\right|_{Y^*}\leq \left|\left|\phi-\phi_T\right|\right|_X \leq \left|\left|L^{-1}\right|\right|_{\mathcal{L}\left(Y^*,X\right)}\left|\left|\ell-L\phi_T\right|\right|_{Y^*}.
+\end{equation}
+Hence, for all $\psi \in Y$ (and letting $\left|\left|\psi\right|\right|_Y=1$) we get 
+\begin{equation}
+\langle\ell -L\phi_T,\psi \rangle_Y=\langle L\left( \phi-\phi_T\right),\psi \rangle_Y\leq \left|\left|L\right|\right|_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\phi-\phi_T\right|\right|_X
+\end{equation}
+The problem with the bounds in (\ref{verf_infdim_err_bounds}) is that computing the dual norm of $\ell-L\phi_T$ is as difficult as solving the original problem.  Instead, we need something more practical which can hopefully be computed with reasonable effort during a computation.   As \cite{verfurth2013posteriori} points out, we need to make sure that a few things hold before proceeding from this point. Namely, that $Y$ is a suitable subspace of a suitable $W^{1,2}$ space,
+ that our residual $\ell - L\phi_T$ admits an $L^2$ representation and that it also satisfies Galerkin orthogonality.  The first point is taken care of by careful selection of our spaces and subspaces such that our well-posedness conditions are satisfied.  The choice of spaces is usually made obvious by the equation we are dealing with.  
  
- In our specific case we want to find $\left(\textbf{u},p\right)$ such that 
- \begin{equation}\label{verf_var_case}
- B\left(\left(\textbf{u},p\right),\left(\textbf{v},q\right)\right)=\langle\ell,\left(\textbf{v},q\right)\rangle_Y\quad \forall \left(\textbf{v},q\right) \in Y.
- \end{equation}
- We now make use of the isomorphism (\ref{verf_isomorphism_case}) to write (\ref{verf_var_case}) in the form find  $\left(\textbf{v},q\right)$ such that
+ In order to obtain the $L^2$ representation of our residual we use integration by parts.  Lastly, for Galerkin orthogonality, consider the case when the discrete forms $B_T$ and $\ell_T$ are the restrictions of $B$ and $\ell$ respectively to the finite-dimensional spaces.  That is, consider that
+ \begin{eqnarray}
+B_T\left(\phi_T,\psi_T\right)&=&B\left(\phi_T,\psi_T\right)\text{ and}\\
+\langle \ell_T, \psi_T\rangle_{Y_T} &=& \langle \ell_T, \psi_T\rangle_{Y},
+ \end{eqnarray}
+ holds for all $\phi_T\in X_T$ and for all $\psi_T \in Y_T$.  Then Galerkin orthogonality holds: i.e. using the isomorphism (\ref{verf_isomorphism}),
  \begin{equation}
-  L\left(\textbf{u},p\right)=\ell.
+\langle \ell -L\phi_T,\psi_T\rangle_{Y}=\langle L\left(\phi-\phi_T\right),\psi_T\rangle_{Y}=0.
  \end{equation}
+ Now, we want to obtain bounds for the dual norm of the residual $\left|\left|\ell-L\phi_T\right|\right|_{Y^*}$.  We do this by introducing a restriction operator $Q_T:Y\leftarrow Y_T$, which we use to split our residual as follows:
+ \begin{equation}\label{verf_residual_split}
+ 	\ell-L\phi_T=\left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)+Q_T^*\left(\ell-L\phi_T\right).
+ \end{equation}
+ where $Id_Y$ denotes the identity map in the space $Y$ and $Q_T^*$ is the adjoint of $Q_T$. such that 
+ \begin{equation}
+\langle \ell -L\phi_T, Q_T\psi_T\rangle_Y = \langle Q_T^*\left(\ell -L\phi_T\right), \psi_T\rangle_Y. 
+ \end{equation}  
+ At this point, \cite{verfurth2013posteriori} uses (\ref{verf_infdim_err_bounds}) to obtain an upper bound for the error as shown below
+ \begin{equation}\small
+\left|\left|\phi-\phi_T\right|\right|_X\leq \left|\left|L^{-1}\right|\right|_{\mathcal{L}\left(Y^*,X\right)}\left\lbrace\left|\left| \left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*} +\left|\left| Q_T^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*}\right\rbrace,
+ \end{equation}
+ noting that, when Galerkin orthogonality is satisfied, the terms involving $Q_T^*$ vanish.  Notice that although this is an upper bound, it still involves dual norms.  It would be more accurate to describe it as part of a condition that we will use to ensure that our a-posteriori error indicator can be used to get an upper bound on the error.
+ 
+  \hl{Note to Tristan and Oliver: I will also explain why we are going to the trouble of choosing the subspace for the lower bound in the analysis that follows, hopefully soon, but as that involves a bit of extra reading I will postpone it until after I get the more essential parts of the analysis done}. Next, we want to get a condition for a lower-bound.  We firstly choose a finite-dimensional subspace $\widetilde{Y}_T$ of $Y$ such that $\widetilde{Y}_T\subset Y_T\subset Y$.  Then, we use the definition of the dual norm 
+ together with the fact that $\widetilde{Y}_T\subset Y_T$ to obtain
+ \begin{equation}\label{verf_subspace_dual_bound}
+\left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}\leq \left|\left| \ell-L\phi_T\right|\right|_{Y^*}.
+ \end{equation}
+ The results in (\ref{verf_infdim_err_bounds}) together with (\ref{verf_subspace_dual_bound}) give us
+ \begin{equation}
+\left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}\leq \left|\left|L\right|\right|_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\phi-\phi_T\right|\right|_X.
+ \end{equation}
+ Now, assume that we can somehow manage to show that for our problem there exists a finite constant $C$ such that
+ \begin{equation}
+\left|\left| \left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*} +\left|\left| Q_T^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*}\leq C \left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}
+ \end{equation}
+ holds. Suppose also that we can find an error indicator, $\eta_T$, that depends only on the computed discrete solution, $\phi_T$, and on the problem data $f$ and that we can use $\eta_T$ to bound $\left|\left| \left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*} +\left|\left| Q_T^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*}$ from above and $\left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}$ from below.  
+ 
+ 
+  If we can do this, then, as \cite{verfurth2013posteriori} points out, the a-posteriori error estimation for our problem is equivalent to finding the appropriate $\eta_T$ for our problem.  Note that it is also possible that we will need to include a data error, $\theta_T$, if we also need to approximate the given data.  The conditions that an appropriate a-posteriori indicator must fulfil have been tidied-up and summarised in Theorem \ref{verf_thm_apost_bounds}.
+\begin{theorem}{Abstract framework for an a-posteriori error estimator}(See \cite{verfurth2013posteriori} \S4.1.4: Theorem 4.7)\label{verf_thm_apost_bounds}
+Assume that the conditions of Propositions \ref{prop_well_pos_verf} and \ref{prop_well_pos_verf_disc} are satisfied and denote by $\phi$ and $\phi_T$ the unique solutions of respectively. Assume that there is a restriction operator $Q_T\in \mathcal{L}\left(Y,Y_T\right)$, a finite dimensional subspace $\widetilde{Y}_T$ of $Y$ such that $Y_T\subset\widetilde{Y}_T\subset Y$, an error indicator $\eta_T$, which only depends on the discrete solution $\phi_T$ and the given data of the variational problem and a data error which depends only on the data of the variational problem such that the estimates
+\begin{equation}\nonumber
+\begin{aligned}
+\left|\left|\left(Id_Y-Q_T\right)^*\left(\ell -L\phi_T\right)\right|\right|_{Y^*}&\leq c_A \left(\eta_T + \theta_T\right),\\
+\left|\left|Q_T^*\left(\ell -L\phi_T\right)\right|\right|_{Y^*}&\leq c_C\left(\eta_T+\theta_T\right)\text{ and}\\
+\eta_T &\leq c_I\left(\left|\left|\ell - L\phi_T\right|\right|_{\widetilde{Y}^*_T}+ \theta_T\right)
+\end{aligned}
+\end{equation}
+are fulfilled.  Then the error $\phi-\phi_T$ can be bound from above by
+\begin{equation}\nonumber
+\left|\left|\phi-\phi_T\right|\right|_X\leq\left|\left|L^{-1}\right|\right|_{\mathcal{L}\left(Y^*,X\right)}\left(c_A+c_C\right)\left(\eta_T+\theta_T\right)
+\end{equation}
+and from below by 
+\begin{equation}\nonumber
+\eta_T\leq c_I\left(\left|\left|L\right|\right|_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\phi-\phi_T\right|\right|_X+\theta_T\right).
+\end{equation}
+\end{theorem}
+Now we need to show that we can produce an appropriate a-posteriori indicator $\eta_T$ that fulfils the conditions in Theorem \ref{verf_thm_apost_bounds}.  At the same time note that we are considering the data error, $\theta_T$ to be zero at the moment.
+
+We will start by showing that we can come up with an indicator that satisfies the first condition in Theorem \ref{verf_thm_apost_bounds}.  Let $\left(\textbf{u},p\right)\in X$ be the unique solution to (\ref{verf_eqns}) and $\left(\textbf{u}_T,p_T\right)\in X_T$ be the unique solution to (\ref{verf_eqns_approx}).  Now consider a $\left(\textbf{v},q\right)\in X$ and keep it fixed.  Our residual (more accurately an $L^2$-representation of our residual) is given by writing (\ref{verf_eqns_approx}) as a sum over the elements $K\in T$, integrating by parts and subtracting it from the right-hand side of \ref{verf_eqn_var_equiv} (see \cite{verfurth2013posteriori} \S 4.10.3):
+\begin{eqnarray}\label{L2-rep-residual}
+\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(\textbf{v},q\right) \rangle_Y= &\sum_{K\in T}&\int_{K}\left(\textbf{f}+\Delta \textbf{u}_T-\nabla p_T\right)\cdot \textbf{v}\nonumber\\-&\sum_{E\in \mathcal{E}_{\Omega}}&\int_{E}\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \cdot \textbf{v}\\
+-&\sum_{K\in T}&\int_{K}q \nabla \cdot \textbf{u}_T, \nonumber
+\end{eqnarray}
+where the second term on the right-hand side is the sum over the interior edges of the domain.   Before we proceed let us define the restriction operator 
+\begin{equation}
+\begin{aligned}
+&Q_T:X\rightarrow X_T\text{ by}\\
+&Q_T\left(\textbf{v},q\right)=\left(\mathcal{I}_T\textbf{v},0\right).
+\end{aligned}
+\end{equation}
+Hence,
+\begin{equation}\label{verf-a-posteriori-bound}
+\begin{aligned}
+\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y= &\sum_{K\in T}\int_{K}\left(\textbf{f}+\Delta \textbf{u}_T-\nabla p_T\right)\cdot \left(\textbf{v}-\mathcal{I}_T\textbf{v}\right)\\-&\sum_{E\in \mathcal{E}_{\Omega}}\int_{E}\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \cdot \left(\textbf{v}-\mathcal{I}_T\textbf{v}\right)\\
+-&\sum_{K\in T}\int_{K}q \nabla \cdot \textbf{u}_T, 
+\end{aligned}
+\end{equation}
+where $Id$ stands for the identity operator from $X$ to $X$.  Now we use the Cauchy-Schwarz inequality on (\ref{verf-a-posteriori-bound}) to get
+\begin{equation}\label{verf-a-posteriori-bound-cs}
+\begin{aligned}
+\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y\leq
+&\sum_{K\in T}\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K \left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_K\\
+-&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \right|\right|_E \left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_E\\
+-&\sum_{K\in T}\left|\left|q\right|\right|_K\left|\left|\nabla \cdot \textbf{u}_T\right|\right|_K.
+\end{aligned}
+\end{equation}
+We now introduce some further results from \cite{verfurth2013posteriori} which will help us bound the quantities $\left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_K$, $\left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_E$ and $\left|\left|q\right|\right|_K$ in terms of the norm $\left|\left|\left(\cdot,\cdot\right)\right|\right|_X$ introduced in (\ref{verf_eqns}).
+\begin{proposition}{(See \cite{verfurth2013posteriori} \S3.5: Proposition 3.33)} \label{verf_prop_bounds} For every Lebesque exponent p, every element $K\in T$and every face $E\in\mathcal{E}_K$ thereof, the local error estimates
+\begin{equation}
+\begin{aligned}
+\left|\left|v-\mathcal{I}_Tv\right|\right|_{p;K}&\leq C_{A,1,p}\left(K\right)\left|\left|v\right|\right|_{p;\widetilde{\omega}_K}\\
+\left|\left|v-\mathcal{I}_Tv\right|\right|_{p;K}&\leq C_{A,2,p}\left(K\right)h_K\left|\left|\nabla v\right|\right|_{p;\widetilde{\omega}_K}\\
+\left|\left|\nabla\left(v-\mathcal{I}_Tv\right)\right|\right|_{p;K}&\leq C_{A,3,p}\left(K\right)\left|\left|\nabla v\right|\right|_{p;\widetilde{\omega}_K}\\
+\left|\left|v-\mathcal{I}_Tv\right|\right|_{p;E}&\leq C_{A,4,p}\left(E\right)h_E^{1-1/p}\left|\left|v\right|\right|_{p;\widetilde{\omega}_E},
+\end{aligned}
+\end{equation}
+where $C_{A,\left(\cdot\right),p}\left(\cdot\right)$ are appropriate constants, hold for all functions $v\in W^{1,p}_D\left(\Omega\right)$ (See \cite{verfurth2013posteriori}: Proposition 3.33 for the constants' values and for a proof of this proposition).
+\end{proposition}
+We use the results in Proposition \ref{verf_prop_bounds} to bound the right-hand side of (\ref{verf-a-posteriori-bound-cs}):
+\begin{equation}\small
+\begin{aligned}\small
+\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y\leq
+&\sum_{K\in T}\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K C_{A,2,2}\left(K\right)h_K \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_K}\\
+-&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \right|\right|_EC_{A,4,2}\left(K\right)h_E^{1/2} \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_E}\\
+-&\sum_{K\in T}\left|\left|q\right|\right|_K\left|\left|\nabla \cdot \textbf{u}_T\right|\right|_K\\
+\leq &c\max \{C_{A,2,2}\left(K\right),C_{A,4,2}\left(E\right)\}\left|\left|\left(\textbf{v},q\right)\right|\right|_X\times\\ \{\sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K^2+\left|\left|\textbf{u}_T\right|\right|^2_K+&\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \right|\right|_E^2 \}^{1/2},
+\end{aligned}
+\end{equation}
+where $c$ is a constant that depends on the shape parameter of our triangulation, $T$.  Since $\left(\textbf{v},q\right)$ was chosen arbitrarily, we see that the first condition in Theorem \ref{verf_thm_apost_bounds} is satisfied with $\eta_T$ given by  
+\begin{equation}\small
+\eta_T=\left\lbrace \sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K^2+\left|\left|\textbf{u}_T\right|\right|^2_K+\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \right|\right|_E^2  \right\rbrace ^{1/2}
+\end{equation}
+and $\theta_T$ given by 
+\begin{equation}
+\theta_T=\left \lbrace \sum_{K\in T}h^2_K\left|\left|\textbf{f}-\textbf{f}_T\right|\right|^2_K \right \rbrace^{1/2}
+\end{equation}
+The constant $c_A$ depends only on the shape parameter of our triangulation.  Also note that in our case $\theta_T$ will be zero due to the fact we are choosing a piecewise polynomial $\textbf{f}$ which is exactly represented by $\textbf{f}_T$. 
+Next, we consider the second condition of Theorem \ref{verf_thm_apost_bounds}.  Firstly, suppose that
+\begin{eqnarray}
+B_T\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=&B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)\text{ and that }\\
+\langle \ell_T,\psi_T \rangle_{Y_T}&=&\langle \ell,\psi_T \rangle_{Y}.
+\end{eqnarray}
+In this case, assuming Galerkin orthogonality holds, i.e.
+\begin{equation}
+B\left(\left(\textbf{u},p\right)-\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right) = 0
+\end{equation} 
+This is equivalent to 
+\begin{eqnarray}
+\langle L\left(\textbf{u},p\right)-L\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\rangle_Y&=&\langle \ell - L\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right) \rangle_Y\nonumber\\
+&=&\langle \ell_T - L_T\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right) \rangle_{Y_T}\nonumber\\
+&=&0.\nonumber
+\end{eqnarray}
+Hence, the second condition of Theorem \ref{verf_thm_apost_bounds} is also satisfied.  Lastly,
 \section{Concluding remarks and next steps}\label{sec_conclusion}
 In this report we have shown the well-posedness of the Stokes problem and of the adaptive continuous problem.  We have also implemented the Stokes problem in Deal.II in order to acquire some familiarity with this software library.  The next steps will be to carry out the a-posteriori analysis of Stokes and for adaptive Stokes and to implement the latter  in Deal.II.  
 
