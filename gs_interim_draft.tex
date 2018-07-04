@@ -667,23 +667,25 @@ In order to show that, our variational formulation for the Stokes problem is wel
 \begin{proposition}{$\textbf{inf-sup condition for saddle-point formulation}$} (See \cite{verfurth2013posteriori} \S 4.10: Proposition 4.69, which also includes a proof)\label{prop_well_pos_verf_saddle}
 	The bilinear form $B$ in (\ref{verf_eqns}) satisfies
 	\begin{equation}\small
-	\inf_{\left(\textbf{w},r\right)\in X\setminus \lbrace0\rbrace}\sup_{\left(\textbf{v},q\right) \in X\setminus \lbrace0\rbrace}\frac{B\left(\left(\textbf{v},q\right),\left(\textbf{w},r\right)\right)>0}{\left|\left|\left(\textbf{v},q\right)\right|\right|_X\left|\left|\left(\textbf{w},r\right)\right|\right|_X}=
-	\inf_{\left(\textbf{v},q\right) \in X\setminus \lbrace 0\rbrace}\sup_{\left(\textbf{w},r\right)\in X\setminus \lbrace0\rbrace}\frac{B\left(\left(\textbf{v},q\right),\left(\textbf{w},r\right)\right)>0}{\left|\left|\left(\textbf{v},q\right)\right|\right|_X\left|\left|\left(\textbf{w},r\right)\right|\right|_X}\geq \frac{\beta^2}{1+\beta^2},\nonumber
+	\begin{aligned}
+	\inf_{\left(\textbf{w},r\right)\in X\setminus \lbrace0\rbrace}\sup_{\left(\textbf{v},q\right) \in X\setminus \lbrace0\rbrace}\frac{B\left(\left(\textbf{v},q\right),\left(\textbf{w},r\right)\right)}{\left|\left|\left(\textbf{v},q\right)\right|\right|_X\left|\left|\left(\textbf{w},r\right)\right|\right|_X}=
+	\inf_{\left(\textbf{v},q\right) \in X\setminus \lbrace 0\rbrace}\sup_{\left(\textbf{w},r\right)\in X\setminus \lbrace0\rbrace}\frac{B\left(\left(\textbf{v},q\right),\left(\textbf{w},r\right)\right)}{\left|\left|\left(\textbf{v},q\right)\right|\right|_X\left|\left|\left(\textbf{w},r\right)\right|\right|_X}\geq \frac{\beta^2}{1+\beta^2},\nonumber
+	\end{aligned}
 	\end{equation}
 	where $\beta$ is the same constant as in Proposition \ref{prop_well_pos_verf_saddle_1}.
 \end{proposition}
 A reasonable question to ask at this point is why we need Proposition \ref{prop_well_pos_verf_saddle_1}.  We need it because we use it to prove that Proposition \ref{prop_well_pos_verf_saddle} holds.  In turn, Proposition \ref{prop_well_pos_verf_saddle} implies that the bilinear form $B$ satisfies the conditions of Proposition \ref{prop_well_pos_verf}.  Hence, our variational formulation of the Stokes problem is well-posed.  In order to demonstrate how Proposition \ref{prop_well_pos_verf_saddle_1} contributes towards the proof for the well-posedness of our variational formulation of the Stokes problem, we include the proof that Proposition \ref{prop_well_pos_verf_saddle} holds from \cite{verfurth2013posteriori} (see \S4.10.1: Proposition 4.69).  In the proof that follows note that we emit the result that proves the equality and focus on the inequality.
 \begin{proof}
 Chose an arbitrary element $\left(\textbf{v},q\right)\in X\setminus \lbrace 0 \rbrace$ and keep it fixed in waht follows.  The definition of B immediately implies that 
-\begin{equation}
+\begin{equation}\nonumber
 B\left(\left(\textbf{v},q\right),\left(\textbf{v},q\right)\right)= \left|\left|\nabla \textbf{v}\right|\right|^2.
 \end{equation}
 Due to Proposition \ref{prop_well_pos_verf_saddle_1}, there exists a velocity field $\textbf{w}_q$ with
-\begin{equation}
+\begin{equation}\nonumber
 \left|\left|\nabla \textbf{w}_q\right|\right|=1 \quad \text{and}\quad \int_{\Omega}q \text{div} \textbf{w}_q \geq \beta \left|\left|q\right|\right|^2.
 \end{equation}
 Therefore, for every $\delta > 0$
-\begin{equation}\small
+\begin{equation}\nonumber\small
 \begin{aligned}\small
 B\left(\left(\textbf{v},q\right),\left(\textbf{v}-\delta\left|\left|q\right|\right|\textbf{w}_q,q\right)\right) &= B\left(\left(\textbf{v},q\right),\left(\textbf{v},q\right)\right)-\delta\left|\left|q\right|\right|B\left(\left(\textbf{v},q\right),\left(\textbf{w}_q,0\right)\right)\\
 &=\left|\left|\nabla \textbf{v}\right|\right|^2 -  \delta\left|\left|q\right|\right|\int_{\Omega}\nabla\textbf{v}:\nabla\textbf{w}_q +\delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{w}_q\right|\right|\\
@@ -695,17 +697,38 @@ Now we use the result
 \begin{equation}
 a^2+b^2\geq 2ab \nonumber
 \end{equation}
-with \begin{equation}
+with \begin{equation}\nonumber
 a=\sqrt{\frac{\delta}{2\beta}}\left|\left|\nabla\textbf{v}\right|\right|\text{ and } b = \sqrt{\frac{\delta \beta }{2}}\left|\left|q\right|\right|
 \end{equation}
 to show that the quantity in the last equality in is greater than
 \begin{equation}
-\begin{aligned}
+\begin{aligned}\nonumber
 &\left|\left|\nabla \textbf{v}\right|\right|^2 -  \delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{v}\right|\right| +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2 + \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2 +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2 - \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2\\
 &\geq \left|\left|\nabla \textbf{v}\right|\right|^2 -  \delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{v}\right|\right| +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2 + \delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{v}\right|\right|- \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2\\
-&=\left(1-\frac{delta}{2\beta}\right)\left|\left|\nabla \textbf{v}\right|\right|^2 +\frac{\delta\beta}{2}\left|\left|q\right|\right|^2.
+&=\left(1-\frac{\delta}{2\beta}\right)\left|\left|\nabla \textbf{v}\right|\right|^2 +\frac{\delta\beta}{2}\left|\left|q\right|\right|^2.
 \end{aligned}
 \end{equation}
+We now choose $\delta=\frac{2\beta}{1+\beta^2}$ to obtain
+\begin{equation}\nonumber
+B\left(\left(\textbf{v},q\right),\left(\textbf{v}-\delta\left|\left|q\right|\right|\textbf{w}_q\right)\right)\geq \frac{\beta^2}{1+\beta^2}\left|\left|\left(\textbf{v},q\right)\right|\right|_X^2.
+\end{equation}
+On the other hand (using the same value for $\delta$ as above) we have
+\begin{equation}
+\begin{aligned}\nonumber
+\left|\left|\left(\textbf{v}-\delta\left|\left|\textbf{w}_q\right|\right|,q\right)\right|\right|_X&\leq \left|\left|\left(\textbf{v},q\right)\right|\right|_X+\delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{w}_q\right|\right|\\
+&=\left|\left|\left(\textbf{v},q\right)\right|\right|_X + \delta\left|\left|q\right|\right|\\
+&\leq\left(1+\delta\right)\left|\left|\left(\textbf{v},q\right)\right|\right|_X \\
+&=\frac{\left(1+\beta\right)^2}{1+\beta^2}\left|\left|\left(\textbf{v},q\right)\right|\right|_X 
+\end{aligned}
+\end{equation}
+We now combine the two results to obtain
+\begin{equation}
+\begin{aligned}\nonumber
+\sup_{\left(\textbf{w},r\right) \in X\setminus \lbrace0\rbrace}\frac{B\left(\left(\textbf{v},q\right),\left(\textbf{w},r\right)\right)}{\left|\left|\left(\textbf{v},q\right)\right|\right|_X\left|\left|\left(\textbf{w},r\right)\right|\right|_X}&\geq \frac{B\left(\left(\textbf{v},q\right),\left(\textbf{v}-\delta\left|\left|\textbf{w}_q\right|\right|,q\right)\right)}{\left|\left|\left(\textbf{v},q\right)\right|\right|_X\left|\left|\left(\textbf{v}-\delta\left|\left|\textbf{w}_q\right|\right|,q\right)\right|\right|_X}\\
+&\geq \frac{\beta^2}{\left(1+\beta\right)^2}.
+\end{aligned}
+\end{equation}
+Recall that $\left(\textbf{v},q\right)$ was chosen arbitrarily.  Hence, we can take the infimum over $\left(\textbf{v},q\right)\in X\setminus\lbrace 0 \rbrace$ on the left hand side to get our result. 
 \end{proof}
 \subsection{Stokes-Problem: Finite Element approximation}
 In this section we present the finite element approximation to (\ref{verf_eqns}).  The finite element spaces we are looking will be
