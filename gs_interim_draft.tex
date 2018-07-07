@@ -38,6 +38,13 @@
 \newcommand{\hilight}[1]{\colorbox{yellow}{#1}}
 \usepackage{soul}
 
+\newcommand\restr[2]{{% we make the whole thing an ordinary symbol
+		\left.\kern-\nulldelimiterspace % automatically resize the bar with \right
+		#1 % the function
+		\vphantom{\big|} % pretend it's a little taller at normal size
+		\right|_{#2} % this is the delimiter
+}}
+
 \usepackage{listings}
 \usepackage{color}
 \usepackage{graphicx, epstopdf}
@@ -170,7 +177,7 @@ We will use the statement of Lemma \ref{Lemma_equiv} to show it implies (\ref{co
 b\left(\textbf{v}_q,q\right) &=& \left|\left|q\right|\right|_{L^2}^2 \quad\text{by Lemma \ref{Lemma_equiv}  and defn of } \nonumber \left|\left|\cdot\right|\right|_{L^2},\\
 &\gtrsim& \left|\left|q\right|\right|_{L^2} \left|\textbf{v}_q\right|_1\quad \text{by Lemma \ref{Lemma_equiv}}.\nonumber
 \end{eqnarray}
-Now, assuming that $\left|\textbf{v}_q\right|_1$, which we assume not to be zero and take the supremum over $\textbf{v}\in \mathbb{V}$ to get:
+Now, assumethat $\left|\textbf{v}_q\right|_1$ is not zero and take the supremum over $\textbf{v}\in \mathbb{V}$ to get:
 \begin{equation}
 \sup_{\textbf{0}\neq\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} \gtrsim \left|\left|q\right|\right|_{L^2}.\nonumber
 \end{equation}
@@ -182,7 +189,7 @@ Lastly, since $q$ does not depend on the choice of $\textbf{v}$, we can move it 
 
 Next, we show that (\ref{coerc_a}) holds.  This is implied by the fact that (\ref{weak-a}) is coercive:
 \begin{eqnarray}
-		a\left(\textbf{u},\textbf{u}\right)&=&\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}\;\mathrm{d}x,\nonumber\\
+		a\left(\textbf{u},\textbf{u}\right)&=&\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{u}\;\mathrm{d}x,\nonumber\\
 		&=&\int_{\Omega}\sum_{i}\nabla u_i \cdot \nabla u_i\;\mathrm{d}x\text{ and}\nonumber\\
 		&=&\left|\textbf{u}\right|_1^2,\nonumber
 \end{eqnarray}
@@ -249,7 +256,7 @@ The last ingredient we need for well-posedness is stability.  In the case of the
 \end{equation}
 so that (\ref{form-a}) and (\ref{form-b}) respectively become
 \begin{eqnarray}\label{nform-a}
-\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{u}+\left(\nabla \cdot \textbf{u}\right)p\;\mathrm{d}x  &=&\int_{\Omega}\textbf{f}\cdot \textbf{u} \;\mathrm{d}x
+\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{u}-\left(\nabla \cdot \textbf{u}\right)p\;\mathrm{d}x  &=&\int_{\Omega}\textbf{f}\cdot \textbf{u} \;\mathrm{d}x
  \text{ and} \\\label{nform-b}
 \int_{\Omega}\left(\nabla \cdot \textbf{u}\right)p\;\mathrm{d}x&=& 0.
 \end{eqnarray}
@@ -357,7 +364,7 @@ The next step is to combine (\ref{weak_stokes_1}) and (\ref{weak_poisson}) into 
 \end{equation}
 Now we set $\textbf{v}=\textbf{u}$  and $q=p$ in (\ref{weak_total}).  The latter gives $\int_{\Omega_1}p\left(\nabla \cdot \textbf{u}^{\left(1\right)}\right)=0$.  Hence, (\ref{weak_total}) simplifies to:
 \begin{equation}\label{reduced_weak_total}
-	\left|\textbf{u}\right|_1^2 + \int_{\mathcal{I}}p\textbf{u}\cdot \textbf{n}_1-\textbf{u}\cdot\llbracket \nabla \textbf{u}\rrbracket =\int_{\Omega_1}\textbf{f}\cdot \textbf{v}.
+	\left|\textbf{u}\right|_1^2 + \int_{\mathcal{I}}p\textbf{u}\cdot \textbf{n}_1-\textbf{u}\cdot\llbracket \nabla \textbf{u}\rrbracket =\int_{\Omega_1}\textbf{f}\cdot \textbf{u}.
 \end{equation}
 In order to proceed from this point we require that on $\mathcal{I}$
 \begin{equation}
@@ -365,7 +372,7 @@ p\textbf{u}\cdot \textbf{n}_1-\textbf{u}\cdot \llbracket \nabla \textbf{u}\rrbra
 \end{equation}
 This simplification reduces (\ref{reduced_weak_total}) to 
 \begin{equation}
-\left|\textbf{u}\right|_1^2 =\int_{\Omega_1}\textbf{f}\cdot \textbf{v}.
+\left|\textbf{u}\right|_1^2 =\int_{\Omega_1}\textbf{f}\cdot \textbf{u}.
 \end{equation}
 The procedure to obtain the stability bound for this equation is identical to that in \S \ref{sec_stability_bounds}.  This concludes our stability analysis.
 \section{Deal.II}\label{sec_numerics}
@@ -612,7 +619,7 @@ Assume that the space Y is reflexive, that
 \end{equation}
 holds for all $\psi\in Y\setminus \lbrace 0 \rbrace$ and that
 \begin{equation}
-	\inf_{\phi\in X\setminus \lbrace0\rbrace}\sup_{\psi \in Y\setminus \lbrace0\rbrace}\frac{B\left(\phi,\psi\right)>0}{\left|\left|\phi\right|\right|_X\left|\left|\psi\right|\right|_Y}=\beta > 0.
+	\inf_{\phi\in X\setminus \lbrace0\rbrace}\sup_{\psi \in Y\setminus \lbrace0\rbrace}\frac{B\left(\phi,\psi\right)}{\left|\left|\phi\right|\right|_X\left|\left|\psi\right|\right|_Y}=\beta > 0.
 \end{equation}
 Then (\ref{verf_eqn_var}) admits a unique solution for every right-hand side $\ell\in Y^*$ - where $Y^*$ is the dual of $Y$- and the solution depends continuously on the right-hand side.
 \end{proposition}
@@ -650,7 +657,7 @@ In this section we present a variational formulation of the Stokes problem.  The
 X=Y&=\left[\textbf{H}^1_0\left(\Omega\right)\right]^d\times L^2_0\left(\Omega\right),\\
 \left|\left|\left(\textbf{u},p\right)\right|\right|_X&=\left\lbrace \left|\left|\nabla\textbf{u}\right|\right|^2 + \left|\left|p\right|\right|^2\right\rbrace^{1/2},\\
 B\left(\left(\textbf{u},p\right),\left(\textbf{v},q\right)\right)&=\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v} - \int_{\Omega} p \nabla\cdot\textbf{v} + \int_{\Omega} q \nabla\cdot\textbf{u},\\
-\langle \ell\,,\left(\textbf{v},q\right) \rangle &= \int_{\Omega}\textbf{f}\cdot \textbf{v}.
+\langle \ell\,,\left(\textbf{v},q\right) \rangle_Y &= \int_{\Omega}\textbf{f}\cdot \textbf{v}.
 \end{aligned}
 \end{equation}
 In order to show that, our variational formulation for the Stokes problem is well-posed we need another two results from \cite{verfurth2013posteriori}.
@@ -908,7 +915,81 @@ This is equivalent to
 &=&\langle \ell_T - L_T\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right) \rangle_{Y_T}\nonumber\\
 &=&0.\nonumber
 \end{eqnarray}
-Hence, the second condition of Theorem \ref{verf_thm_apost_bounds} is also satisfied.  Lastly,
+Hence, the second condition of Theorem \ref{verf_thm_apost_bounds} is also satisfied.  Lastly, we will look at the conditions that give us the lower bound.
+
+\subsection{A-Posteriori analysis for the mixed problem}
+In this section we will present the a-posteriori analysis for the mixed problem.  We will firstly summarise the framework for each of the two problem.  Then we will present the framework for the combined problem.   We will use this framework to carry out the a-posteriori analysis for the combined problem.  In doing so we will also present any assumptions that we deem necessary for the solvability of the problem.
+\subsubsection{Framework for Stokes and Laplace}
+The frame work used for the Stokes problem, which was introduced in (\ref{verf_eqns}) is 
+\begin{equation}\label{frame_stokes}
+\begin{aligned}
+X=Y&=\left[\textbf{H}^1_0\left(\Omega\right)\right]^d\times L^2_0\left(\Omega\right),\\
+\left|\left|\left(\textbf{u},p\right)\right|\right|_X&=\left\lbrace \left|\left|\nabla\textbf{u}\right|\right|^2 + \left|\left|p\right|\right|^2\right\rbrace^{1/2},\\
+B\left(\left(\textbf{u},p\right),\left(\textbf{v},q\right)\right)&=\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v} - \int_{\Omega} p \nabla\cdot\textbf{v} + \int_{\Omega} q \nabla\cdot\textbf{u},\\
+\langle \ell\,,\left(\textbf{v},q\right) \rangle_Y &= \int_{\Omega}\textbf{f}\cdot \textbf{v}.
+\end{aligned}
+\end{equation}
+The framework for the discretized Stokes problem is given by 
+\begin{equation}\label{frame_stokes_disc}
+\begin{aligned}kwstas andronikou
+X_T=Y_T&=S_0^{2,0}\left(T\right)^d\times \left(S^{1,0}\left(T\right)\cap L^2_0\left(T\right)\right),\\
+B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_{\Omega}\nabla \textbf{u}_T : \nabla \textbf{v}_T - \int_{\Omega} p_T \nabla\cdot\textbf{v}_T + \int_{\Omega} q_T \nabla\cdot\textbf{u}_T,\\
+\langle \ell_T\,,\left(\textbf{v}_T,q_T\right) \rangle_{Y_T} &= \int_{\Omega}\textbf{f}\cdot \textbf{v}_T,
+\end{aligned}
+\end{equation}
+where $S^{k,0}\left(T\right)^d$ is the $d-$dimensional space of continuous, $k-$th order finite element functions on the triangulation $T$.  An additional subscript $0$ indicates that the functions vanish on the boundary, $\partial \Omega$.
+The framework for the Laplace problem, as used in \cite{verfurth2013posteriori} (see \S 4.2) is 
+\begin{equation}\label{frame_laplace}
+\begin{aligned}
+X=Y&=\left[\textbf{H}^1_0\left(\Omega\right)\right]^d,\\
+B\left(\textbf{u},\textbf{v}\right)&=\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}\\
+\langle \ell,\textbf{v} \rangle_Y &= \int_{\Omega}\textbf{f}\cdot \textbf{v}, 
+\end{aligned}
+\end{equation}
+while the discretized Laplace problem is given by 
+\begin{equation}\label{frame_laplace_disc}
+\begin{aligned}
+X_T=Y_T&=S^{k,0}_D\left(T\right)^d,\\
+B_T\left(\textbf{u}_T,\textbf{v}_T\right)&=B\left(\textbf{u}_T,\textbf{v}_T\right)\\
+\langle \ell_T,\textbf{v}_T \rangle_{Y_T} &=\langle \ell,\textbf{v}_T \rangle_{Y}.
+\end{aligned}
+\end{equation}
+\subsection{Mixed problem Framework}
+In order to justify the choice of framework for the combined problem we will first look at the joint variational form.  This was given in (\ref{weak_total}) but we will include it here as well for ease of reference.  Our problem is to find $\left(\textbf{u},p\right)\in \mathbb{V}\times\mathbb{P}$ such that
+\begin{equation}
+\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}-\int_{\Omega_S}p\left(\nabla \cdot \textbf{v}\right)-q\left(\nabla \cdot \textbf{u}\right)  - \int_{\mathcal{I}} \llbracket\nabla\textbf{u}-pI\rrbracket\cdot\textbf{v} =\int_{\Omega}\textbf{f}\cdot \textbf{v} \quad \forall  \textbf{v}\in \mathbb{V}
+\end{equation}
+is satisfied for all $\left(\textbf{v},q\right)\in \mathbb{V}\times\mathbb{P}$.  The problem here is that the pressure test functions are not defined over the whole domain.  Instead, they are defined over the Stokes part of the domain only.  In order to get over this issue we will use a trick used by \cite{BangerthHartmannKanschat2007} in Tutorial 46.  Namely, we will extend the pressure function space by zero over the entire domain.  In this way we can have pressures over the whole  domain: they are simply zero in the Laplace part.
+\subsubsection{Extending the pressure space by zero}
+The idea behind this notion is simple.  Firstly, we introduce the space  
+\begin{equation}
+\textbf{Z}=\left\lbrace  f: f\left(x\right)=0 \right\rbrace,
+\end{equation}
+which is the space of functions that are constant zero on a cell.  This space is zero-dimensional so for the discrete space $\textbf{Z}_T$ it holds that
+\begin{equation}
+\textbf{Z}_T=\textbf{Z}.\nonumber 
+\end{equation}
+ Now, our velocity function space remains unchanged while our pressure function space is extended over the Laplace part of the domain using $\textbf{Z}$:
+\begin{equation}\label{extended_pressure_space}
+\mathbb{P}=\left\lbrace p: \quad \restr{p}{{\Omega_S}}\in L^2_0\left(\Omega_S\right),\quad  \restr{p}{{\Omega_L}}\in\textbf{Z}\left(\Omega_L\right)\right\rbrace.
+\end{equation}
+Now we can introduce the framework we will use for the mixed problem:
+\begin{equation}
+\begin{aligned}
+X=Y&=\mathbb{V}\times \mathbb{P},\\
+\left|\left|\left(\textbf{u},p\right)\right|\right|_X&=\left\lbrace \left|\left|\nabla\textbf{u}\right|\right|^2 + \left|\left|p\right|\right|^2\right\rbrace^{1/2},\\
+B\left(\left(\textbf{u},p\right),\left(\textbf{v},q\right)\right)&=\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v} - \int_{\Omega} p \nabla\cdot\textbf{v} -q \nabla\cdot\textbf{u}-\int_{\mathcal{I}} \llbracket\nabla\textbf{u}-pI\rrbracket\cdot\textbf{v},\\
+\langle \ell\,,\left(\textbf{v},q\right) \rangle_Y &= \int_{\Omega}\textbf{f}\cdot \textbf{v},
+\end{aligned}
+\end{equation}
+where 
+\begin{equation}
+\mathcal{I}=\overline{\Omega}_S\cap\overline{\Omega}_L.
+\end{equation}
+The solvability condition for the mixed problem is 
+\begin{equation}
+\restr{\llbracket\nabla\textbf{u}-pI\rrbracket}{\mathcal{I}}=0
+\end{equation}
 \section{Concluding remarks and next steps}\label{sec_conclusion}
 In this report we have shown the well-posedness of the Stokes problem and of the adaptive continuous problem.  We have also implemented the Stokes problem in Deal.II in order to acquire some familiarity with this software library.  The next steps will be to carry out the a-posteriori analysis of Stokes and for adaptive Stokes and to implement the latter  in Deal.II.  
 
