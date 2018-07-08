@@ -893,7 +893,7 @@ We use the results in Proposition \ref{verf_prop_bounds} to bound the right-hand
 \end{equation}
 where $c$ is a constant that depends on the shape parameter of our triangulation, $T$.  Since $\left(\textbf{v},q\right)$ was chosen arbitrarily, we see that the first condition in Theorem \ref{verf_thm_apost_bounds} is satisfied with $\eta_T$ given by  
 \begin{equation}\small
-\eta_T=\left\lbrace \sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K^2+\left|\left|\textbf{u}_T\right|\right|^2_K+\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \right|\right|_E^2  \right\rbrace ^{1/2}
+\eta_T=\left\lbrace \sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K^2+\left|\left|\text{div }\textbf{u}_T\right|\right|^2_K+\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \right|\right|_E^2  \right\rbrace ^{1/2}
 \end{equation}
 and $\theta_T$ given by 
 \begin{equation}
@@ -915,7 +915,30 @@ This is equivalent to
 &=&\langle \ell_T - L_T\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right) \rangle_{Y_T}\nonumber\\
 &=&0.\nonumber
 \end{eqnarray}
-Hence, the second condition of Theorem \ref{verf_thm_apost_bounds} is also satisfied.  Lastly, we will look at the conditions that give us the lower bound.
+Hence, the second condition of Theorem \ref{verf_thm_apost_bounds} is also satisfied.  Lastly, we will look at the conditions that give us the lower bound. \hl{Put the proof for the last condition here}.
+
+We summarise the a-posteriori analysis for the Stokes problem by including the relevant result from \cite{verfurth2013posteriori}.
+\begin{theorem}{See \cite{verfurth2013posteriori}: \S4.10.3 Theorem 4.70}
+Denote by $\left(\textbf{u},p\right)$ the unique solution of the saddle-point formulation of the Stokes equations and by $\left(\textbf{u}_T,p_T\right)\in X_T$ its finite element approximation.  For every element $K\in T$ define the residual a-posteriori error indicator $\eta_{R,K}$ by
+\begin{equation}\small
+\eta_{R,K}=\left(h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T-\nabla p_T\right|\right|^2_K+\left|\left|\text{div} \textbf{u}_T\right|\right|^2_K+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}}h_E\left|\left| \llbracket \nabla \textbf{u}_T -p_T \rrbracket \right|\right|_E^2\right)^{1/2}.\nonumber
+\end{equation}
+Then, denoting any piecewise polynomial approximation of the problem data, $\textbf{f}$, by $\textbf{f}_T$, there are two constants, $c^*$ and $c$ such that the estimates
+\begin{equation}\nonumber
+\left(\left|\left|\nabla\left(\textbf{u}-\textbf{u}_T\right)\right|\right|^2+\left|\left|p-p_T\right|\right|^2\right)^{1/2}\leq c^*\left(\sum_{K\in T}\eta^2_{R,K}+\sum_{K\in T}h^2_K\left|\left|\textbf{f}-\textbf{f}_T\right|\right|^2_K\right)^{1/2}
+\end{equation}
+and
+\begin{equation}\nonumber
+\eta_{R,K}\leq c \left(\left|\left|\nabla\left(\textbf{u}-\textbf{u}_T\right)\right|\right|_{\omega_K}^2+\left|\left|p-p_T\right|\right|_{\omega_K}^2+\sum_{K'\subset \omega_K}h^2_{K'}\left|\left|\textbf{f}-\textbf{f}_T\right|\right|^2_{K'}\right)^{1/2}
+\end{equation}
+hold for all $K\in T$.  Both $c^*$ and $c$ depend on the shape parameter $C_T$.  The constant $c$ depends on the polynomial degrees of $\textbf{u}_T$, $p_T$ and $\textbf{f}_T$.
+\end{theorem}
+
+is such that, for the case when $\textbf{f}=\textbf{f}_T$,
+\begin{eqnarray}
+d
+\end{eqnarray}
+As is pointed out in \cite{verfurth2013posteriori} (see \S4.10.3: Theorem 4.70), this indicator
 
 \subsection{A-Posteriori analysis for the mixed problem}
 In this section we will present the a-posteriori analysis for the mixed problem.  We will firstly summarise the framework for each of the two problem.  Then we will present the framework for the combined problem.   We will use this framework to carry out the a-posteriori analysis for the combined problem.  In doing so we will also present any assumptions that we deem necessary for the solvability of the problem.
@@ -931,7 +954,7 @@ B\left(\left(\textbf{u},p\right),\left(\textbf{v},q\right)\right)&=\int_{\Omega}
 \end{equation}
 The framework for the discretized Stokes problem is given by 
 \begin{equation}\label{frame_stokes_disc}
-\begin{aligned}kwstas andronikou
+\begin{aligned}
 X_T=Y_T&=S_0^{2,0}\left(T\right)^d\times \left(S^{1,0}\left(T\right)\cap L^2_0\left(T\right)\right),\\
 B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_{\Omega}\nabla \textbf{u}_T : \nabla \textbf{v}_T - \int_{\Omega} p_T \nabla\cdot\textbf{v}_T + \int_{\Omega} q_T \nabla\cdot\textbf{u}_T,\\
 \langle \ell_T\,,\left(\textbf{v}_T,q_T\right) \rangle_{Y_T} &= \int_{\Omega}\textbf{f}\cdot \textbf{v}_T,
@@ -988,8 +1011,9 @@ where
 \end{equation}
 The solvability condition for the mixed problem is 
 \begin{equation}
-\restr{\llbracket\nabla\textbf{u}-pI\rrbracket}{\mathcal{I}}=0
+\restr{\llbracket\nabla\textbf{u}-pI\rrbracket}{\mathcal{I}}=0.
 \end{equation}
+If we enforce this condition then Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} can be used to establish the well-posedness of the mixed problem in the same way as for the variational formulation of the Stokes problem.   
 \section{Concluding remarks and next steps}\label{sec_conclusion}
 In this report we have shown the well-posedness of the Stokes problem and of the adaptive continuous problem.  We have also implemented the Stokes problem in Deal.II in order to acquire some familiarity with this software library.  The next steps will be to carry out the a-posteriori analysis of Stokes and for adaptive Stokes and to implement the latter  in Deal.II.  
 
