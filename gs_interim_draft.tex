@@ -856,7 +856,7 @@ where the second term on the right-hand side is the sum over the interior edges 
 Hence,
 \begin{equation}\label{verf-a-posteriori-bound}
 \begin{aligned}
-\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y= &\sum_{K\in T}\int_{K}\left(\textbf{f}+\Delta \textbf{u}_T-\nabla p_T\right)\cdot \left(\textbf{v}-\mathcal{I}_T\textbf{v}\right)\\-&\sum_{E\in \mathcal{E}_{\Omega}}\int_{E}\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \cdot \left(\textbf{v}-\mathcal{I}_T\textbf{v}\right)\\
+\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y= &\sum_{K\in T}\int_{K}\left(\textbf{f}+\Delta \textbf{u}_T-\nabla p_T\right)\cdot \left(\textbf{v}-\mathcal{I}_T\textbf{v}\right)\\-&\sum_{E\in \mathcal{E}_{\Omega}}\int_{E}\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \cdot \left(\textbf{v}-\mathcal{I}_T\textbf{v}\right)\\
 -&\sum_{K\in T}\int_{K}q \nabla \cdot \textbf{u}_T, 
 \end{aligned}
 \end{equation}
@@ -865,7 +865,7 @@ where $Id$ stands for the identity operator from $X$ to $X$.  Now we use the Cau
 \begin{aligned}
 \langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y\leq
 &\sum_{K\in T}\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K \left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_K\\
--&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \right|\right|_E \left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_E\\
+-&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \right|\right|_E \left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_E\\
 -&\sum_{K\in T}\left|\left|q\right|\right|_K\left|\left|\nabla \cdot \textbf{u}_T\right|\right|_K.
 \end{aligned}
 \end{equation}
@@ -886,14 +886,14 @@ We use the results in Proposition \ref{verf_prop_bounds} to bound the right-hand
 \begin{aligned}\small
 \langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y\leq
 &\sum_{K\in T}\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K C_{A,2,2}\left(K\right)h_K \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_K}\\
--&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \right|\right|_EC_{A,4,2}\left(K\right)h_E^{1/2} \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_E}\\
+-&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \right|\right|_EC_{A,4,2}\left(K\right)h_E^{1/2} \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_E}\\
 -&\sum_{K\in T}\left|\left|q\right|\right|_K\left|\left|\nabla \cdot \textbf{u}_T\right|\right|_K\\
-\leq &c\max \{C_{A,2,2}\left(K\right),C_{A,4,2}\left(E\right)\}\left|\left|\left(\textbf{v},q\right)\right|\right|_X\times\\ \{\sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K^2+\left|\left|\textbf{u}_T\right|\right|^2_K+&\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \right|\right|_E^2 \}^{1/2},
+\leq &c\max \{C_{A,2,2}\left(K\right),C_{A,4,2}\left(E\right)\}\left|\left|\left(\textbf{v},q\right)\right|\right|_X\times\\ \{\sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K^2+\left|\left|\textbf{u}_T\right|\right|^2_K+&\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \right|\right|_E^2 \}^{1/2},
 \end{aligned}
 \end{equation}
 where $c$ is a constant that depends on the shape parameter of our triangulation, $T$.  Since $\left(\textbf{v},q\right)$ was chosen arbitrarily, we see that the first condition in Theorem \ref{verf_thm_apost_bounds} is satisfied with $\eta_T$ given by  
 \begin{equation}\small
-\eta_T=\left\lbrace \sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K^2+\left|\left|\text{div }\textbf{u}_T\right|\right|^2_K+\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\textbf{n}_E\cdot\left(\nabla \textbf{u}_T-p_T\mathcal{I}\right)\rrbracket \right|\right|_E^2  \right\rbrace ^{1/2}
+\eta_T=\left\lbrace \sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K^2+\left|\left|\text{div }\textbf{u}_T\right|\right|^2_K+\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \right|\right|_E^2  \right\rbrace ^{1/2}
 \end{equation}
 and $\theta_T$ given by 
 \begin{equation}
@@ -1006,9 +1006,16 @@ where
 \end{equation}
 The solvability condition for the mixed problem is 
 \begin{equation}
-\restr{\llbracket\nabla\textbf{u}-pI\rrbracket}{\mathcal{I}}=0.
+{\llbracket\nabla\textbf{u}-pI\rrbracket}|_{\mathcal{I}}=0.
 \end{equation}
-If we enforce this condition then Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} can be used to establish the well-posedness of the mixed problem in the same way as for the variational formulation of the Stokes problem.   Hence, we would also expect to be able to use the same a-posteriori error-indicator as proposed in Theorem \ref{verf_theorem_apost_err_ind}.
+If we enforce this condition then Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} can be used to establish the well-posedness of the mixed problem in the same way as for the variational formulation of the Stokes problem.   Hence, we would also expect to be able to use a similar a-posteriori error-indicator as proposed in Theorem \ref{verf_theorem_apost_err_ind}. 
+
+The starting point of our analysis would be the $L^2$-representation of the residual.  This would be similar to what we did for the Stokes equations in (\ref{L2-rep-residual}).   More specifically, the $L^2$-representation of the mixed problem residual would be
+\begin{eqnarray}\label{L2-rep-residual-mixed}
+\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(\textbf{v},q\right) \rangle_Y= &\sum_{K\in T}&\int_{K}\left(\textbf{f}+\Delta \textbf{u}_T-\nabla p_T\right)\cdot \textbf{v}\nonumber\\-&\sum_{E\in \mathcal{E}_{\Omega}\setminus\mathcal{I}}&\int_{E}\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \cdot \textbf{v}\\
+-&\sum_{K\in T}&\int_{K}q \nabla \cdot \textbf{u}_T. \nonumber
+\end{eqnarray}
+Next, we go through the same analysis steps we went through when we were doing the Stokes problem a-posteriori analysis to get the a-posteriori indicator for the mixed problem.  Namely,
 \section{Concluding remarks and next steps}\label{sec_conclusion}
 In this report we have shown the well-posedness of the Stokes problem and of the adaptive continuous problem.  We have also implemented the Stokes problem in Deal.II in order to acquire some familiarity with this software library.  The next steps will be to carry out the a-posteriori analysis of Stokes and for adaptive Stokes and to implement the latter  in Deal.II.  
 
