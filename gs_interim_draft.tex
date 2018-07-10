@@ -918,7 +918,7 @@ This is equivalent to
 Hence, the second condition of Theorem \ref{verf_thm_apost_bounds} is also satisfied.  Lastly, we will look at the conditions that give us the lower bound. \hl{Put the proof for the last condition here}.
 
 We summarise the a-posteriori analysis for the Stokes problem by including the relevant result from \cite{verfurth2013posteriori}.
-\begin{theorem}{()See \cite{verfurth2013posteriori}: \S4.10.3 Theorem 4.70)}\label{verf_theorem_apost_err_ind}
+\begin{theorem}{(See \cite{verfurth2013posteriori}: \S4.10.3 Theorem 4.70))}\label{verf_theorem_apost_err_ind}
 Denote by $\left(\textbf{u},p\right)$ the unique solution of the saddle-point formulation of the Stokes equations and by $\left(\textbf{u}_T,p_T\right)\in X_T$ its finite element approximation.  For every element $K\in T$ define the residual a-posteriori error indicator $\eta_{R,K}$ by
 \begin{equation}\small
 \eta_{R,K}=\left(h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T-\nabla p_T\right|\right|^2_K+\left|\left|\text{div} \textbf{u}_T\right|\right|^2_K+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}}h_E\left|\left| \llbracket \nabla \textbf{u}_T -p_T \rrbracket \right|\right|_E^2\right)^{1/2}.\nonumber
@@ -1015,7 +1015,11 @@ The starting point of our analysis would be the $L^2$-representation of the resi
 \langle \ell -L\left(\textbf{u}_T,p_T\right),\left(\textbf{v},q\right) \rangle_Y= &\sum_{K\in T}&\int_{K}\left(\textbf{f}+\Delta \textbf{u}_T-\nabla p_T\right)\cdot \textbf{v}\nonumber\\-&\sum_{E\in \mathcal{E}_{\Omega}\setminus\mathcal{I}}&\int_{E}\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \cdot \textbf{v}\\
 -&\sum_{K\in T}&\int_{K}q \nabla \cdot \textbf{u}_T. \nonumber
 \end{eqnarray}
-Next, we go through the same analysis steps we went through when we were doing the Stokes problem a-posteriori analysis to get the a-posteriori indicator for the mixed problem.  Namely,
+The final step is to obtain the a-posteriori error indicator for the mixed problem.  We omit this procedure but it involves the sames steps we went through to get the indicator for the Stokes problem.  In the case of the mixed problem, the indicator is
+\begin{equation}\small
+\eta_{R,K}=\left(h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T-\nabla p_T\right|\right|^2_K+\left|\left|\text{div} \textbf{u}_T\right|\right|^2_K+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}\setminus\mathcal{I}}h_E\left|\left| \llbracket \nabla \textbf{u}_T -p_T \rrbracket \right|\right|_E^2\right)^{1/2}.
+\end{equation}
+Compare this with the indicator given in Theorem \ref{verf_theorem_apost_err_ind} for the Stokes problem.
 \section{Concluding remarks and next steps}\label{sec_conclusion}
 In this report we have shown the well-posedness of the Stokes problem and of the adaptive continuous problem.  We have also implemented the Stokes problem in Deal.II in order to acquire some familiarity with this software library.  The next steps will be to carry out the a-posteriori analysis of Stokes and for adaptive Stokes and to implement the latter  in Deal.II.  
 
