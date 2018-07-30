@@ -81,15 +81,15 @@
 
 \section{Introduction and Motivation}
 
-It is often the case when modelling physical phenomena that we need to solve a complicated Partial Differential Equations (PDE).  This may result in linear systems which are computationally expensive to solve.  One way to overcome this difficulty is to use some physical reasoning to simplify the model.  The justification is that the simpler model describes the physical system adequately even with the loss of information incurred through the simplification.  
+It is often the case when modelling physical phenomena that we need to solve a complicated system of Partial Differential Equations (PDEs).  This may result in (non-)linear systems which are computationally expensive to solve.  One way to overcome this difficulty is to use some physical reasoning to simplify the model.  The justification is that the simpler model describes the physical system adequately even with the loss of information incurred through the reduction.  
 
-Situations calling for such simplifications abound.  As an example consider oceanic flow the flow of water is governed by the Navier-Stokes equations.  However, if we are interested for the flow away from fixed boundaries where viscocity is not important, one can accurately describe the flow with the Euler equations.
+There are many situations where such a reduction may be desirable.  As an example consider oceanic flow, which is governed by the Navier-Stokes equations.  However, if we are interested in the flow away from fixed boundaries, where viscocity is not important, one can accurately describe the flow with  Euler's equations.
 
 The natural problem with this approach are cases in which we actually do need to make use of the complex model in a small part of the domain in order to produce reliable, accurate results.   The mathematical challenge that arises is in the coupling of the simple and complex models so that we retain the savings from using the former in the majority of the domain and the accuracy from using the latter in specific parts of the domain as necessary.
 
 This model refinement can be based on knowledge available $\textit{a priori}$, which informs the decomposition of the domain or on results made available $\textit{a posteriori}$, i.e. during the computation, after each iteration of the algorithm.
 
-The aim of this project will be to develop a strategy to adaptively choose an appropriate model to approximate over specific parts of the domain in real time.  The specific example we will consider is flow governed by Stokes equations, to be reduced to the vectorial Laplacian in parts of the domain where pressure is constant.  The reduction will be based on localised error estimates.  We will examine the errors due to numerical approximation and also due to the model reduction itself.
+The aim of this project will be to develop a strategy to adaptively choose an appropriate model to approximate over specific parts of the domain in real time.  The specific example we will consider is flow governed by Stokes equations, to be reduced to the vectorial Laplacian in parts of the domain where pressure is nearly constant.  The reduction will be based on localised error estimates.  We will examine the errors due to numerical approximation and also due to the model reduction itself.
 
 The rest of the project is structured as follows.  In \S \ref{sec_obj} we present the work we intent to complete by the end of the project.  In \S \ref{sec_mathform} we describe Stokes's equations, introduce their weak form and show that the resulting problem is well-posed.  In \S \ref{sec_adaptivity} we  describe adaptivity and how it will be implemented in this project in greater depth.  In \S \ref{sec_numerics} we present some preliminary results that are produced with the Deal.II software (see \cite{BangerthHartmannKanschat2007}), which  will be used for the numerical implementation component of the project.  We conclude the report in \S \ref{sec_conclusion}, where we also discuss the next steps.
 
@@ -117,31 +117,42 @@ Stoke's problem in a domain $\Omega = \left[0,1\right]^2 \subset \mathbb{R}^2$ i
 \end{equation}
 where boldface indicates vectors.  In (\ref{stokes_eq}), $\textbf{u},\, \textbf{f}$ and $p$ represent the velocity, the forcing and the pressure respectively.  In this case we have used zero (Dirichlet) boundary conditions. 
 \subsection{Weak Formulation}\label{weak-form-stokes}
-We obtain the weak form of (\ref{stokes_eq}) by multiplying the equations with test functions $\textbf{v}$ and $q$ and integrating by parts.  This gives us:
-\begin{eqnarray}\label{form-a}
-	a\left(\textbf{u},\textbf{v}\right) + b\left(\textbf{v},p\right) &=& F\left(\textbf{v}\right)\quad \forall 
-\textbf{v} \in \mathbb{V} \text{ and} \\\label{form-b}
-	b\left(\textbf{u},q\right)&=&0 \quad \quad\quad\forall q \in \mathbb{P},
-\end{eqnarray}
-where 
-\begin{eqnarray}\label{weak-a}
-	a\left(\textbf{u},\textbf{v}\right)&=&\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}, \\\label{weak-b}
-	b\left(\textbf{v},q\right) &=& \int_{\Omega}-q\left(\nabla \cdot \textbf{v}\right) \text{ and}\\\label{weak-F}
-    F\left(\textbf{v}\right) &=& \int_{\Omega}\textbf{f}\cdot \textbf{v} ,
-\end{eqnarray}
-The function spaces $\mathbb{V}$ and $\mathbb{P}$ are defined as follows:
+
+Let us begin by defining the  function spaces $\mathbb{V}$ (for velocity) and $\mathbb{P}$ (for pressure) we will be working with:
 \begin{eqnarray}\label{fspace_V}
 \mathbb{V}&=&\textbf{H}^1_0\left(\Omega\right)^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega\right)}, \\\label{fspace P}
 \mathbb{P}&=&L^2_0\left(\Omega\right)=\left\lbrace q\in L^2\left(\Omega\right): \int_\Omega q=0\right\rbrace\text{, with norm: } \left|\left|q\right|\right|_{L^2\left(\Omega\right)}
 \end{eqnarray}
-Note that by the $(\cdot)^2$ in $\textbf{H}^{1}_{0}\left(\Omega\right)^2$ we indicate that we are dealing with vectorial functions with two components. Henceforth, we will adopt the notation $\left|\textbf{u}\right|_1$ and $\left|\left|q\right|\right|_{L^2}$ for the norms pertaining to the function spaces specified in (\ref{fspace_V}) and (\ref{fspace P}).  The reader should take it for granted that the quantity is taken over the domain $\Omega$ rather than just, say, the boundary $\partial \Omega$, unless the context explicitly specifies otherwise.
+Note that by the exponent in $\textbf{H}^{1}_{0}\left(\Omega\right)^2$ we indicate that we are dealing with vectorial functions with two components. Henceforth, we will adopt the notation $\left|\textbf{u}\right|_1$ and $\left|\left|q\right|\right|_{L^2}$ for the norms pertaining to the function spaces specified in (\ref{fspace_V}) and (\ref{fspace P}).  
+We obtain the weak form of (\ref{stokes_eq}) by multiplying the equations with test functions $\textbf{v}\in \mathbb{V}$ and $q\in\mathbb{P}$ and integrating by parts.  This gives us:
+\begin{eqnarray}\label{form-a}
+a\left(\textbf{u},\textbf{v}\right) + b\left(\textbf{v},p\right) &=& F\left(\textbf{v}\right)\quad \forall 
+\textbf{v} \in \mathbb{V} \text{ and} \\ \label{form-b}
+b\left(\textbf{u},q\right)&=&0 \quad \quad\quad\forall q \in \mathbb{P}.
+\end{eqnarray}
+At this point we need to define the gradient of a vector and the component wise scalar product, both of which are used in our bilinear form for $\textbf{a}\left(\cdot, \cdot\right)$.
+Firstly, the gradient of a vector function, say $\textbf{u}$, is defined as
+\begin{equation}
+\nabla \textbf{u} = \left(\frac{\partial u_i}{\partial x_j}\right)_{i,j},
+\end{equation}
+where the indices $i$ and $j$ cycle over the components of $\textbf{u}$ and over the independent variables with respect to which we differentiate $u_i$. The component-wise scalar product $:$ is defined as
+\begin{equation}
+\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}=	\sum_{i}\int_{\Omega}\nabla u_i \cdot \nabla v_i.\nonumber
+\end{equation}
+The linear and bilinear forms defined in (\ref{form-a}) can finally be defined as 
+\begin{eqnarray}\label{weak-a}
+	a\left(\textbf{u},\textbf{v}\right)&=&\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}, \\\label{weak-b}
+	b\left(\textbf{v},q\right) &=& \int_{\Omega}-q\left(\nabla \cdot \textbf{v}\right) \text{ and}\\\label{weak-F}
+    F\left(\textbf{v}\right) &=& \int_{\Omega}\textbf{f}\cdot \textbf{v} .
+\end{eqnarray}
+
 \subsection{Well Posedness}\label{sec_wellposed}
 We will introduce some notation that will be used for the analysis in this section.  We will adopt the same notation as \cite{Chen2016} for ease of cross-checking, as the analysis in this section relies heavily on results presented therein. 
 We will also be frequently making use of the symbol
 \begin{equation}
 	\lesssim \nonumber,
 \end{equation}
-which we we will define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  We will also define two important concepts in terms of proving well-posedness: coercivity and boundedness.
+which we we will define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  Such multiplicative constants arise often in finite-element analysis and they may depend on a number of factors, such as somain geometry, the shape of the finite-element or the size of the mesh.  We will also define two important concepts in terms of proving well-posedness: coercivity and boundedness.
 \theoremstyle{definition}
 \begin{definition}{$\textbf{Coercivity and boundedness}$} (see \cite{brenner2007mathematical}: Definition 2.5.2)
 	An (abstract) bilinear form $a\left(\cdot,\cdot\right)$ on a normed linear space $H$ is said  to be bounded (or continuous) if $\exists C > 0$ such that
@@ -177,7 +188,7 @@ We will use the statement of Lemma \ref{Lemma_equiv} to show it implies (\ref{co
 b\left(\textbf{v}_q,q\right) &=& \left|\left|q\right|\right|_{L^2}^2 \quad\text{by Lemma \ref{Lemma_equiv}  and defn of } \nonumber \left|\left|\cdot\right|\right|_{L^2},\\
 &\gtrsim& \left|\left|q\right|\right|_{L^2} \left|\textbf{v}_q\right|_1\quad \text{by Lemma \ref{Lemma_equiv}}.\nonumber
 \end{eqnarray}
-Now, assumethat $\left|\textbf{v}_q\right|_1$ is not zero and take the supremum over $\textbf{v}\in \mathbb{V}$ to get:
+Now, assume that $\left|\textbf{v}_q\right|_1$ is not zero and take the supremum over $\textbf{v}\in \mathbb{V}$ to get:
 \begin{equation}
 \sup_{\textbf{0}\neq\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} \gtrsim \left|\left|q\right|\right|_{L^2}.\nonumber
 \end{equation}
@@ -349,7 +360,7 @@ for subdomain $\Omega_1$ and
 \begin{equation}\label{weak_poisson}
 \int_{\Omega_2}\nabla \textbf{u}^{\left(2\right)} : \nabla \textbf{v} - \int_{\mathcal{I}} \textbf{v}\cdot\left(\textbf{n}_2\cdot\nabla\textbf{u}^{\left(2\right)}\right)= \int_{\Omega_2}\textbf{f}\cdot \textbf{v}  \quad \forall  \textbf{v}\in \mathbb{V}
 \end{equation}
-for $\Omega_2$, where the unit vectors $\textbf{n}_1$ and $\textbf{n}_2$ are the outward normals to $\Omega_{1}$ and $\Omega_{2}$ respectively and $\nabla \textbf{u}^{\left(1\right)}$ and $\nabla \textbf{u}^{\left(2\right)}$ are the flux gradients in the two subdomains. Notice that the boundary integrals are taken over $\mathcal{I}$ rather than over $\partial \Omega_{1}$ and $\partial \Omega_{2}$ because $\textbf{v}=\textbf{0}$ on $ \partial \Omega = \partial \Omega_1\cup \Omega_{2}\setminus \mathcal{I}$.   
+for $\Omega_2$, where the unit vectors $\textbf{n}_1$ and $\textbf{n}_2$ are the outward normals to $\Omega_{1}$ and $\Omega_{2}$ respectively and $\nabla \textbf{u}^{\left(1\right)}$ and $\nabla \textbf{u}^{\left(2\right)}$ are the flux gradients in the two subdomains. Notice that the boundary integrals are taken over $\mathcal{I}$ and not over $\partial \Omega_{1}$ and $\partial \Omega_{2}$ because $\textbf{v}=\textbf{0}$ on $ \partial \Omega = \partial \Omega_1\cup \Omega_{2}\setminus \mathcal{I}$.   
 
 Before we proceed, we introduce a jump operator, which is simply a notational convenience for expressing the jump of a quantity across an discontinuity.  Consider a (vector) quantity, $\textbf{b}$ in a domain $\Omega$.   Furthermore, suppose that this curve is shared (e.g. as part of a boundary) by two subdomains such that the values of $\textbf{b}$ at either side of $e$ in each subdomain are $\textbf{b}^{\left(1\right)}$ and $\textbf{b}^{\left(2\right)}$. In our example case we may consider $e = \mathcal{I}$, the interface between the two subdomains shown in Figure \ref{fig_domain}.  Then, the jump accross $\mathcal{I}$ is given by:
 \begin{equation}
@@ -935,7 +946,7 @@ hold for all $K\in T$.  Both $c^*$ and $c$ depend on the shape parameter $C_T$. 
 \end{theorem}
 
 
-\subsection{A-Posteriori analysis for the mixed problem}
+\subsection{A-Posteriori for combined prob.}
 In this section we will present the a-posteriori analysis for the mixed problem.  We will firstly summarise the framework for each of the two problem.  Then we will present the framework for the combined problem.   We will use this framework to carry out the a-posteriori analysis for the combined problem.  In doing so we will also present any assumptions that we deem necessary for the solvability of the problem.
 \subsubsection{Framework for Stokes and Laplace}
 The frame work used for the Stokes problem, which was introduced in (\ref{verf_eqns}) is 
@@ -972,7 +983,7 @@ B_T\left(\textbf{u}_T,\textbf{v}_T\right)&=B\left(\textbf{u}_T,\textbf{v}_T\righ
 \langle \ell_T,\textbf{v}_T \rangle_{Y_T} &=\langle \ell,\textbf{v}_T \rangle_{Y}.
 \end{aligned}
 \end{equation}
-\subsection{Mixed problem Framework}
+\subsection{Combined Stokes-Laplace problem Framework}
 In order to justify the choice of framework for the combined problem we will first look at the joint variational form.  This was given in (\ref{weak_total}) but we will include it here as well for ease of reference.  Our problem is to find $\left(\textbf{u},p\right)\in \mathbb{V}\times\mathbb{P}$ such that
 \begin{equation}
 \int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}-\int_{\Omega_S}p\left(\nabla \cdot \textbf{v}\right)-q\left(\nabla \cdot \textbf{u}\right)  - \int_{\mathcal{I}} \llbracket\nabla\textbf{u}-pI\rrbracket\cdot\textbf{v} =\int_{\Omega}\textbf{f}\cdot \textbf{v} \quad \forall  \textbf{v}\in \mathbb{V}
