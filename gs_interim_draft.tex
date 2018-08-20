@@ -97,12 +97,12 @@ The rest of the project is structured as follows.  In \S \ref{sec_obj} we presen
 \section{Objectives}\label{sec_obj}
 The objectives presented in this section pertain to the entirety of the project and not just to the work presented in this work.  They are essentially a breakdown of the work that must be done in order to  Briefly, our aims for the rest of the project are the following:
 \begin{itemize}
-\item Mathematical analysis of the system that arises from a discretisation of the Stokes equations.
-\item Obtain error bounds (a-posteriori) for the Stokes problem.
-\item Implement the simple Stokes model in Deal.II.
-\item Mathematical analysis of the system that arieses from a discretisation of the adaptive Stokes case.
-\item A-posteriori error bounds for the adaptive Stokes
-\item Implementation of the adaptive Stokes in Deal.II.
+\item Mathematical analysis of the weak formulation of the Stokes and Laplace problems.
+\item A-posteriori error bounds for the Stokes and Laplace problems.
+\item Implement the Stokes model in Deal.II.
+\item Mathematical analysis of weak formulation of the combined Stokes-Laplace problem
+\item Obtain a-posteriori error bounds for the combined Stokes-Laplace problem.
+\item Implementation of the combined Stokes-Laplace problem in Deal.II.
 \end{itemize}
 
 
@@ -174,7 +174,7 @@ Then the triplet $\left(K,\mathcal{P},\mathcal{N}\right)$ is called a finite ele
 
 
 \subsection{Model Adaptivity}
-Model adaptivity as a concept arises from an attempt to decrease the computational cost of our algorithm.  In this regard it is not unlike mesh adaptivity, which readers may be more familiar with (see \cite{ern2013theory}).   
+iar with (see \cite{ern2013theory}).   
 
 The idea behind mesh adaptivity is simple: use a mesh which features high resolution  where this is needed and low resolution everywhere else so as to reduce computational cost.  Possible reasons for doing this may include the regularity or smoothness of our problem data or our solution.  If for example our solution changes abruptly in certain areas of our domain and barely in others then this would be a good idea.  In such cases we would like high mesh resolution in places requiring high detail and low resolutions everywhere else.  This will decrease our algorithm's computational cost relative to the case when we have high resolution everywhere.  This naturally leads us to the question of how to implement this reduction of computational costs by a clever allocation of resolution in our domain.
 
@@ -200,9 +200,94 @@ There are many other areas of application for model adaptivity.  As an example c
 Another area of application for model adaptivity is in structural mechanics, where there are multiple examples of model hierarchies.  In the area of plate modelling, \cite{bohinc2009model} implement model adaptivity in the form of an automatic choice of a plate model for thin or thick plates.  The choice between the two models is determined by an an element-wise a posteriori indicator based on stresses. 
 
 \section{Mathematical Formulation}\label{sec_mathform}
-In this section we present Stokes's equations and their weak form.   These are used to describe very slow flows (in the limit as the Reynold's number tends to zero).  Such flows might include the motion of the fluid very close to a solid boundary or the flow of magma in the Earth's mantle.  
+In this section we present Laplace's equation and Stokes's equations in their weak form.   We will give conditions for well-posedness for these two problems separately and then go through the steps to show that they are indeed well-posed.  This will serve as a step towards showing the well-posedness of the combined problem.  We will begin from Laplace's equation and continue with Stokes's equations.  
+
+\subsection{Laplace's equation}
+
+\subsubsection{Problem Statement}
+Consider the vectorial Laplace's problem in the unit square domain  $\Omega = \left[0,1\right]^2 \subset \mathbb{R}^2$, with a prescribed right-hand side $\textbf{f}$ and homogeneous Dirichlet boundary conditions on the boundary $\partial \Omega$.  This involves finding the velocity $\textbf{u}$ such that
+\begin{equation} \label{poisson_problem_review}
+\begin{aligned}
+-\Delta\textbf{u}&= \textbf{f}\text{\quad in $\Omega$},\\
+\textbf{u}|_{\partial\Omega}&=0 .
+\end{aligned}
+\end{equation}
+\subsubsection{Weak Formulation}
+We will be solving our problems using the Finite Element method, so we will cast (\ref{poisson_problem_review}) in variational form.  Before we proceed we will define the gradient of a vector and the component-wise scalar product, both of which will be used in our variational form .
+Firstly, the gradient of a vector function, say $\textbf{u}$, is defined as
+\begin{equation}
+\nabla \textbf{u} = \left(\frac{\partial u_i}{\partial x_j}\right)_{i,j},\nonumber
+\end{equation}
+where the indices $i$ and $j$ cycle over the components of $\textbf{u}$ and over the independent variables with respect to which we differentiate $u_i$.   The component-wise scalar product, $:$, is defined as
+\begin{equation}\label{poisson_review_back_varform}
+\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}=	\sum_{i}\int_{\Omega}\nabla u_i \cdot \nabla v_i.\nonumber
+\end{equation}
+
+We will require that our $\textbf{u}$ is continuous and has continuous first derivatives. 
+ In other words, that $\textbf{u}\in \textbf{H}^1_0\left(\Omega\right)^2$, where the Sobolev space $\textbf{H}^1_0\left(\Omega\right)^d$ is  the space of $d$-dimensional functions in $L^2\left(\Omega\right)$ which are zero on the boundary and have their first derivatives in $L^2\left(\Omega\right)$:
+\begin{equation}
+\textbf{u}\in \textbf{H}^1_0\left(\Omega\right)^2 = \left\lbrace \textbf{u}\in L^2\left(\Omega\right)^d \text{ with } \nabla\textbf{u}_{i,j}\in L^2\left(\Omega\right) \text{ and } \textbf{u}|_{\partial\Omega}=\textbf{0}\right\rbrace. \nonumber
+\end{equation}
+This space's norm is given by 
+\begin{equation}
+\left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega\right)}.\nonumber
+\end{equation}
+ We will also require that our right-hand side function $\textbf{f}$ is square-integrable, i.e. $\textbf{f}\in L^2\left(\Omega\right)^2$.
+ 
+In order to obtain the variational formulation of (\ref{poisson_problem_review}), we multiply the equation by a test function $\textbf{v}\in \textbf{H}^1_0\left(\Omega\right)^2$ and integrate by parts.  This gives us
+\begin{equation}
+\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}\;\mathrm{d}x  =\int_{\Omega}\textbf{f}\cdot \textbf{v} \;\mathrm{d}x.
+\end{equation}
+
+The next step is to show that (\ref{poisson_review_back_varform}) is well-posed.
+\subsubsection{Well-Posedness}
+Since we will be talking about well-posedness it will be helpful to define what we mean by it.  We will use the the same definition of well-posedness that \cite{ern2013theory} uses, which is introduced in \cite{hadamard1932probleme}.  Even though we have 'tailored' the well-posedness definition presented in this section to  (\ref{poisson_review_back_varform}), it is worth noting that the definition given in \cite{ern2013theory} is presented in the context of an abstract (general) problem.  However, we will refrain from using the abstract framework until we deal with the a-posteriori analysis of our problems.
+\theoremstyle{definition}
+\begin{definition}{$\textbf{Well-posedness of (\ref{poisson_review_back_varform})}$} (see \cite{ern2013theory}: Definition 2.1)
+	Problem (\ref{poisson_review_back_varform}) is said to be well-posed if it admits one and only one solution and if the following a priori estimate holds:
+	\begin{equation}
+\exists c >0 \text{ s.t. } \forall \textbf{f} \in L^2\left(\Omega\right)^2, \left|\textbf{u}\right|_{1}\leq \left|\left|\textbf{f}\right|\right|_{L^2}.
+	\end{equation}
+\end{definition}
+This definition essentially says that we have a unique and stable solution.  Before we proceed we will  define two important concepts in terms of proving well-posedness: coercivity and boundedness.
+\theoremstyle{definition}
+\begin{definition}{$\textbf{Coercivity and boundedness}$} (see \cite{brenner2007mathematical}: Definition 2.5.2)\label{defn_coerc_bound}
+	An (abstract) bilinear form $a\left(\cdot,\cdot\right)$ on a normed linear space $H$ is said  to be bounded (or continuous) if $\exists C > 0$ such that
+	\begin{equation}
+	\left|a\left(u,v\right)\right|\leq C \left|\left|u\right|\right|_H\left|\left|v\right|\right|_H \quad \forall u,v \in H\nonumber
+	\end{equation}
+	and coercive on $V\subset H$ if $\exists$ $\alpha > 0$ such that
+	\begin{equation}
+	a\left(v,v\right)\geq \alpha \left|\left|v\right|\right|_H^2\quad \forall v \in V\nonumber.
+	\end{equation}
+\end{definition}
+In the case of (\ref{poisson_review_back_varform}), the bilinear form $a\left(\cdot,\cdot\right)$ is given by 
+\begin{equation}
+a\left(\textbf{u},\textbf{v}\right)=\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}\;\mathrm{d}x. \nonumber
+\end{equation}
+The reader should note that in this context bounded is the same as continuous and coercive is the same as stable.  In the case of (\ref{poisson_review_back_varform}) we get boundedness by applying the triangle inequality, with $C=1$.  We get coercivity by substituting $\textbf{u}=\textbf{v}$.  This gives us equality (in the definition of coercivity) with $\alpha=1$.  Next, we give the main result which is used to show well-posedness for (\ref{poisson_review_back_varform}).  This is the Lax-Milgram theorem.
+\begin{theorem}{$\left(\textbf{Lax-Milgram}\right)$}\label{theorem_Lax_Milgram}(See \cite{brenner2007mathematical}: Theorem 2.7.7)
+	Given a Hilbert space $\left(\mathbb{V},\left(\cdot,\cdot\right)\right)$, a continuous, coercive bilinear form $a\left(\cdot,\cdot\right)$ and a continuous linear functional $F\in \mathbb{V}^*$, there exists a unique (and stable) $u\in\mathbb{V}$ such that
+	\begin{equation}
+a\left(u,v\right)=F\left(v\right)\quad\forall v\in \mathbb{V}.
+	\end{equation}
+\end{theorem}
+\begin{proof}
+	See \cite{brenner2007mathematical}: Theorem 2.7.7.
+\end{proof}
+The space $\mathbb{V}^*$ is the space of bounded linear functionals on $\mathbb{V}$.  In (\ref{poisson_review_back_varform}),
+\begin{equation}
+F\left(\textbf{v}\right)=\int_{\Omega}\textbf{f}\cdot\textbf{v}.
+\end{equation}
+Linear functionals are just functions $F:\mathbb{V}\rightarrow\mathbb{R}$ that satisfy
+\begin{equation}
+F\left(\textbf{u}+\alpha\textbf{v}\right)=F\left(\textbf{u}\right)+\alpha F\left(\textbf{v}\right) \quad\forall \textbf{u},\textbf{v}\in\mathbb{V},\,\alpha\in\mathbb{R}.\nonumber
+\end{equation}
+Now since the bilinear form in (\ref{poisson_review_back_varform}) is continuous and coercive and since the right-hand side is continuous (this can be seen from a simple application of the Cauchy-Schwarz inequality on the right-hand side), (\ref{poisson_review_back_varform}) has a unique and stable solution by the Lax-Milgram theorem.
 \subsection{Stokes Equations}
-Stoke's problem in a domain $\Omega = \left[0,1\right]^2 \subset \mathbb{R}^2$ involves finding $\left(\textbf{u},p\right)$ such that:
+These are used to describe very slow flows (in the limit as the Reynold's number tends to zero).  Such flows might include the motion of the fluid very close to a solid boundary or the flow of magma in the Earth's mantle.  
+
+We consider Stoke's problem in a domain $\Omega = \left[0,1\right]^2 \subset \mathbb{R}^2$, which for a prescribed right-hand side $\textbf{f}$ involves finding $\left(\textbf{u},p\right)$ such that:
 \begin{equation}\label{stokes_eq}
 \begin{aligned}
 	-\Delta\textbf{u} + \nabla p &= \textbf{f} \\ 
@@ -210,7 +295,7 @@ Stoke's problem in a domain $\Omega = \left[0,1\right]^2 \subset \mathbb{R}^2$ i
 \textbf{u}|_{\partial\Omega}&=0 
 \end{aligned}
 \end{equation}
-where boldface indicates vectors.  In (\ref{stokes_eq}), $\textbf{u},\, \textbf{f}$ and $p$ represent the velocity, the forcing and the pressure respectively.  In this case we have used zero (Dirichlet) boundary conditions. 
+where boldface indicates vectors.  In (\ref{stokes_eq}), $\textbf{u},\, \textbf{f}$ and $p$ represent the velocity, the forcing and the pressure respectively.  In this case we have used homogeneous Dirichlet (no-slip) boundary conditions. 
 \subsection{Weak Formulation}\label{weak-form-stokes}
 
 Let us begin by defining the  function spaces $\mathbb{V}$ (for velocity) and $\mathbb{P}$ (for pressure) we will be working with:
@@ -223,18 +308,10 @@ We obtain the weak form of (\ref{stokes_eq}) by multiplying the equations with t
 \begin{eqnarray}\label{form-a}
 a\left(\textbf{u},\textbf{v}\right) + b\left(\textbf{v},p\right) &=& F\left(\textbf{v}\right)\quad \forall 
 \textbf{v} \in \mathbb{V} \text{ and} \\ \label{form-b}
-b\left(\textbf{u},q\right)&=&0 \quad \quad\quad\forall q \in \mathbb{P}.
+b\left(\textbf{u},q\right)&=&0 \quad \quad\quad\forall q \in \mathbb{P},
 \end{eqnarray}
-At this point we need to define the gradient of a vector and the component wise scalar product, both of which are used in our bilinear form for $\textbf{a}\left(\cdot, \cdot\right)$.
-Firstly, the gradient of a vector function, say $\textbf{u}$, is defined as
-\begin{equation}
-\nabla \textbf{u} = \left(\frac{\partial u_i}{\partial x_j}\right)_{i,j},
-\end{equation}
-where the indices $i$ and $j$ cycle over the components of $\textbf{u}$ and over the independent variables with respect to which we differentiate $u_i$. The component-wise scalar product $:$ is defined as
-\begin{equation}
-\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}=	\sum_{i}\int_{\Omega}\nabla u_i \cdot \nabla v_i.\nonumber
-\end{equation}
-The linear and bilinear forms defined in (\ref{form-a}) can finally be defined as 
+
+where the linear and bilinear forms defined in (\ref{form-a}) are defined as 
 \begin{eqnarray}\label{weak-a}
 	a\left(\textbf{u},\textbf{v}\right)&=&\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}, \\\label{weak-b}
 	b\left(\textbf{v},q\right) &=& \int_{\Omega}-q\left(\nabla \cdot \textbf{v}\right) \text{ and}\\\label{weak-F}
@@ -247,18 +324,7 @@ We will also be frequently making use of the symbol
 \begin{equation}
 	\lesssim \nonumber,
 \end{equation}
-which we we will define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  Such multiplicative constants arise often in finite-element analysis and they may depend on a number of factors, such as somain geometry, the shape of the finite-element or the size of the mesh.  We will also define two important concepts in terms of proving well-posedness: coercivity and boundedness.
-\theoremstyle{definition}
-\begin{definition}{$\textbf{Coercivity and boundedness}$} (see \cite{brenner2007mathematical}: Definition 2.5.2)
-	An (abstract) bilinear form $a\left(\cdot,\cdot\right)$ on a normed linear space $H$ is said  to be bounded (or continuous) if $\exists C > 0$ such that
-	\begin{equation}
-		\left|a\left(u,v\right)\right|\leq C \left|\left|u\right|\right|_H\left|\left|v\right|\right|_H \quad \forall u,v \in H\nonumber
-	\end{equation}
-	and coercive on $V\subset H$ if $\exists$ $\alpha > 0$ such that
-	\begin{equation}
-	a\left(v,v\right)\geq \alpha \left|\left|v\right|\right|_H^2\quad \forall v \in V\nonumber.
-	\end{equation}
-\end{definition}
+which we we will define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  Such multiplicative constants arise often in finite-element analysis and they may depend on a number of factors, such as somain geometry, the shape of the finite-element or the size of the mesh.  
 \subsubsection{PDE}\label{PDE_cont}
 There are four components to proving the well-posedness of (\ref{stokes_eq}):
 	 \begin{eqnarray}\label{coerc_a}
@@ -843,7 +909,7 @@ We now combine the two results to obtain
 \end{equation}
 Recall that $\left(\textbf{v},q\right)$ was chosen arbitrarily.  Hence, we can take the infimum over $\left(\textbf{v},q\right)\in X\setminus\lbrace 0 \rbrace$ on the left hand side to get our result. 
 \end{proof}
-\subsection{Stokes-Problem: Finite Element approximation}
+\subsection{Stokes Problem: FE approximation}
 In this section we present the finite element approximation to (\ref{verf_eqns}).  The finite element spaces we are looking will be
 \begin{eqnarray}
 	\mathbb{V}_T&\subset&\textbf{H}^1_0\left(\Omega\right)^d \text{ and}\nonumber\\
