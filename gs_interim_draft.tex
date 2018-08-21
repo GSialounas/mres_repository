@@ -479,21 +479,24 @@ In conclusion, in this section we have shown that the Stokes problem has a uniqu
 \subsection{Combined Problem}\label{sec_adaptivity}
 In this section we present our combined Stokes-Laplace problem.  We present the variational formulation and then we give conditions under which it is well-posed.  We will consider a domain which is divided into sub-domains based on the equations governing the flow in each subdomain.
 \subsubsection{Combined Problem}
-Let us begin by presenting our problem both graphically and in equations.  Our problem is depicted in Figure \ref{fig_domain}.  $\Omega_S$ corresponds to the part of the domain where the flow is governed by the Stokes equations whereas in $\Omega_L$ the flow is governed by the Poisson equation.  The boundary of the domain is $\partial\Omega$ and $\mathcal{I}$ (shown as a red, dashed line in Figure \ref{fig_domain}) is the interface between the two models.  The unit outward normal for $\Omega_S$ is $\textbf{n}_S$ and for $\Omega_L$ it is $\textbf{n}_L$.  We would like to solve
+Let us begin by presenting our problem both graphically and in equations.  Our problem is depicted in Figure \ref{fig_domain}.  $\Omega_S$ corresponds to the part of the domain where the flow is governed by the Stokes equations whereas in $\Omega_L$ the flow is governed by the Poisson equation.  The boundary of the domain is $\partial\Omega$ and $\mathcal{I}$ (shown as a red, dashed line in Figure \ref{fig_domain}) is the interface between the two models.  The unit outward normal for $\Omega_S$ is $\textbf{n}_S$ and for $\Omega_L$ it is $\textbf{n}_L$.  In summary, we would like to solve
 \begin{equation}
 	\begin{aligned}\label{stokes_eq_adapt}
-\text{In $\Omega_{1}$: }  -\Delta\textbf{u} + \nabla p &= \textbf{f} \\ 
-	\nabla\cdot \textbf{u}&= 0
+\begin{rcases}
+-\Delta\textbf{u} + \nabla p &= \textbf{f} \\ 
+\nabla\cdot \textbf{u}&= 0
+\end{rcases}
 	\end{aligned}
+	\quad \text{in $\Omega_{S}$ }  
 \end{equation}
 \begin{equation}\label{poisson_eq_adapt}
-\text{In $\Omega_{2}$: }-\Delta\textbf{u}= \textbf{f}
+-\Delta\textbf{u}= \textbf{f}\quad \text{in $\Omega_{L}$ }
 \end{equation}
 with boundary conditions given by
 \begin{equation}\label{bc_adapt}
 	\textbf{u}= 0 \text{\quad on $\partial \Omega$}.
 \end{equation}
-The domain is shown in Figure \ref{fig_domain}.  Naturally, we would like to know whether the problem given by (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) has a unique, stable solution.  In order to do this we will first derive the variational form for (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) and then we will repeat some of the procedures from \S \ref{sec_wellposed} to show that our problem is well-posed.
+Naturally, we would like to know whether the problem given by (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) has a unique, stable solution.  In order to do this we will first derive the variational form for (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) and then we will use some of the procedures from \S \ref{sec_wellposed} to show that our problem is indeed well-posed.
 
 \begin{figure}[H]
 	\begin{center}
@@ -543,19 +546,26 @@ The domain is shown in Figure \ref{fig_domain}.  Naturally, we would like to kno
 \caption{Domain for the combined Stokes-Laplace problem, with subdomains $\Omega_{1}$ (Stokes equations), $\Omega_{2}$ (Poisson equation)and boundary $\partial \Omega$ with homogeneous Dirichlet boundary conditions. The interface $\mathcal{I}$ separates the part of the domain where we solve each of the two problems.  The unit vectors $\textbf{n}_1$ and $\textbf{n}_2$ are the outward normals to $\Omega_{1}$ and $\Omega_{2}$ respectively.}
 \label{fig_domain}
 \end{figure}
-\subsection{Variational Form}
-In this section we derive a variational form for (\ref{stokes_eq_adapt})-(\ref{poisson_eq_adapt}).  We begin by testing the first and second equations in  (\ref{stokes_eq_adapt}) with test functions $\textbf{v}\in \mathbb{V}$ and $q\in \mathbb{P}$, where  $\mathbb{V}$ and $\mathbb{P}$ have been defined in (\ref{fspace_V}) and (\ref{fspace P}) respectively. We integrate the resulting equations by parts to obtain:
+\subsection{Weak Formulation}
+In this section we derive a variational form for (\ref{stokes_eq_adapt})-(\ref{poisson_eq_adapt}).  Let us begin by defining the function spaces in which we will look for solutions for pressure and velocity, noting that this time we have to take the fact that pressure is defined only in $\Omega_S$.  Furthermore, to keep things clear in the analysis that follows we will define two velocity spaces: one over $\Omega_S$ and one over $\Omega_L$.  The spaces we will be using are the following
+\begin{eqnarray}\label{fspace_V1}
+\mathbb{V}_S&=&\left[\textbf{H}^1_0\left(\Omega_S\right)\right]^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega_S\right)}, \\ \label{fspace_V2}
+\mathbb{V}_L&=&\left[\textbf{H}^1_0\left(\Omega_L\right)\right]^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega_L\right)}, \\\label{fspace_P1}
+\mathbb{P}&=&L^2_0\left(\Omega_S\right)=\left\lbrace q\in L^2\left(\Omega_S\right): \int_{\Omega_S} q=0\right\rbrace\text{, with norm: } \left|\left|q\right|\right|_{L^2\left(\Omega_S\right)}
+\end{eqnarray}
+We proceed by testing (\ref{stokes_eq_adapt}) and (\ref{poisson_eq_adapt}) with test functions $\textbf{v}_S\in \mathbb{V}_S$ and $q\in \mathbb{P}$ for (\ref{stokes_eq_adapt}) and $\textbf{v}_L\in\mathbb{V}_L$. We the resulting equations by parts to obtain:
 \begin{equation}\label{weak_stokes_1}
 \begin{aligned}
-\int_{\Omega_1}\nabla \textbf{u}^{\left(1\right)} : \nabla \textbf{v}-p\left(\nabla \cdot \textbf{v}\right) +\int_{\mathcal{I}} p\textbf{v}\cdot \textbf{n}_1-\textbf{v}\cdot\left(\textbf{n}_1\cdot\nabla\textbf{u}^{\left(1\right)}\right) &=\int_{\Omega_1}\textbf{f}\cdot \textbf{v}  \quad \forall  \textbf{v}\in \mathbb{V}\\
-\int_{\Omega_1}q\left(\nabla \cdot \textbf{u}^{\left(1\right)}\right) &= 0\quad \forall q\in \mathbb{P},
+\int_{\Omega_S}\nabla \textbf{u}_S : \nabla \textbf{v}_S-p\left(\nabla \cdot \textbf{v}_S\right) +\int_{\mathcal{I}} p\textbf{v}_S\cdot \textbf{n}_S-\textbf{v}_S\cdot\left(\nabla\textbf{u}_S\textbf{n}_S\right) &=\int_{\Omega_S}\textbf{f}\cdot \textbf{v}_S  \quad \forall  \textbf{v}\in \mathbb{V}_S\\
+\int_{\Omega_S}q\left(\nabla \cdot \textbf{u}_S\right) &= 0\quad \forall q\in \mathbb{P},
 \end{aligned}
 \end{equation}
-for subdomain $\Omega_1$ and
+for subdomain $\Omega_S$ and
 \begin{equation}\label{weak_poisson}
-\int_{\Omega_2}\nabla \textbf{u}^{\left(2\right)} : \nabla \textbf{v} - \int_{\mathcal{I}} \textbf{v}\cdot\left(\textbf{n}_2\cdot\nabla\textbf{u}^{\left(2\right)}\right)= \int_{\Omega_2}\textbf{f}\cdot \textbf{v}  \quad \forall  \textbf{v}\in \mathbb{V}
+\int_{\Omega_L}\nabla \textbf{u}_L : \nabla \textbf{v}_L - \int_{\mathcal{I}} \textbf{v}_L \left(\nabla\textbf{u}_L\textbf{n}_L\right)= 
+\int_{\Omega_L}\textbf{f}\cdot \textbf{v}_L  \quad \forall  \textbf{v}_L\in \mathbb{V}_L
 \end{equation}
-for $\Omega_2$, where the unit vectors $\textbf{n}_1$ and $\textbf{n}_2$ are the outward normals to $\Omega_{1}$ and $\Omega_{2}$ respectively and $\nabla \textbf{u}^{\left(1\right)}$ and $\nabla \textbf{u}^{\left(2\right)}$ are the flux gradients in the two subdomains. Notice that the boundary integrals are taken over $\mathcal{I}$ and not over $\partial \Omega_{1}$ and $\partial \Omega_{2}$ because $\textbf{v}=\textbf{0}$ on $ \partial \Omega = \partial \Omega_1\cup \Omega_{2}\setminus \mathcal{I}$.   
+for $\Omega_L$, where the unit vectors $\textbf{n}_S$ and $\textbf{n}_L$ are the outward normals to $\Omega_{S}$ and $\Omega_{L}$ respectively and $\nabla \textbf{u}_S$ and $\nabla \textbf{u}_L$ are the velocity gradients in the two subdomains. Notice that the boundary integrals are taken over $\mathcal{I}$ and not over $\partial \Omega_{1}$ and $\partial \Omega_{2}$ because $\textbf{v}=\textbf{0}$ on $ \partial \Omega = \partial \Omega_1\cup \Omega_{2}\setminus \mathcal{I}$.   
 
 Before we proceed, we introduce a jump operator, which is simply a notational convenience for expressing the jump of a quantity across an discontinuity.  Consider a (vector) quantity, $\textbf{b}$ in a domain $\Omega$.   Furthermore, suppose that this curve is shared (e.g. as part of a boundary) by two subdomains such that the values of $\textbf{b}$ at either side of $e$ in each subdomain are $\textbf{b}^{\left(1\right)}$ and $\textbf{b}^{\left(2\right)}$. In our example case we may consider $e = \mathcal{I}$, the interface between the two subdomains shown in Figure \ref{fig_domain}.  Then, the jump accross $\mathcal{I}$ is given by:
 \begin{equation}
