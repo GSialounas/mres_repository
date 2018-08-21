@@ -37,7 +37,8 @@
 \usepackage{color}
 \newcommand{\hilight}[1]{\colorbox{yellow}{#1}}
 \usepackage{soul}
-
+\usepackage{tikz}
+\usetikzlibrary{hobby,shapes,arrows,fit,calc,positioning} 
 \newcommand\restr[2]{{% we make the whole thing an ordinary symbol
 		\left.\kern-\nulldelimiterspace % automatically resize the bar with \right
 		#1 % the function
@@ -478,6 +479,7 @@ In conclusion, in this section we have shown that the Stokes problem has a uniqu
 \subsection{Combined Problem}\label{sec_adaptivity}
 In this section we present our combined Stokes-Laplace problem.  We present the variational formulation and then we give conditions under which it is well-posed.  We will consider a domain which is divided into sub-domains based on the equations governing the flow in each subdomain.
 \subsubsection{Combined Problem}
+Let us begin by presenting our problem both graphically and in equations.  Our problem is depicted in Figure \ref{fig_domain}.  $\Omega_S$ corresponds to the part of the domain where the flow is governed by the Stokes equations whereas in $\Omega_L$ the flow is governed by the Poisson equation.  The boundary of the domain is $\partial\Omega$ and $\mathcal{I}$ (shown as a red, dashed line in Figure \ref{fig_domain}) is the interface between the two models.  The unit outward normal for $\Omega_S$ is $\textbf{n}_S$ and for $\Omega_L$ it is $\textbf{n}_L$.  We would like to solve
 \begin{equation}
 	\begin{aligned}\label{stokes_eq_adapt}
 \text{In $\Omega_{1}$: }  -\Delta\textbf{u} + \nabla p &= \textbf{f} \\ 
@@ -492,25 +494,55 @@ with boundary conditions given by
 	\textbf{u}= 0 \text{\quad on $\partial \Omega$}.
 \end{equation}
 The domain is shown in Figure \ref{fig_domain}.  Naturally, we would like to know whether the problem given by (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) has a unique, stable solution.  In order to do this we will first derive the variational form for (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) and then we will repeat some of the procedures from \S \ref{sec_wellposed} to show that our problem is well-posed.
+
 \begin{figure}[H]
-	\centering
-	\begin{overpic}[width=0.6\textwidth]{domain}
-		\centering
-		\put (20,30) {\huge$\displaystyle\Omega_{1}$}
-		\put (70,30) {\huge$\displaystyle\Omega_{2}$}
-		\put (50,30) {\huge$\displaystyle\mathcal{I}$}
-		\put (87,52) {\huge$\displaystyle\partial \Omega$}
-		\put (54,11) {\huge$\displaystyle \textbf{n}_1$}
-		\linethickness{1pt}
-		\put(47,10){\color{red}\vector(1,0){10}}
-		\put (54,11) {\huge$\displaystyle \textbf{n}_1$}
-		\linethickness{1pt}
-		\put(99,30){\color{red}\vector(1,0){10}}
-		\put (106,31) {\huge$\displaystyle \textbf{n}_2$}
-	\end{overpic}
-	\caption{Domain for the adaptive problem, with subdomains $\Omega_{1}$ (Stokes equations), $\Omega_{2}$ (Poisson equation)and boundary $\partial \Omega$ with homogeneous Dirichlet boundary conditions. The interface $\mathcal{I}$ separates the part of the domain where we solve each of the two problems.  The unit vectors $\textbf{n}_1$ and $\textbf{n}_2$ are the outward normals to $\Omega_{1}$ and $\Omega_{2}$ respectively.}
-	\label{fig_domain}
-\end{figure} 
+	\begin{center}
+		\begin{tikzpicture}
+		
+		
+		\draw[arrows=->,line width=1pt](2,3.5)--(2.5,3.5);
+			\draw[arrows=->,line width=1pt](0,2.5)--(-0.5,2.5);
+			\node[draw=none,fill=none, xshift = -0.4cm, yshift= 2.2cm] {\large$\textbf{n}_L$}; 
+		\node[draw=none,fill=none, xshift = 2.35cm, yshift= 3.2cm] {\large$\textbf{n}_S$}; 
+		\node[draw=none,fill=none, xshift = 1.2cm, yshift= 3.2cm] {\huge$\Omega_S$}; 
+		\node[draw=none,fill=none, xshift = 3.2cm, yshift= 1.3cm] {\huge$\Omega_S$}; 
+		\node[draw=none,fill=none, xshift = 3.8cm, yshift= 3.8cm] {\huge$\Omega_L$}; 
+		\node[draw=none,fill=none, xshift = 1.5cm, yshift= 1.3cm] {\huge$\mathcal{I}$}; 
+		\node[draw=none,fill=none, xshift = 5.7cm, yshift= 2.5cm] {\huge$\partial\Omega$}; 
+		\draw[black, very thick] (0,0)rectangle (5,5);
+		
+		\node (a) at(1.45, 1.03)  {};
+		\node (b) at  (0.7, 2.15){};
+		\draw[->,line width =0.5pt] (a)  to [out=-150,in=-150, looseness=2] (b);
+		
+		\node (c) at(1.4, 1.1)  {};
+		\node (d) at  (2.55, 1.1){};
+		\draw[->,line width =0.5pt] (c)  to [out=-80,in=600, looseness=2] (d);
+		
+		\begin{scope}[xshift = 1cm, yshift = 2cm,black]
+		\path[draw,use Hobby shortcut,closed=true, fill = orange, opacity = 0.2]
+		(0,0) .. (.5,.5) .. (1,1.5) .. (-.25,2) .. (-.5,1) .. (-.5,.25);
+		\end{scope}
+		\begin{scope}[xshift = 1cm, yshift = 2cm,red, very thick]
+		\path[draw,,use Hobby shortcut,closed=true,dashed]
+		(0,0) .. (.5,.5) .. (1,1.5) .. (-.25,2) .. (-.5,1) .. (-.5,.25);
+		\end{scope}
+		
+		\draw[arrows=->,line width=1pt](3.96,1.96)--(4.354,2.354);
+		\node[draw=none,fill=none, xshift = 4.475cm, yshift= 1.95cm] {\large$\textbf{n}_S$}; 
+		\begin{scope}[xshift = 3.5cm, yshift = .5cm,black]	
+		\path[draw,use Hobby shortcut,closed=true,fill = orange, opacity = 0.2]
+		(0,0) .. (.5,1) .. (.5,1) .. (-0.7,1.5) .. (-1,1.3) .. (-1,.5);
+		\end{scope}
+		\begin{scope}[xshift = 3.5cm, yshift = .5cm,red, very thick]	
+		\path[draw,use Hobby shortcut,closed=true,dashed]
+		(0,0) .. (.5,1) .. (.5,1) .. (-0.7,1.5) .. (-1,1.3) .. (-1,.5);
+		\end{scope}
+		\end{tikzpicture}
+	\end{center}
+\caption{Domain for the combined Stokes-Laplace problem, with subdomains $\Omega_{1}$ (Stokes equations), $\Omega_{2}$ (Poisson equation)and boundary $\partial \Omega$ with homogeneous Dirichlet boundary conditions. The interface $\mathcal{I}$ separates the part of the domain where we solve each of the two problems.  The unit vectors $\textbf{n}_1$ and $\textbf{n}_2$ are the outward normals to $\Omega_{1}$ and $\Omega_{2}$ respectively.}
+\label{fig_domain}
+\end{figure}
 \subsection{Variational Form}
 In this section we derive a variational form for (\ref{stokes_eq_adapt})-(\ref{poisson_eq_adapt}).  We begin by testing the first and second equations in  (\ref{stokes_eq_adapt}) with test functions $\textbf{v}\in \mathbb{V}$ and $q\in \mathbb{P}$, where  $\mathbb{V}$ and $\mathbb{P}$ have been defined in (\ref{fspace_V}) and (\ref{fspace P}) respectively. We integrate the resulting equations by parts to obtain:
 \begin{equation}\label{weak_stokes_1}
