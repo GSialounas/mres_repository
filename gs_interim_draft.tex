@@ -200,10 +200,10 @@ There are many other areas of application for model adaptivity.  As an example c
 Another area of application for model adaptivity is in structural mechanics, where there are multiple examples of model hierarchies.  In the area of plate modelling, \cite{bohinc2009model} implement model adaptivity in the form of an automatic choice of a plate model for thin or thick plates.  The choice between the two models is determined by an an element-wise a posteriori indicator based on stresses. 
 
 \section{Mathematical Formulation}\label{sec_mathform}
-In this section we present Laplace's equation and Stokes's equations in their weak form.   We will give conditions for well-posedness for these two problems separately and then go through the steps to show that they are indeed well-posed.  This will serve as a step towards showing the well-posedness of the combined problem.  We will begin from Laplace's equation and continue with Stokes's equations.  
+In this section we present Laplace's equation and Stokes's equations in their weak form.   We will give conditions for well-posedness for these two problems separately and then go through the steps to show that they are indeed well-posed.  This will serve as a step towards showing the well-posedness of the combined problem.  We will begin from Laplace's equation and continue with Stokes's equations.  Throughout this section, the boldface $\textbf{n}$ will be used to indicate vectors.
 
 \subsection{Laplace's equation}
-
+In this section we will present the vectorial Laplace equations with a forcing on the right-hand side and homogeneous Dirichlet boundary conditions.  We will state the problem, present the weak formulation and then show that it is well-posed.
 \subsubsection{Problem Statement}
 Consider the vectorial Laplace's problem in the unit square domain  $\Omega = \left[0,1\right]^2 \subset \mathbb{R}^2$, with a prescribed right-hand side $\textbf{f}$ and homogeneous Dirichlet boundary conditions on the boundary $\partial \Omega$.  This involves finding the velocity $\textbf{u}$ such that
 \begin{equation} \label{poisson_problem_review}
@@ -285,9 +285,9 @@ F\left(\textbf{u}+\alpha\textbf{v}\right)=F\left(\textbf{u}\right)+\alpha F\left
 \end{equation}
 Now since the bilinear form in (\ref{poisson_review_back_varform}) is continuous and coercive and since the right-hand side is continuous (this can be seen from a simple application of the Cauchy-Schwarz inequality on the right-hand side), (\ref{poisson_review_back_varform}) has a unique and stable solution by the Lax-Milgram theorem.
 \subsection{Stokes Equations}
-These are used to describe very slow flows (in the limit as the Reynold's number tends to zero).  Such flows might include the motion of the fluid very close to a solid boundary or the flow of magma in the Earth's mantle.  
+Stokes equations are used to describe very slow viscous flows .  Such flows might include the motion of the fluid very close to a solid boundary or the flow of magma in the Earth's mantle.  
 
-We consider Stoke's problem in a domain $\Omega = \left[0,1\right]^2 \subset \mathbb{R}^2$, which for a prescribed right-hand side $\textbf{f}$ involves finding $\left(\textbf{u},p\right)$ such that:
+We consider Stokes's equations in a domain $\Omega = \left[0,1\right]^2 \subset \mathbb{R}^2$, which for a prescribed right-hand side $\textbf{f}$ involves finding $\left(\textbf{u},p\right)$ such that:
 \begin{equation}\label{stokes_eq}
 \begin{aligned}
 	-\Delta\textbf{u} + \nabla p &= \textbf{f} \\ 
@@ -303,7 +303,7 @@ Let us begin by defining the  function spaces $\mathbb{V}$ (for velocity) and $\
 \mathbb{V}&=&\textbf{H}^1_0\left(\Omega\right)^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega\right)}, \\\label{fspace P}
 \mathbb{P}&=&L^2_0\left(\Omega\right)=\left\lbrace q\in L^2\left(\Omega\right): \int_\Omega q=0\right\rbrace\text{, with norm: } \left|\left|q\right|\right|_{L^2\left(\Omega\right)}
 \end{eqnarray}
-Note that by the exponent in $\textbf{H}^{1}_{0}\left(\Omega\right)^2$ we indicate that we are dealing with vectorial functions with two components. Henceforth, we will adopt the notation $\left|\textbf{u}\right|_1$ and $\left|\left|q\right|\right|_{L^2}$ for the norms pertaining to the function spaces specified in (\ref{fspace_V}) and (\ref{fspace P}).  
+ Henceforth, we will adopt the notation $\left|\textbf{u}\right|_1$ and $\left|\left|q\right|\right|_{L^2}$ for the norms pertaining to the function spaces specified in (\ref{fspace_V}) and (\ref{fspace P}).  
 We obtain the weak form of (\ref{stokes_eq}) by multiplying the equations with test functions $\textbf{v}\in \mathbb{V}$ and $q\in\mathbb{P}$ and integrating by parts.  This gives us:
 \begin{eqnarray}\label{form-a}
 a\left(\textbf{u},\textbf{v}\right) + b\left(\textbf{v},p\right) &=& F\left(\textbf{v}\right)\quad \forall 
@@ -324,20 +324,21 @@ We will also be frequently making use of the symbol
 \begin{equation}
 	\lesssim \nonumber,
 \end{equation}
-which we we will define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  Such multiplicative constants arise often in finite-element analysis and they may depend on a number of factors, such as somain geometry, the shape of the finite-element or the size of the mesh.  
+which we we will define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  Such multiplicative constants arise often in finite-element analysis and they may depend on a number of factors, such as domain geometry, the shape of the finite-element or the size of the mesh.  
 \subsubsection{PDE}\label{PDE_cont}
-There are four components to proving the well-posedness of (\ref{stokes_eq}):
+There are four components to proving the well-posedness of (\ref{form-a})-(\ref{form-b}):
 	 \begin{eqnarray}\label{coerc_a}
 	\inf_{\textbf{u}\in \mathbb{V}}\sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{u}\right|_1 \left|\textbf{v}\right|_1}&=&\alpha>0,\\\label{coerc_b}
 			\inf_{q\in \mathbb{P}}\sup_{\textbf{u}\in \mathbb{V}}\frac{b\left(\textbf{u},q\right)}{\left|\textbf{u}\right|_1 \left|\left|q\right|\right|_{L^2}}&=&\beta>0,\\\label{cont_a}
 		a\left(\textbf{u},\textbf{v}\right)&\leq& C_a\left|\textbf{u}\right|_1\left|\textbf{v}\right|_1,\, \forall \textbf{u},\textbf{v} \in \mathbb{V}\text{ and}\\\label{cont_b}
 		b\left(\textbf{u},q\right)&\leq& C_b\left|\textbf{u}\right|_1\left|\left|q\right|\right|_{L^2},\,\forall \textbf{u} \in \mathbb{V},\, q \in \mathbb{P}.
 	\end{eqnarray}
-Briefly, (\ref{coerc_a}) and (\ref{coerc_b}) correspond to the stability of the bi-linear forms specified in (\ref{weak-a}) and (\ref{weak-b}) respectively, while (\ref{cont_a}) and (\ref{cont_b}) correspond to their boundedness, in the same order. It is worth noting that (\ref{coerc_a}) is perhaps more widely known as the $\textit{inf-sup}$ condition (see \cite{brenner2007mathematical}: \S 12). It is relatively easier to show that conditions (\ref{coerc_b}), (\ref{cont_a}) and (\ref{cont_b}) hold than to show (\ref{coerc_a}) holds, so we will start with the latter.  However, firstly we will introduce a result that implies (\ref{coerc_b}) holds.  The result can be found in \cite{Chen2016} as Lemma 1.4.
+Briefly, (\ref{coerc_a}) and (\ref{coerc_b}) correspond to the stability of the bi-linear forms specified in (\ref{weak-a}) and (\ref{weak-b}) respectively, while (\ref{cont_a}) and (\ref{cont_b}) correspond to their boundedness, in the same order. It is worth noting that (\ref{coerc_a}) is perhaps more widely known as the $\textit{inf-sup}$ condition (see \cite{brenner2007mathematical}: \S 12). 
+We will start by showing that conditions (\ref{coerc_b}), (\ref{cont_a}) and (\ref{cont_b}) hold.  Then we will show (\ref{coerc_a}) holds.  Firstly we will introduce a result that implies (\ref{coerc_b}) holds.  The result can be found in \cite{Chen2016} as Lemma 1.4.
 \begin{lemma}\label{Lemma_equiv}
 	For any $q\in L^2_0\left(\Omega\right), \exists \textbf{v}\in \textbf{H}^1_0\left(\Omega\right)$ such that
 	\begin{equation}
-		\nabla \cdot \left(\textbf{v}\right) = q \text{ and } \left|\textbf{v}\right|_1 \lesssim \left|\left|q\right|\right|_{L^2}\nonumber.
+		\nabla \cdot \textbf{v}= q \text{ and } \left|\textbf{v}\right|_1 \lesssim \left|\left|q\right|\right|_{L^2}\nonumber.
 	\end{equation}
 	Consequently, the inf-sup condition, (\ref{coerc_b}), holds.
 \end{lemma}
@@ -349,15 +350,15 @@ We will use the statement of Lemma \ref{Lemma_equiv} to show it implies (\ref{co
 b\left(\textbf{v}_q,q\right) &=& \left|\left|q\right|\right|_{L^2}^2 \quad\text{by Lemma \ref{Lemma_equiv}  and defn of } \nonumber \left|\left|\cdot\right|\right|_{L^2},\\
 &\gtrsim& \left|\left|q\right|\right|_{L^2} \left|\textbf{v}_q\right|_1\quad \text{by Lemma \ref{Lemma_equiv}}.\nonumber
 \end{eqnarray}
-Now, assume that $\left|\textbf{v}_q\right|_1$ is not zero and take the supremum over $\textbf{v}\in \mathbb{V}$ to get:
+Now, assume that $\left|\textbf{v}_q\right|_1$ is not zero, divide throughout by it and then and take the supremum over $\textbf{v}\in \mathbb{V}$ to get
 \begin{equation}
 \sup_{\textbf{0}\neq\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} \gtrsim \left|\left|q\right|\right|_{L^2}.\nonumber
 \end{equation}
-Now we divide throughout by $\left|\left|q\right|\right|$, which we also assume not to be equal to zero, and take the $\inf$ of that, which we can do since the inequality is required to hold for all $q\in \mathbb{P}$:
+Now we divide throughout by $\left|\left|q\right|\right|_{L^2}$, which we also assume not to be equal to zero, and take the $\inf$ of that, which we can do since the inequality is required to hold for all $q\in \mathbb{P}$:
 \begin{equation}
 \inf_{q\in \mathbb{P}}\frac{1}{\left|\left|q\right|\right|_{L^2}}\sup_{\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} \gtrsim 1 \nonumber.
 \end{equation}
-Lastly, since $q$ does not depend on the choice of $\textbf{v}$, we can move it inside the supremum to obtain the required result, i.e. (\ref{coerc_b}) $\qedsymbol$ .  
+Lastly, we move $q$  inside the supremum to obtain the required result in the form shown in (\ref{coerc_b}) $\qedsymbol$ .  
 
 Next, we show that (\ref{coerc_a}) holds.  This is implied by the fact that (\ref{weak-a}) is coercive:
 \begin{eqnarray}
@@ -473,9 +474,10 @@ Bounds (\ref{bound-u-cont}) and (\ref{bound-p-cont}) show that the solution to (
 \begin{equation}
 \left|\textbf{u}\right|_1+\left|\left|p\right|\right|_{L^2} \leq\left( C_p+\frac{2C_p}{\beta}\right)\left|\left|\textbf{f}\right|\right|_{L^2}.
 \end{equation}
-In conclusion, in this section we have shown that our problem has a unique, stable solution.
-\section{Adaptivity}\label{sec_adaptivity}
-The main objective in this project is to develop a strategy for switching between Stokes equation and Poisson equation in different parts of our domain.  In this section we will consider a domain which is divided into sub-domains based on the equations governing the flow in each subdomain.  Specifically, we want to find $\left(\textbf{u},p\right)$ that satisfies:
+In conclusion, in this section we have shown that the Stokes problem has a unique, stable solution.
+\subsection{Combined Problem}\label{sec_adaptivity}
+In this section we present our combined Stokes-Laplace problem.  We present the variational formulation and then we give conditions under which it is well-posed.  We will consider a domain which is divided into sub-domains based on the equations governing the flow in each subdomain.
+\subsubsection{Combined Problem}
 \begin{equation}
 	\begin{aligned}\label{stokes_eq_adapt}
 \text{In $\Omega_{1}$: }  -\Delta\textbf{u} + \nabla p &= \textbf{f} \\ 
