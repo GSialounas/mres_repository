@@ -610,20 +610,27 @@ We can combine this with (\ref{bound_vel_combi}) to obtain a bound on both the p
 \end{equation}
 Now we have control over both  velocity and  pressure.
 
-\section{A-posteriori Verf{\"u}rth}
-In this section we present an alternative a-posteriori analysis for the Stokes problem.  This approach is presented in \cite{verfurth2013posteriori} and there are some differences between it and what we did so far.  In order to present the analysis in this section clearly and in an ordered, transparent manner we will follow the same strategy as \cite{verfurth2013posteriori}. Namely,  we will first present results and notation which apply to an abstract variational problem.  These results will be useful in obtaining upper and lower a-posteriori bounds.  After presenting the general results, we will tailor them to the variational formulation of the Stokes problem, which is what interests us. 
+\section{A-posteriori Analysis} % Verf{\"u}rt
+In this section we present an a-posteriori analysis for our problem.  The approach and the framework we will be using are presented in \cite{verfurth2013posteriori}.  There are some differences between this abstract framework and what we did so far.  
+
+The main difference we are concerned with is the way a-posteriori bounds are derived in this framework.  Namely,  rather than start from a problem and show that it satisfies some a-posteriori bounds, we start from the abstract framework in which a-posteriori bounds (more specifically the form the bound will have) have been derived in abstract terms.  
+
+The next step is to show that our specific problem (be it Laplace, Stokes or the combined problem) fits within the abstract framework.  Once this is done, the problem automatically inherits (from the abstract problem) the form for the  a-posteriori  bounds, which have been derived in abstract terms.  The problem specific bound will then arise  by substituting the computed solution and the problem specific data in this abstract form. 
+
+The results presented in this section (as well as the analysis for the Laplace and Stokes problem presented in this section) can be found in their entirety in \cite{verfurth2013posteriori} (see \S 4). The rest of this section will be structured as follows.  Firstly, we will introduce the abstract framework.  Then, we will introduce the well-posedness results for an abstract variational problem in this framework.   We will also present theorems regarding a-posteriori error control in abstract terms.  We will then show that the Laplace and Stokes problems fit within this framework, both in the continuous fomr and in the finite element approximation. The reason for doing this is that the analysis for the combined problem shares a lot of its analysis with the Laplace and Stokes problem.   We will conclude the section by presenting a-posteriori bounds for all three problems.   
 
 \hl{Note to Tristan and Oliver:  I will make a section to explain dual spaces, dual norms and any other concepts I didn't explain properly throughout the text}
 \subsection{Abstract Problems-Framework}\label{sec_abst_var_prob}
+In this section we will introduce the abstract framework we will be using throughout the following sections.  We will begin by presenting the notation we will be using.  Then we will give results that will be used to show the well-posedness of an abstract variational problem in the continuous form and also for its finite-element approximation.  Lastly, we will give some results that will be used to construct a-posteriori error estimators for an abstract variational problem. The reader is advised to consult \S 4.1 of \cite{verfurth2013posteriori} for a detailed exposition of this material.
 \subsubsection{Abstract Variational Problem}\label{subsec_verf_abst_var_prob}
-This information is identical to that presented in \cite{verfurth2013posteriori} \S $4.1$.  Given Banach Spaces $X$ and $Y$ with norms $\left|\left|\cdot\right|\right|_X$ and $\left|\left|\cdot\right|\right|_Y$ respectively we define
+We start by defining the spaces in which we will present our problem.  We will adopt the same notation and spaces as \cite{verfurth2013posteriori} (see \S 4.1.1) for ease of reference.  Consider Banach spaces $\left(X,\left|\left|\cdot\right|\right|_X\right)$ and $\left(Y,\left|\left|\cdot\right|\right|_Y\right)$. In this context we  define:
 \begin{itemize}
 	\item $\mathcal{L}\left(X,Y\right)$ to be the space of continuous linear mappings from $X$ to $Y$ with norm 
 	\begin{equation}
 	\left|\left|L\right|\right|_{\mathcal{L}\left(X,Y\right)} = \sup_{\phi \in X\setminus\lbrace 0\rbrace}\frac{\left|\left|L\phi\right|\right|_Y}{\left|\left|\phi\right|\right|_X}.
 	\end{equation}
 	\item $Y^*$ to be the dual space of $Y$ (the space of continuous linear functionals on $Y$).
-	\item $\langle \cdot,\cdot\rangle_Y$ to be the dual pairing of $Y^*$ and $Y$
+	\item $\langle \cdot,\cdot\rangle_Y$ to be the dual pairing of $Y^*$ and $Y$ i.e. the value of an $\ell\in Y^*$ applied to a $\psi\in Y $.
 	\item $\mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ is the space of continuous bi-linear mappings from $X\times Y$ to $\mathbb{R}$ with norm
 	\begin{equation}
 	\left|\left|B\right|\right|_{\mathcal{L}^2\left(X,Y,\mathbb{R}\right)} = \sup_{\phi \in X\setminus\lbrace 0\rbrace}\sup_{\psi \in Y\setminus\lbrace 0\rbrace}\frac{\left|B\left(\phi,\psi\right)\right|_Y}{\left|\left|\phi\right|\right|_X\left|\left|\psi\right|\right|_Y}.
