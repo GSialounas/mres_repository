@@ -621,9 +621,9 @@ The results presented in this section (as well as the analysis for the Laplace a
 
 \hl{Note to Tristan and Oliver:  I will make a section to explain dual spaces, dual norms and any other concepts I didn't explain properly throughout the text}
 \subsection{Abstract Problems-Framework}\label{sec_abst_var_prob}
-In this section we will introduce the abstract framework we will be using throughout the following sections.  We will begin by presenting the notation we will be using.  Then we will give results that will be used to show the well-posedness of an abstract variational problem in the continuous form and also for its finite-element approximation.  Lastly, we will give some results that will be used to construct a-posteriori error estimators for an abstract variational problem. The reader is advised to consult \S 4.1 of \cite{verfurth2013posteriori} for a detailed exposition of this material.
+In this section we will introduce the abstract framework we will be using throughout the following sections.  We will begin by presenting the notation we will be using.  Then we will give results that will be used to show the well-posedness of an abstract variational problem in the continuous form and also for its finite-element approximation.  Lastly, we will give some results that will be used to construct a-posteriori error estimators for an abstract variational problem. This section relies heavily on the material presented in \S 4.1 of \cite{verfurth2013posteriori} so the reader is advised to consult it for a more detailed exposition.
 \subsubsection{Abstract Variational Problem}\label{subsec_verf_abst_var_prob}
-We start by defining the spaces in which we will present our problem.  We will adopt the same notation and spaces as \cite{verfurth2013posteriori} (see \S 4.1.1) for ease of reference.  Consider Banach spaces $\left(X,\left|\left|\cdot\right|\right|_X\right)$ and $\left(Y,\left|\left|\cdot\right|\right|_Y\right)$. In this context we  define:
+We start by defining the spaces in which we will present our problem.  We will adopt the same notation and spaces as \cite[\S4.1.1]{verfurth2013posteriori} for ease of reference.  Consider Banach spaces $\left(X,\left|\left|\cdot\right|\right|_X\right)$ and $\left(Y,\left|\left|\cdot\right|\right|_Y\right)$. In this context we  define:
 \begin{itemize}
 	\item $\mathcal{L}\left(X,Y\right)$ to be the space of continuous linear mappings from $X$ to $Y$ with norm 
 	\begin{equation}
@@ -640,7 +640,7 @@ The spaces $\mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ and $\mathcal{L}\left(X,Y^
 \begin{equation}\label{verf_isomorphism}
 B\left(\phi,\psi\right)=\langle L\phi,\psi\rangle_Y\quad \forall \phi \in X\text{ and }\forall \psi \in Y,
 \end{equation}
-where $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ corresponds to $L\in \mathcal{L}\left(X,Y^*\right)$.  Now that we have all of our notation in place, this is a good point to introduce the sort of problem we are interested in.  This is done in a general, abstract sense here.  We will tailor it to Stokes later on.
+where $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ corresponds to $L\in \mathcal{L}\left(X,Y^*\right)$.  Now that we have all of our notation in place, this is a good point to introduce the sort of problem we are interested in.  This is done in a general, abstract sense here.  We will tailor it to Laplace, Stokes and our combined problem in the sections that follow.
 
 In general, given a $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ and $\ell \in Y^*$ the problem is to find $\phi \in X$ such that 
 \begin{equation}\label{verf_eqn_var}
@@ -652,8 +652,8 @@ L\phi=\ell.
 \end{equation}
 The reasons we are doing this are related to the analysis required to obtain a-posteriori bounds and will be explained in the sections that follow.  However, before proceeding with any sort of error analysis, we would like to know whether our problem is well-posed.   Recall that we have already presented the conditions for the well-posedness of (\ref{verf_eqn_var})-(\ref{verf_eqn_var_equiv}) in the case of Stokes in \S \ref{PDE_cont} as conditions (\ref{coerc_a})-(\ref{coerc_b}).
 
-We now present conditions for the well-posedness of this problem which are a bit more general and fit into the framework we are using in this section.  
-\begin{proposition}{$\textbf{Well-posedness of (\ref{verf_eqn_var})}$} (See \cite{verfurth2013posteriori}: \S 4.1.1: Proposition 4.1)\label{prop_well_pos_verf}
+We now present conditions for the well-posedness of the abstract problem, which   fit into the abstract framework we are using in this section.  
+\begin{proposition}{$\textbf{Well-posedness of (\ref{verf_eqn_var})}$} (See \cite[\S4.1.1]{verfurth2013posteriori}:  Proposition 4.1)\label{prop_well_pos_verf}
 Assume that the space Y is reflexive, that
 \begin{equation}
 	\sup_{\phi \in X}B\left(\phi,\psi\right)>0
@@ -664,20 +664,18 @@ holds for all $\psi\in Y\setminus \lbrace 0 \rbrace$ and that
 \end{equation}
 Then (\ref{verf_eqn_var}) admits a unique solution for every right-hand side $\ell\in Y^*$ - where $Y^*$ is the dual of $Y$- and the solution depends continuously on the right-hand side.
 \end{proposition}
-One may (rightly) wonder why we would go to the trouble of reformulating the conditions that we introduced in \S \ref{PDE_cont}.  Once, again, the reason is because this helps in the analysis that follows.  Observe that the reformulation allows for both the bilinear form $\textbf{a}\left(\cdot,\cdot\right)$ and the linear form $\textbf{b}\left(\cdot\right)$ from \S \ref{PDE_cont} to be incorporated in the bilinear form $B\left(\cdot,\cdot\right)$ in (\ref{verf_eqn_var}).  This will make it easy to use a single norm for the tuple space of the velocities and pressures we will be using for our Stokes problem.  Hence, the analysis required to obtain bounds will be a bit less involved. 
+One may (rightly) wonder why we would go to the trouble of reformulating the conditions that we introduced in \S \ref{PDE_cont}.  Once, again, the reason is because this helps in the analysis that follows.  Observe that the reformulation allows for both the bilinear form $\textbf{a}\left(\cdot,\cdot\right)$ and the linear form $\textbf{b}\left(\cdot\right)$ from \S \ref{PDE_cont} to be incorporated in the bilinear form $B\left(\cdot,\cdot\right)$ in (\ref{verf_eqn_var}).  This will make it easy to use a single norm for the tuple space of the velocities and pressures we will be using for our Stokes problem and also our combined problem.  In turn, this will simplify the analysis we need to do to obtain the bounds
 \subsubsection{Abstract Discrete Problem}
-The natural next step is to discretize our variational problem (\ref{verf_eqn_var}).  This entails introducing finite dimensional spaces for our solutions and stating conditions analogous to those in Proposition \ref{prop_well_pos_verf} that ensure the well-posedness of the discrete problem.  
-
-Firstly, we choose finite-dimensional subspaces $X_T$ and $Y_T$ of of our finite element spaces $X$ nad $Y$.  Then, the discrete version of (\ref{verf_eqn_var}) is to find $\phi_T\in X_T$ so that
+The  next step is to discretize our variational problem (\ref{verf_eqn_var}).  The procedure presented in this subsection is detailed in  \cite[\S4.1.1]{verfurth2013posteriori}.  We will first introduce the finite dimensional spaces we will search in for the solution.  Then we will present the conditions we will use to verify that our finite-element approximation is well-posed.  These are the finite-dimensional equivalent  to the well-posedness conditions in Proposition \ref{prop_well_pos_verf}.  Our  discrete problem  is to find $\phi_T\in X_T$ so that
 \begin{equation}\label{verf_eqn_disc}
-B\left(\phi_T,\psi_T\right)=\langle\ell_T,\psi_T\rangle_{Y_T}\quad \forall \psi_T \in Y_T,
+B_T\left(\phi_T,\psi_T\right)=\langle\ell_T,\psi_T\rangle_{Y_T}\quad \forall \psi_T \in Y_T,
 \end{equation}
-where in analogy to Proposition \ref{prop_well_pos_verf}, $B_T\in \mathcal{L}^2\left(X_T,Y_T,\mathbb{R}\right)$ and $\ell_T\in Y^*_T$.  Then, just as (\ref{verf_eqn_var}) is equivalent to (\ref{verf_eqn_var_equiv}) via the isomorphism (\ref{verf_isomorphism}), we can use the same isomorphism to write (\ref{verf_eqn_disc}) as 
+where in analogy to Proposition \ref{prop_well_pos_verf}, $B_T\in \mathcal{L}^2\left(X_T,Y_T,\mathbb{R}\right)$ and $\ell_T\in Y^*_T$.  The spaces $X_T$ and $Y_T$ are finite-dimensional subspaces of our finite element spaces $X$ and $Y$ respectively.   Then, just as (\ref{verf_eqn_var}) is equivalent to (\ref{verf_eqn_var_equiv}) via the isomorphism (\ref{verf_isomorphism}), we can use the same isomorphism to write (\ref{verf_eqn_disc}) as 
 \begin{equation}\label{verf_eqn_var_equiv_disc}
 L_T\phi_T=\ell_T,
 \end{equation}
 where $L_T\in\mathcal{L}\left(X_T,Y_T^*\right)$ is the linear map that corresponds to $B_T$ via (\ref{verf_isomorphism}).   The conditions for the well-posedness of (\ref{verf_eqn_disc}), which correspond to Proposition \ref{prop_well_pos_verf}, can be summarised as Proposition \ref{prop_well_pos_verf_disc}.
-\begin{proposition}{$\textbf{Well-posedness of (\ref{verf_eqn_disc})}$} (See \cite{verfurth2013posteriori}: \S 4.1.3: Proposition 4.5)\label{prop_well_pos_verf_disc}
+\begin{proposition}{$\textbf{Well-posedness of (\ref{verf_eqn_disc})}$} (See \cite[\S 4.1.3]{verfurth2013posteriori}:  Proposition 4.5)\label{prop_well_pos_verf_disc}
 	Assume that 
 	\begin{equation}
 	\sup_{\phi_T \in X_T}B_T\left(\phi_T,\psi_T\right)>0
@@ -688,20 +686,99 @@ where $L_T\in\mathcal{L}\left(X_T,Y_T^*\right)$ is the linear map that correspon
 	\end{equation}
 	Then (\ref{verf_eqn_disc}) admits a unique solution for every right-hand side $\ell_T\in Y^*_T$.
 \end{proposition}
+\subsubsection{Residual a-posteriori estimates}
+In this section we would like to obtain information about what conditions we expect our a-posteriori error indicators to fulfil.  These conditions are given in in Theorem \ref{verf_thm_apost_bounds} (see\cite[Theorem 4.7]{verfurth2013posteriori}).  Essentially, this result gives us general upper and lower bounds on a-posteriori error indicators, subject to certain conditions.  The content of this section is just a summary of the exposition in  \cite[\S 4.1.4]{verfurth2013posteriori}, which we follow closely.  
+
+In order to present the results we will need, we will firstly summarise the analysis from \cite{verfurth2013posteriori}, which leads to it.  We will then use these results to show that our a-posteriori error-indicator for the Stokes problem fulfils the conditions of the theorem and hence bounds the error from above and from below as explained in Theorem \ref{verf_thm_apost_bounds}.  
+
+Firstly, assume that (\ref{prop_well_pos_verf}) and (\ref{prop_well_pos_verf_disc}) are satisfied.  Hence, our abstract variational problem, (\ref{verf_eqn_var}) and its discretization, (\ref{verf_eqn_disc}) are both well-posed.   We denote by $\phi$ and $\phi_T$ the solutions of (\ref{verf_eqn_var}) and (\ref{verf_eqn_disc}) respectively. We now use the isomorphism,  (\ref{verf_isomorphism}), to get a bound on our error, $\phi-\phi_T$ as follows:
+\begin{equation}
+L\left(\phi-\phi_T\right)=\ell -L\phi_T
+\end{equation}
+implies
+\begin{equation}\label{verf_infdim_err_bounds}
+\left|\left|L\right|\right|^{-1}_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\ell-L\phi_T\right|\right|_{Y^*}\leq \left|\left|\phi-\phi_T\right|\right|_X \leq \left|\left|L^{-1}\right|\right|_{\mathcal{L}\left(Y^*,X\right)}\left|\left|\ell-L\phi_T\right|\right|_{Y^*}.
+\end{equation}
+Hence, for all $\psi \in Y$ (and letting $\left|\left|\psi\right|\right|_Y=1$) we get 
+\begin{equation}
+\langle\ell -L\phi_T,\psi \rangle_Y=\langle L\left( \phi-\phi_T\right),\psi \rangle_Y\leq \left|\left|L\right|\right|_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\phi-\phi_T\right|\right|_X
+\end{equation}
+The problem with the bounds in (\ref{verf_infdim_err_bounds}) is that computing the dual norm of $\ell-L\phi_T$ is as difficult as solving the original problem.  Instead, we need something more practical which can hopefully be computed with reasonable effort during a computation.   As \cite{verfurth2013posteriori} points out, we need to make sure that a few things hold before proceeding from this point. Namely, that $Y$ is a suitable subspace of a suitable $W^{1,2}$ space,
+that our residual $\ell - L\phi_T$ admits an $L^2$ representation and that it also satisfies Galerkin orthogonality.  The first point is taken care of by careful selection of our spaces and subspaces such that our well-posedness conditions are satisfied.  The choice of spaces is usually made obvious by the equation we are dealing with.  
+
+In order to obtain the $L^2$ representation of our residual we use integration by parts.  Lastly, for Galerkin orthogonality, consider the case when the discrete forms $B_T$ and $\ell_T$ are the restrictions of $B$ and $\ell$ respectively to the finite-dimensional spaces.  That is, consider that
+\begin{eqnarray}
+B_T\left(\phi_T,\psi_T\right)&=&B\left(\phi_T,\psi_T\right)\text{ and}\\
+\langle \ell_T, \psi_T\rangle_{Y_T} &=& \langle \ell_T, \psi_T\rangle_{Y},
+\end{eqnarray}
+holds for all $\phi_T\in X_T$ and for all $\psi_T \in Y_T$.  Then Galerkin orthogonality holds: i.e. using the isomorphism (\ref{verf_isomorphism}),
+\begin{equation}
+\langle \ell -L\phi_T,\psi_T\rangle_{Y}=\langle L\left(\phi-\phi_T\right),\psi_T\rangle_{Y}=0.
+\end{equation}
+Now, we want to obtain bounds for the dual norm of the residual $\left|\left|\ell-L\phi_T\right|\right|_{Y^*}$.  We do this by introducing a restriction operator $Q_T:Y\leftarrow Y_T$, which we use to split our residual as follows:
+\begin{equation}\label{verf_residual_split}
+\ell-L\phi_T=\left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)+Q_T^*\left(\ell-L\phi_T\right).
+\end{equation}
+where $Id_Y$ denotes the identity map in the space $Y$ and $Q_T^*$ is the adjoint of $Q_T$. such that 
+\begin{equation}
+\langle \ell -L\phi_T, Q_T\psi_T\rangle_Y = \langle Q_T^*\left(\ell -L\phi_T\right), \psi_T\rangle_Y. 
+\end{equation}  
+At this point, \cite{verfurth2013posteriori} uses (\ref{verf_infdim_err_bounds}) to obtain an upper bound for the error as shown below
+\begin{equation}\small
+\left|\left|\phi-\phi_T\right|\right|_X\leq \left|\left|L^{-1}\right|\right|_{\mathcal{L}\left(Y^*,X\right)}\left\lbrace\left|\left| \left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*} +\left|\left| Q_T^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*}\right\rbrace,
+\end{equation}
+noting that, when Galerkin orthogonality is satisfied, the terms involving $Q_T^*$ vanish.  Notice that although this is an upper bound, it still involves dual norms.  It would be more accurate to describe it as part of a condition that we will use to ensure that our a-posteriori error indicator can be used to get an upper bound on the error.
+
+\hl{Note to Tristan and Oliver: I will also explain why we are going to the trouble of choosing the subspace for the lower bound in the analysis that follows, hopefully soon, but as that involves a bit of extra reading I will postpone it until after I get the more essential parts of the analysis done}. Next, we want to get a condition for a lower-bound.  We firstly choose a finite-dimensional subspace $\widetilde{Y}_T$ of $Y$ such that $\widetilde{Y}_T\subset Y_T\subset Y$.  Then, we use the definition of the dual norm 
+together with the fact that $\widetilde{Y}_T\subset Y_T$ to obtain
+\begin{equation}\label{verf_subspace_dual_bound}
+\left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}\leq \left|\left| \ell-L\phi_T\right|\right|_{Y^*}.
+\end{equation}
+The results in (\ref{verf_infdim_err_bounds}) together with (\ref{verf_subspace_dual_bound}) give us
+\begin{equation}
+\left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}\leq \left|\left|L\right|\right|_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\phi-\phi_T\right|\right|_X.
+\end{equation}
+Now, assume that we can somehow manage to show that for our problem there exists a finite constant $C$ such that
+\begin{equation}
+\left|\left| \left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*} +\left|\left| Q_T^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*}\leq C \left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}
+\end{equation}
+holds. Suppose also that we can find an error indicator, $\eta_T$, that depends only on the computed discrete solution, $\phi_T$, and on the problem data $f$ and that we can use $\eta_T$ to bound $\left|\left| \left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*} +\left|\left| Q_T^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*}$ from above and $\left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}$ from below.  
+
+
+If we can do this, then, as \cite{verfurth2013posteriori} points out, the a-posteriori error estimation for our problem is equivalent to finding the appropriate $\eta_T$ for our problem.  Note that it is also possible that we will need to include a data error, $\theta_T$, if we also need to approximate the given data.  The conditions that an appropriate a-posteriori indicator must fulfil have been tidied-up and summarised in Theorem \ref{verf_thm_apost_bounds}.
+\begin{theorem}{Abstract framework for an a-posteriori error estimator}(See \cite{verfurth2013posteriori} \S4.1.4: Theorem 4.7)\label{verf_thm_apost_bounds}
+	Assume that the conditions of Propositions \ref{prop_well_pos_verf} and \ref{prop_well_pos_verf_disc} are satisfied and denote by $\phi$ and $\phi_T$ the unique solutions of respectively. Assume that there is a restriction operator $Q_T\in \mathcal{L}\left(Y,Y_T\right)$, a finite dimensional subspace $\widetilde{Y}_T$ of $Y$ such that $Y_T\subset\widetilde{Y}_T\subset Y$, an error indicator $\eta_T$, which only depends on the discrete solution $\phi_T$ and the given data of the variational problem and a data error which depends only on the data of the variational problem such that the estimates
+	\begin{equation}\nonumber
+	\begin{aligned}
+	\left|\left|\left(Id_Y-Q_T\right)^*\left(\ell -L\phi_T\right)\right|\right|_{Y^*}&\leq c_A \left(\eta_T + \theta_T\right),\\
+	\left|\left|Q_T^*\left(\ell -L\phi_T\right)\right|\right|_{Y^*}&\leq c_C\left(\eta_T+\theta_T\right)\text{ and}\\
+	\eta_T &\leq c_I\left(\left|\left|\ell - L\phi_T\right|\right|_{\widetilde{Y}^*_T}+ \theta_T\right)
+	\end{aligned}
+	\end{equation}
+	are fulfilled.  Then the error $\phi-\phi_T$ can be bound from above by
+	\begin{equation}\nonumber
+	\left|\left|\phi-\phi_T\right|\right|_X\leq\left|\left|L^{-1}\right|\right|_{\mathcal{L}\left(Y^*,X\right)}\left(c_A+c_C\right)\left(\eta_T+\theta_T\right)
+	\end{equation}
+	and from below by 
+	\begin{equation}\nonumber
+	\eta_T\leq c_I\left(\left|\left|L\right|\right|_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\phi-\phi_T\right|\right|_X+\theta_T\right).
+	\end{equation}
+\end{theorem}
+
 Next, we tailor the results we presented in this section to the specific case of the Stokes problem.
 \subsection{Stokes Problem}
-In this section we will present the formulation of our Stokes problem as a variational problem.  We will use the same format as in \S \ref{sec_abst_var_prob}.  Firstly we will introduce the infinite-dimensional problem and the conditions for well-posedness and then we will do the same for its discrete version.  
+In this section we will present the formulation of our Stokes problem as a variational problem.  We will use the abstract framework we introduced in \S \ref{sec_abst_var_prob}.  Firstly we will introduce the infinite-dimensional problem.  We will show how we fit it within the abstract-variational problem framework. We will then do the same for the discrete version.  
 \subsubsection{Stokes Problem Variational formulation}
-In this section we present a variational formulation of the Stokes problem.  The first step will be to introduce the framework we will work with in addressing the problem using the material in the propositions in the last few sections.  The first step is to specify includes the spaces, the norms and the forms we will use.
+In this section we present a variational formulation of the Stokes problem in terms of the abstract framework.  We will be following the analysis in \cite[\S 4.10]{verfurth2013posteriori}.   We start by specifying the spaces, the norms and the forms we will use:
 \begin{equation}\label{verf_eqns}
 \begin{aligned}
 X=Y&=\left[\textbf{H}^1_0\left(\Omega\right)\right]^d\times L^2_0\left(\Omega\right),\\
-\left|\left|\left(\textbf{u},p\right)\right|\right|_X&=\left\lbrace \left|\left|\nabla\textbf{u}\right|\right|^2 + \left|\left|p\right|\right|^2\right\rbrace^{1/2},\\
+\left|\left|\left(\textbf{u},p\right)\right|\right|_X&=\left\lbrace \left|\left|\nabla\textbf{u}\right|\right|^2_{L^2} + \left|\left|p\right|\right|^2_{L^2}\right\rbrace^{1/2},\\
 B\left(\left(\textbf{u},p\right),\left(\textbf{v},q\right)\right)&=\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v} - \int_{\Omega} p \nabla\cdot\textbf{v} + \int_{\Omega} q \nabla\cdot\textbf{u},\\
 \langle \ell\,,\left(\textbf{v},q\right) \rangle_Y &= \int_{\Omega}\textbf{f}\cdot \textbf{v}.
 \end{aligned}
 \end{equation}
-In order to show that, our variational formulation for the Stokes problem is well-posed we need another two results from \cite{verfurth2013posteriori}.
+In order to show that, our variational formulation for the Stokes problem is well-posed in this framework we need another two results from \cite{verfurth2013posteriori}.
 \begin{proposition}(See \cite{verfurth2013posteriori} \S 4.10: Proposition 4.67)\label{prop_well_pos_verf_saddle_1}
 	The divergence  operator is an isomorphism of 
 	\begin{equation}
@@ -722,9 +799,9 @@ In order to show that, our variational formulation for the Stokes problem is wel
 	\end{equation}
 	where $\beta$ is the same constant as in Proposition \ref{prop_well_pos_verf_saddle_1}.
 \end{proposition}
-A reasonable question to ask at this point is why we need Proposition \ref{prop_well_pos_verf_saddle_1}.  We need it because we use it to prove that Proposition \ref{prop_well_pos_verf_saddle} holds.  In turn, Proposition \ref{prop_well_pos_verf_saddle} implies that the bilinear form $B$ satisfies the conditions of Proposition \ref{prop_well_pos_verf}.  Hence, our variational formulation of the Stokes problem is well-posed.  In order to demonstrate how Proposition \ref{prop_well_pos_verf_saddle_1} contributes towards the proof for the well-posedness of our variational formulation of the Stokes problem, we include the proof that Proposition \ref{prop_well_pos_verf_saddle} holds from \cite{verfurth2013posteriori} (see \S4.10.1: Proposition 4.69).  In the proof that follows note that we emit the result that proves the equality and focus on the inequality.
+A reasonable question to ask at this point is why we need Proposition \ref{prop_well_pos_verf_saddle_1}.  The answer is because we use it to prove that Proposition \ref{prop_well_pos_verf_saddle} holds.  In turn, Proposition \ref{prop_well_pos_verf_saddle} implies that the bilinear form $B$ satisfies the conditions of Proposition \ref{prop_well_pos_verf}.  Hence, our variational formulation of the Stokes problem is well-posed.  In order to demonstrate how Proposition \ref{prop_well_pos_verf_saddle_1} contributes towards the proof for the well-posedness of our variational formulation of the Stokes problem, we include the proof that Proposition \ref{prop_well_pos_verf_saddle} holds that is given in \cite[\S4.10.1: Proposition 4.69]{verfurth2013posteriori}.  In the proof that follows note that we emit the result that proves the equality and focus on the inequality.
 \begin{proof}
-Chose an arbitrary element $\left(\textbf{v},q\right)\in X\setminus \lbrace 0 \rbrace$ and keep it fixed in waht follows.  The definition of B immediately implies that 
+Chose an arbitrary element $\left(\textbf{v},q\right)\in X\setminus \lbrace 0 \rbrace$ and keep it fixed in what follows.  The definition of B immediately implies that 
 \begin{equation}\nonumber
 B\left(\left(\textbf{v},q\right),\left(\textbf{v},q\right)\right)= \left|\left|\nabla \textbf{v}\right|\right|^2.
 \end{equation}
@@ -781,7 +858,7 @@ Recall that $\left(\textbf{v},q\right)$ was chosen arbitrarily.  Hence, we can t
 \subsection{Stokes Problem: FE approximation}
 In this section we present the finite element approximation to (\ref{verf_eqns}).  The finite element spaces we are looking will be
 \begin{eqnarray}
-	\mathbb{V}_T&\subset&\textbf{H}^1_0\left(\Omega\right)^d \text{ and}\nonumber\\
+	\mathbb{V}_T&\subset&\left[\textbf{H}^1_0\left(\Omega\right)\right]^d \text{ and}\nonumber\\
 	P_T&\subset& L^2_0\left(\Omega\right),\nonumber
 \end{eqnarray}
 where $T$ is an appropriate triangulation of our domain $\Omega$.  More specifically, by appropriate we mean affine-equivalent (consists of triangles (and parallelograms)), shape-regular (minmal angle of all elements in $T$ is strictly greater than $0$)  and admissible (the intersection between any two elements in $T$ is at most a vertex or an edge).  The reader can consult \cite{verfurth2013posteriori} or \cite{brenner2007mathematical} for more details.
@@ -794,7 +871,7 @@ B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_
 \end{aligned}
 \end{equation}
 Our approximate problem will be well-posed if the discrete version of Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} are satisfied for all triangulations $T$ that we consider.  This is ensured if we choose our finite element spaces for the velocity $V_T$ and the pressure $P_T$ in (\ref{verf_eqns_approx}) appropriately.
-There are many such choices (see \cite{verfurth2013posteriori}: \S 4.10.2 for multiple examples) but we will be only use the Taylor-Hood element, which is a well-known, stable choice for the Stokes equation:
+There are many such choices (see \cite[\S 4.10.2]{verfurth2013posteriori} for multiple examples) but we will be only use the Taylor-Hood element, which is a well-known, stable choice for the Stokes equation:
 \begin{eqnarray}
 \begin{aligned}
 V_T&=\left[S^{2,0}_0\left(T\right)\right]^d,\\
@@ -802,84 +879,9 @@ P_T&=S^{1,0}\left(T\right)\cap L^2_0\left(\Omega\right).
 \end{aligned}
 \end{eqnarray}
 This choice ensures that the forms we introduced in (\ref{verf_eqns_approx}) fulfil the conditions in Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle}.  This in turn ensures that the conditions in Proposition \ref{prop_well_pos_verf_disc} are met.  Hence, our discrete problem - i.e. find $\left(\textbf{u}_T, p_T\right)$ such that (\ref{verf_eqns_approx}) holds for all $\left(\textbf{v}_T,q_T\right)\in V_T\times P_T$ - is well-posed.
-\subsection{Residual a-posteriori estimates}
-In this section we would like to obtain information about what conditions we expect our a-posteriori error indicators to fulfil.  These conditions are summarised by \cite{verfurth2013posteriori} in the form of Theorem \ref{verf_thm_apost_bounds} (see\cite{verfurth2013posteriori}: Theorem 4.7).  Essentially, this result gives us general upper and lower bounds on a-posteriori error indicators, subject to certain conditions.  The content of this section is just a summary of the exposition in \S4.1.4 of \cite{verfurth2013posteriori}, which we follow closely.  
 
-In order to present this result we  will firstly summarise the analysis from \cite{verfurth2013posteriori}, which leads to it.  Later on we will use it to show that our a-posteriori error-indicator for the Stokes problem fulfils the conditions of the theorem and hence bounds the error from above and from below as set forth by Theorem \ref{verf_thm_apost_bounds}.  
+\subsection{Stokes: A-posteriori Estimate}
 
-Firstly, assume that (\ref{prop_well_pos_verf}) and (\ref{prop_well_pos_verf_disc}) are satisfied.  Hence, our abstract variational problem, (\ref{verf_eqn_var}) and its discretization, (\ref{verf_eqn_disc}) are both well-posed.   We denote by $\phi$ and $\phi_T$ the solutions of (\ref{verf_eqn_var}) and (\ref{verf_eqn_disc}) respectively. We now use the isomorphism,  (\ref{verf_isomorphism}), to get a bound on our error, $\phi-\phi_T$ as follows:
-\begin{equation}
-L\left(\phi-\phi_T\right)=\ell -L\phi_T
-\end{equation}
-implies
-\begin{equation}\label{verf_infdim_err_bounds}
-\left|\left|L\right|\right|^{-1}_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\ell-L\phi_T\right|\right|_{Y^*}\leq \left|\left|\phi-\phi_T\right|\right|_X \leq \left|\left|L^{-1}\right|\right|_{\mathcal{L}\left(Y^*,X\right)}\left|\left|\ell-L\phi_T\right|\right|_{Y^*}.
-\end{equation}
-Hence, for all $\psi \in Y$ (and letting $\left|\left|\psi\right|\right|_Y=1$) we get 
-\begin{equation}
-\langle\ell -L\phi_T,\psi \rangle_Y=\langle L\left( \phi-\phi_T\right),\psi \rangle_Y\leq \left|\left|L\right|\right|_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\phi-\phi_T\right|\right|_X
-\end{equation}
-The problem with the bounds in (\ref{verf_infdim_err_bounds}) is that computing the dual norm of $\ell-L\phi_T$ is as difficult as solving the original problem.  Instead, we need something more practical which can hopefully be computed with reasonable effort during a computation.   As \cite{verfurth2013posteriori} points out, we need to make sure that a few things hold before proceeding from this point. Namely, that $Y$ is a suitable subspace of a suitable $W^{1,2}$ space,
- that our residual $\ell - L\phi_T$ admits an $L^2$ representation and that it also satisfies Galerkin orthogonality.  The first point is taken care of by careful selection of our spaces and subspaces such that our well-posedness conditions are satisfied.  The choice of spaces is usually made obvious by the equation we are dealing with.  
- 
- In order to obtain the $L^2$ representation of our residual we use integration by parts.  Lastly, for Galerkin orthogonality, consider the case when the discrete forms $B_T$ and $\ell_T$ are the restrictions of $B$ and $\ell$ respectively to the finite-dimensional spaces.  That is, consider that
- \begin{eqnarray}
-B_T\left(\phi_T,\psi_T\right)&=&B\left(\phi_T,\psi_T\right)\text{ and}\\
-\langle \ell_T, \psi_T\rangle_{Y_T} &=& \langle \ell_T, \psi_T\rangle_{Y},
- \end{eqnarray}
- holds for all $\phi_T\in X_T$ and for all $\psi_T \in Y_T$.  Then Galerkin orthogonality holds: i.e. using the isomorphism (\ref{verf_isomorphism}),
- \begin{equation}
-\langle \ell -L\phi_T,\psi_T\rangle_{Y}=\langle L\left(\phi-\phi_T\right),\psi_T\rangle_{Y}=0.
- \end{equation}
- Now, we want to obtain bounds for the dual norm of the residual $\left|\left|\ell-L\phi_T\right|\right|_{Y^*}$.  We do this by introducing a restriction operator $Q_T:Y\leftarrow Y_T$, which we use to split our residual as follows:
- \begin{equation}\label{verf_residual_split}
- 	\ell-L\phi_T=\left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)+Q_T^*\left(\ell-L\phi_T\right).
- \end{equation}
- where $Id_Y$ denotes the identity map in the space $Y$ and $Q_T^*$ is the adjoint of $Q_T$. such that 
- \begin{equation}
-\langle \ell -L\phi_T, Q_T\psi_T\rangle_Y = \langle Q_T^*\left(\ell -L\phi_T\right), \psi_T\rangle_Y. 
- \end{equation}  
- At this point, \cite{verfurth2013posteriori} uses (\ref{verf_infdim_err_bounds}) to obtain an upper bound for the error as shown below
- \begin{equation}\small
-\left|\left|\phi-\phi_T\right|\right|_X\leq \left|\left|L^{-1}\right|\right|_{\mathcal{L}\left(Y^*,X\right)}\left\lbrace\left|\left| \left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*} +\left|\left| Q_T^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*}\right\rbrace,
- \end{equation}
- noting that, when Galerkin orthogonality is satisfied, the terms involving $Q_T^*$ vanish.  Notice that although this is an upper bound, it still involves dual norms.  It would be more accurate to describe it as part of a condition that we will use to ensure that our a-posteriori error indicator can be used to get an upper bound on the error.
- 
-  \hl{Note to Tristan and Oliver: I will also explain why we are going to the trouble of choosing the subspace for the lower bound in the analysis that follows, hopefully soon, but as that involves a bit of extra reading I will postpone it until after I get the more essential parts of the analysis done}. Next, we want to get a condition for a lower-bound.  We firstly choose a finite-dimensional subspace $\widetilde{Y}_T$ of $Y$ such that $\widetilde{Y}_T\subset Y_T\subset Y$.  Then, we use the definition of the dual norm 
- together with the fact that $\widetilde{Y}_T\subset Y_T$ to obtain
- \begin{equation}\label{verf_subspace_dual_bound}
-\left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}\leq \left|\left| \ell-L\phi_T\right|\right|_{Y^*}.
- \end{equation}
- The results in (\ref{verf_infdim_err_bounds}) together with (\ref{verf_subspace_dual_bound}) give us
- \begin{equation}
-\left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}\leq \left|\left|L\right|\right|_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\phi-\phi_T\right|\right|_X.
- \end{equation}
- Now, assume that we can somehow manage to show that for our problem there exists a finite constant $C$ such that
- \begin{equation}
-\left|\left| \left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*} +\left|\left| Q_T^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*}\leq C \left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}
- \end{equation}
- holds. Suppose also that we can find an error indicator, $\eta_T$, that depends only on the computed discrete solution, $\phi_T$, and on the problem data $f$ and that we can use $\eta_T$ to bound $\left|\left| \left(Id_Y-Q_T\right)^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*} +\left|\left| Q_T^*\left(\ell-L\phi_T\right)\right|\right|_{Y^*}$ from above and $\left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}$ from below.  
- 
- 
-  If we can do this, then, as \cite{verfurth2013posteriori} points out, the a-posteriori error estimation for our problem is equivalent to finding the appropriate $\eta_T$ for our problem.  Note that it is also possible that we will need to include a data error, $\theta_T$, if we also need to approximate the given data.  The conditions that an appropriate a-posteriori indicator must fulfil have been tidied-up and summarised in Theorem \ref{verf_thm_apost_bounds}.
-\begin{theorem}{Abstract framework for an a-posteriori error estimator}(See \cite{verfurth2013posteriori} \S4.1.4: Theorem 4.7)\label{verf_thm_apost_bounds}
-Assume that the conditions of Propositions \ref{prop_well_pos_verf} and \ref{prop_well_pos_verf_disc} are satisfied and denote by $\phi$ and $\phi_T$ the unique solutions of respectively. Assume that there is a restriction operator $Q_T\in \mathcal{L}\left(Y,Y_T\right)$, a finite dimensional subspace $\widetilde{Y}_T$ of $Y$ such that $Y_T\subset\widetilde{Y}_T\subset Y$, an error indicator $\eta_T$, which only depends on the discrete solution $\phi_T$ and the given data of the variational problem and a data error which depends only on the data of the variational problem such that the estimates
-\begin{equation}\nonumber
-\begin{aligned}
-\left|\left|\left(Id_Y-Q_T\right)^*\left(\ell -L\phi_T\right)\right|\right|_{Y^*}&\leq c_A \left(\eta_T + \theta_T\right),\\
-\left|\left|Q_T^*\left(\ell -L\phi_T\right)\right|\right|_{Y^*}&\leq c_C\left(\eta_T+\theta_T\right)\text{ and}\\
-\eta_T &\leq c_I\left(\left|\left|\ell - L\phi_T\right|\right|_{\widetilde{Y}^*_T}+ \theta_T\right)
-\end{aligned}
-\end{equation}
-are fulfilled.  Then the error $\phi-\phi_T$ can be bound from above by
-\begin{equation}\nonumber
-\left|\left|\phi-\phi_T\right|\right|_X\leq\left|\left|L^{-1}\right|\right|_{\mathcal{L}\left(Y^*,X\right)}\left(c_A+c_C\right)\left(\eta_T+\theta_T\right)
-\end{equation}
-and from below by 
-\begin{equation}\nonumber
-\eta_T\leq c_I\left(\left|\left|L\right|\right|_{\mathcal{L}\left(X,Y^*\right)}\left|\left|\phi-\phi_T\right|\right|_X+\theta_T\right).
-\end{equation}
-\end{theorem}
 Now we need to show that we can produce an appropriate a-posteriori indicator $\eta_T$ that fulfils the conditions in Theorem \ref{verf_thm_apost_bounds}.  At the same time note that we are considering the data error, $\theta_T$ to be zero at the moment.
 
 We will start by showing that we can come up with an indicator that satisfies the first condition in Theorem \ref{verf_thm_apost_bounds}.  Let $\left(\textbf{u},p\right)\in X$ be the unique solution to (\ref{verf_eqns}) and $\left(\textbf{u}_T,p_T\right)\in X_T$ be the unique solution to (\ref{verf_eqns_approx}).  Now consider a $\left(\textbf{v},q\right)\in X$ and keep it fixed.  Our residual (more accurately an $L^2$-representation of our residual) is given by writing (\ref{verf_eqns_approx}) as a sum over the elements $K\in T$, integrating by parts and subtracting it from the right-hand side of \ref{verf_eqn_var_equiv} (see \cite{verfurth2013posteriori} \S 4.10.3):
