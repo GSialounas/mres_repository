@@ -584,7 +584,7 @@ In order for our problem to have a solution we require that
 \int_{\mathcal{I}} p\textbf{v}\cdot \textbf{n}_S-\textbf{v}\cdot\llbracket\nabla\textbf{u}\rrbracket=0.
 \end{equation}
 This is equivalent to saying that we want the jump of the gradient of $\textbf{u}$ across the interface to balance the component of the pressure from the Stokes part of the domain normal to the interface.
-\subsubsection{Well-Posedness}
+\subsubsection{Well-Posedness}\label{combi_wellpos_generalframe}
  In order to show that our problem is well-posed, we set $\textbf{v}=\textbf{u}$  and $q=p$ in (\ref{weak_total}).  The latter gives $\int_{\Omega_S}p\left(\nabla \cdot \textbf{u}\right)=0$.  Hence, (\ref{weak_total}) simplifies to:
 \begin{equation}\label{reduced_weak_total}
 	\left|\textbf{u}\right|_1^2 + \int_{\mathcal{I}}p\textbf{u}\cdot \textbf{n}_S-\textbf{u}\cdot\llbracket \nabla \textbf{u}\rrbracket =\int_{\Omega}\textbf{f}\cdot \textbf{u}.
@@ -994,7 +994,7 @@ hold for all $K\in T$.  Both $c^*$ and $c$ depend on the shape parameter $C_T$. 
 
 \subsection{A-Posteriori for combined prob.}
 In this section we will present the a-posteriori analysis for the combined problem.  We will firstly summarise the framework for each of the two problems.  Then we will present the framework for the combined problem.   We will use this framework to carry out the a-posteriori analysis for the combined problem.  In doing so we will also present any assumptions that we deem necessary for the solvability of the problem.
-\subsubsection{Variational formulation}
+\subsubsection{Variational formulation}\label{sec_combi_var_form}
 The frame work used for the Stokes problem, which was introduced in (\ref{verf_eqns}) is 
 \begin{equation}\label{frame_stokes}
 \begin{aligned}
@@ -1038,6 +1038,14 @@ B\left(\left(\textbf{u},p\right),\left(\textbf{v},q\right)\right)&=\int_{\Omega}
 \langle \ell\,,\left(\textbf{v},q\right) \rangle_Y &= \int_{\Omega}\textbf{f}\cdot \textbf{v}.
 \end{aligned}
 \end{equation}
+Its discrete form is given by
+\begin{equation}\label{frame_combi_disc}
+\begin{aligned}
+X_T=Y_T&=S_0^{2,0}\left(T\right)^d\times \left(S^{1,0}\left(T\cap\Omega_S\right)\cap L^2_0\left(T\cap\Omega_S\right)\right),\\
+B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_{\Omega}\nabla \textbf{u}_T : \nabla \textbf{v}_T - \int_{\Omega_S} p_T \nabla\cdot\textbf{v}_T + \int_{\Omega_S} q_T \nabla\cdot\textbf{u}_T,\\
+\langle \ell_T\,,\left(\textbf{v}_T,q_T\right) \rangle_{Y_T} &= \int_{\Omega}\textbf{f}\cdot \textbf{v}_T,
+\end{aligned}
+\end{equation}
  The reader will notice that the pressure is only defined over the Stokes part of the domain. This is also reflected in the norm we use.  
  We have to overcome this problem on two levels:  on an analysis level  and on an implementation level.  For  the analysis we use the interface (solvability) condition, (\ref{combi_cond_wellpos}), to get rid of the boundary contribution:
  \begin{equation}
@@ -1045,38 +1053,39 @@ B\left(\left(\textbf{u},p\right),\left(\textbf{v},q\right)\right)&=\int_{\Omega}
  \end{equation}
  By doing, this, we ensure that our problem is well-posed in the abstract variational framework.  
  
- For the implementation part we extend the pressure space by $0$ to the Laplace part of the domain.  This trick was used by \cite{BangerthHartmannKanschat2007} in Tutorial 46.   In this way we can have pressures over the whole  domain: they are simply zero in the Laplace part.
-\subsubsection{Extending the pressure space by zero}
-The idea behind this notion is simple.  Firstly, we introduce the space  
+ For the implementation part we extend the pressure space by $0$ to the Laplace part of the domain.  This trick was used by \cite{BangerthHartmannKanschat2007} in Tutorial 46.   In this way we can have pressures over the whole  domain: they are simply zero in the Laplace part.  We will provide details about this in \S \ref{sec_combi_implementation} where we will talk about the implementation of our problem in Deal.II (see \cite{BangerthHartmannKanschat2007}).
+ \subsubsection{Well-Posedness}
+ We will briefly show that the combined problem is well-posed in the abstract framework (we have already done this in \S \ref{combi_wellpos_generalframe} but not using the abstract framework).  Let us first look at the case where we are in the Stokes part of the domain.  In this case, the results we need to show well-posedness are Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle}.  
+ 
+ Firstly, we enforce the interface condition.  Then we observe that, if we are in $\Omega_S$, the framework for the combined problem introduce in (\ref{frame_combined}) is the same as that for the Stokes problem, for which the conditions in Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} are indeed satisfied.  Hence, the Stokes part of the problem is well-posed.
+ 
+ Now, if we are in a Laplace part of the domain, after we enforce the interface condition, the combined problem framework introduced in (\ref{frame_combined}) reduces to that of the Laplace problem in (\ref{frame_laplace}.  The bilinear form for the Laplace problem is symmetric, coercive and bounded.  Hence, it automatically satisfies the well-posedness conditions of the abstract variational problem set forth in Proposition (\ref{prop_well_pos_verf}).  As a matter of fact, it satisfies even stronger conditions than this, since it satisfies Lax-Milgram. 
+  Hence, since both the Stokes and the Laplace part of the problem are  well-posed, our combined problem is well-posed. 
+ 
+  Now we want to know whether or not the discretizations our stable.  Firstly, for the Stoke's part of the problem we choose the Taylor-Hood element just as we did for the Stokes problem in (\ref{frame_stokes_disc}), while for the Laplace part of the problem we choose quadratics over quadrilaterals as shown in (\ref{frame_laplace_disc}).
+  
+  Let us start with the Taylor-Hood element.   The stability of our discretisation is shown by first showing that the discrete form  of (\ref{prop_well_pos_verf_saddle_1})  holds (after enforcing our interface condition) (see \cite[\S4.10.2]{verfurth2013posteriori}).  That is, that there exists a constant $\widetilde{\beta}$ such that for all triangulations $T$ which are obtained by global or adaptive refinement 
+  \begin{equation}\label{verf_infsup_disc}
+  \inf_{q_T\in \mathbb{P}_T\setminus \lbrace 0 \rbrace}\sup_{\textbf{v}_T\in \mathbb{V}_T\setminus \lbrace 0 \rbrace}\frac{\int_{\Omega}q_T\nabla\cdot\textbf{v}_T}{\left|\textbf{v}_T\right|_1 \left|\left|q_T\right|\right|_{L^2}}=\widetilde{\beta}>0.
+  \end{equation}
+ Here, the spaces $\mathbb{V}_T$ and $\mathbb{P}_T$ are given by 
+ \begin{equation}
+ \begin{aligned}
+ \mathbb{V}_T&=S_0^{2,0}\left(T\right)^d\quad\text{and}\\
+\mathbb{P}_T&=\left(S^{1,0}\left(T\cap\Omega_S\right)\cap L^2_0\left(T\cap\Omega_S\right)\right).
+ \end{aligned}\nonumber
+ \end{equation}
+ We have given a proof for (\ref{verf_infsup_disc}) in \S \ref{PDE_disc}.  Interested readers will find additional proofs that (\ref{verf_infsup_disc}) holds in \cite{verfurth1984error}, which was written by the same author as \cite{verfurth2013posteriori}.  Next, given that (\ref{verf_infsup_disc}) holds, we can show that the discrete form of (\ref{prop_well_pos_verf_saddle}) in the same way as was shown in the proof we included for Proposition \ref{prop_well_pos_verf_saddle} (see \cite[\S4.10.1]{verfurth2013posteriori}: Proposition 4.69).  
+ 
+ With regard to the well-posedness of the Laplace portion of the problem, after we enforce the interface condition,  the discrete bilinear form $B_T$ for our combined problem essentially reduces to the $B_T$ defined in (\ref{frame_laplace_disc}). This $B_T$, as \cite{verfurth2013posteriori} points out, is bounded, symmetric and coercive so it satisfies the conditions in Proposition (\ref{prop_well_pos_verf_disc}) so it results in a stable discretisation.
+ Hence, the approximation of our combined problem is well-posed. 
+
+\subsubsection{A-posteriori indicator}
+In this section we will present the a-posteriori error indicator for our combined problem.  In deriving a-posteriori bounds we need to take into consideration that the error must be controlled in two respects: from a modelling perspective and from a discretisation perspective.  Essentially, our a-posteriori indicator must give us the capability to refine both our model and our mesh.
 \begin{equation}
-\textbf{Z}=\left\lbrace  f: f\left(x\right)=0 \right\rbrace,
+\int_{\mathcal{I}}{\llbracket\nabla\textbf{u}-pI\rrbracket}=0,
 \end{equation}
-which is the space of functions that are constant zero on a cell.  This space is zero-dimensional so for the discrete space $\textbf{Z}_T$ it holds that
-\begin{equation}
-\textbf{Z}_T=\textbf{Z}.\nonumber 
-\end{equation}
- Now, our velocity function space remains unchanged while our pressure function space is extended over the Laplace part of the domain using $\textbf{Z}$:
-\begin{equation}\label{extended_pressure_space}
-\mathbb{P}=\left\lbrace p: \quad \restr{p}{{\Omega_S}}\in L^2_0\left(\Omega_S\right),\quad  \restr{p}{{\Omega_L}}\in\textbf{Z}\left(\Omega_L\right)\right\rbrace.
-\end{equation}
-Now we can introduce the framework we will use for the mixed problem:
-\begin{equation}
-\begin{aligned}
-X=Y&=\mathbb{V}\times \mathbb{P},\\
-\left|\left|\left(\textbf{u},p\right)\right|\right|_X&=\left\lbrace \left|\left|\nabla\textbf{u}\right|\right|^2 + \left|\left|p\right|\right|^2\right\rbrace^{1/2},\\
-B\left(\left(\textbf{u},p\right),\left(\textbf{v},q\right)\right)&=\int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v} - \int_{\Omega} p \nabla\cdot\textbf{v} -q \nabla\cdot\textbf{u}-\int_{\mathcal{I}} \llbracket\nabla\textbf{u}-pI\rrbracket\cdot\textbf{v},\\
-\langle \ell\,,\left(\textbf{v},q\right) \rangle_Y &= \int_{\Omega}\textbf{f}\cdot \textbf{v},
-\end{aligned}
-\end{equation}
-where 
-\begin{equation}
-\mathcal{I}=\overline{\Omega}_S\cap\overline{\Omega}_L.
-\end{equation}
-The solvability condition for the mixed problem is 
-\begin{equation}
-{\llbracket\nabla\textbf{u}-pI\rrbracket}|_{\mathcal{I}}=0.
-\end{equation}
-If we enforce this condition then Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} can be used to establish the well-posedness of the mixed problem in the same way as for the variational formulation of the Stokes problem.   Hence, we would also expect to be able to use a similar a-posteriori error-indicator as proposed in Theorem \ref{verf_theorem_apost_err_ind}. 
+where we have included the pressure term in the jump since it is simply zero in $\Omega_L$.  If we enforce this condition then Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} can be used to establish the well-posedness of the combined problem for the discretization shown in \S  in the same way as for the variational formulation of the Stokes problem.   Hence, we would also expect to be able to use a similar a-posteriori error-indicator as proposed in Theorem \ref{verf_theorem_apost_err_ind}. 
 
 The starting point of our analysis would be the $L^2$-representation of the residual.  This would be similar to what we did for the Stokes equations in (\ref{L2-rep-residual}).   More specifically, the $L^2$-representation of the mixed problem residual would be
 \begin{eqnarray}\label{L2-rep-residual-mixed}
@@ -1088,6 +1097,41 @@ The final step is to obtain the a-posteriori error indicator for the mixed probl
 \eta_{R,K}=\left(h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T-\nabla p_T\right|\right|^2_K+\left|\left|\text{div} \textbf{u}_T\right|\right|^2_K+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}\setminus\mathcal{I}}h_E\left|\left| \llbracket \nabla \textbf{u}_T -p_T \rrbracket \right|\right|_E^2\right)^{1/2}.
 \end{equation}
 Compare this with the indicator given in Theorem \ref{verf_theorem_apost_err_ind} for the Stokes problem.
+
+ 
+ \subsubsection{Implementation}\label{sec_combi_implementation}
+In this section we will discuss how will implement our combined problem in Deal.II.   Deal.II is a C++, open-source, finite element library which we will be using for the implementation of the computational aspects of this project.   
+
+There will be differences between the way in which we have conducted the analysis for our combined problem and the way we will implement it.  The most important difference is the way we will implement pressure.  In \S \ref{sec_combi_var_form}, where we specified the variational forms for both our continuous problem and its approximation, we mentioned that pressure is defined only in the Stokes part of the domain, $\Omega_S$.  However from an implementation perspective we will do things slightly differently.
+
+Specifically, we will define pressure globally by extending it by $0$ to the Laplace part of the domain, $\Omega_L$.  In order to do this, let us firs introduce the space of functions which are (constant) zero on a cell, $\textbf{Z}$:
+\begin{equation}
+\textbf{Z}=\left\lbrace  f: f\left(x\right)=0 \right\rbrace.
+\end{equation}
+ This space is zero-dimensional so for the discrete space $\textbf{Z}_T$ it holds that
+\begin{equation}
+\textbf{Z}_T=\textbf{Z}.\nonumber 
+\end{equation}
+ Now, our velocity function space remains unchanged while our pressure function space is extended over the Laplace part of the domain using $\textbf{Z}$:
+\begin{equation}\label{extended_pressure_space}
+\mathbb{P}=\left\lbrace p: \quad \restr{p}{{\Omega_S}}\in L^2_0\left(\Omega_S\right),\quad  \restr{p}{{\Omega_L}}\in\textbf{Z}\left(\Omega_L\right)\right\rbrace.
+\end{equation}
+Now we can introduce the framework we will use for the combined problem, which is similar to \ref{frame_combi_disc} but in this case pressure is defined globally:
+\begin{equation}
+\begin{aligned}
+X_T=Y_T&=S_0^{2,0}\left(T\right)^d\times \begin{cases}
+\left(S^{1,0}\left(T\cap\Omega_S\right)\cap L^2_0\left(T\cap\Omega_S\right)\right),\quad\text{in}\quad\Omega_S\\
+\textbf{Z}\left(\Omega_L\right),\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\,\,\,\,\,\text{in}\quad\Omega_L
+\end{cases}\\
+\left|\left|\left(\textbf{u},p\right)\right|\right|_X&=\left\lbrace \left|\left|\nabla\textbf{u}\right|\right|^2_{L^2} + \left|\left|p\right|\right|^2_{L^2}\right\rbrace^{1/2},\\
+B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_{\Omega}\nabla \textbf{u}_T : \nabla \textbf{v}_T - \int_{\Omega} p_T \nabla\cdot\textbf{v}_T + \int_{\Omega} q_T \nabla\cdot\textbf{u}_T\\&-\int_{\mathcal{I}} \llbracket\nabla\textbf{u}-pI\rrbracket\cdot\textbf{v},\\
+\langle \ell_T\,,\left(\textbf{v}_T,q_T\right) \rangle_{Y_T} &= \int_{\Omega}\textbf{f}\cdot \textbf{v}_T,
+\end{aligned}
+\end{equation}
+where 
+\begin{equation}
+\mathcal{I}=\overline{\Omega}_S\cap\overline{\Omega}_L.
+\end{equation}
 
 
 \section{Deal.II}\label{sec_numerics}
