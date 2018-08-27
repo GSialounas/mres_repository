@@ -13,7 +13,7 @@
 \newtheorem{lemma}[theorem]{Lemma}
 \usepackage{url}
 \usepackage{algorithm}
-\usepackage[noend]{algpseudocode}
+\usepackage{algpseudocode}
 \usepackage{indentfirst}
 \usepackage[percent]{overpic}
 \makeatletter
@@ -887,7 +887,7 @@ There are many such choices (see \cite[\S 4.10.2]{verfurth2013posteriori} for mu
 \end{eqnarray}
 This choice ensures that the forms we introduced in (\ref{verf_eqns_approx}) fulfil the discrete form of the conditions in Proposition \ref{prop_well_pos_verf_saddle_1} (i.e. with $(\textbf{v}_T,q_T))$ and hence Proposition \ref{prop_well_pos_verf_saddle}.  This in turn ensures that the conditions in Proposition \ref{prop_well_pos_verf_disc} are met, leading to stable discretizations (\cite{verfurth2013posteriori}).  Hence, our discrete problem - i.e. find $\left(\textbf{u}_T, p_T\right)$ such that (\ref{verf_eqns_approx}) holds for all $\left(\textbf{v}_T,q_T\right)\in \left(\mathbb{V}_T\times \mathbb{P}_T\right)$ - is well-posed.
 
-\subsubsection{Stokes: A-posteriori Estimate}
+\subsubsection{Stokes: A-posteriori Estimate}\label{a_posteriori_stokes}
 
 Now we need to show that we can produce an appropriate a-posteriori indicator $\eta_T$ that fulfils the conditions in Theorem \ref{verf_thm_apost_bounds}.  At the same time note that we are considering the data error, $\theta_T$ to be zero at the moment.  We will start by showing that we can come up with an indicator that satisfies the first condition in Theorem \ref{verf_thm_apost_bounds}.    The analysis in this section can be found in \cite[\S4.10.3]{verfurth2013posteriori}
 
@@ -897,7 +897,7 @@ Let $\left(\textbf{u},p\right)\in X$ be the unique solution to (\ref{verf_eqns})
 -&\sum_{K\in T}&\int_{K}q \nabla \cdot \textbf{u}_T, \nonumber
 \end{eqnarray}
 where the second term on the right-hand side is the sum over the interior edges, $E$, of the domain.   Before we proceed let us define the restriction operator 
-\begin{equation}
+\begin{equation}\label{restrict_operator}
 \begin{aligned}
 &Q_T:X\rightarrow X_T\text{ by}\\
 &Q_T\left(\textbf{v},q\right)=\left(\mathcal{I}_T\textbf{v},0\right).
@@ -906,8 +906,8 @@ where the second term on the right-hand side is the sum over the interior edges,
 Hence,
 \begin{equation}\label{verf-a-posteriori-bound}
 \begin{aligned}
-\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y= &\sum_{K\in T}\int_{K}\left(\textbf{f}+\Delta \textbf{u}_T-\nabla p_T\right)\cdot \left(\textbf{v}-\mathcal{I}_T\textbf{v}\right)\\-&\sum_{E\in \mathcal{E}_{\Omega}}\int_{E}\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \cdot \left(\textbf{v}-\mathcal{I}_T\textbf{v}\right)\\
--&\sum_{K\in T}\int_{K}q \nabla \cdot \textbf{u}_T, 
+\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y= &\sum_{K\in T}\int_{K}\left(\textbf{f}+\Delta \textbf{u}_T-\nabla p_T\right)\cdot \left(\textbf{v}-\mathcal{I}_T\textbf{v}\right)\\+&\sum_{E\in \mathcal{E}_{\Omega}}\int_{E}\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \cdot \left(\textbf{v}-\mathcal{I}_T\textbf{v}\right)\\
++&\sum_{K\in T}\int_{K}q \nabla \cdot \textbf{u}_T, 
 \end{aligned}
 \end{equation}
 where $Id$ stands for the identity operator from $X$ to $X$.  Now we use the Cauchy-Schwarz inequality on (\ref{verf-a-posteriori-bound}) to get
@@ -915,19 +915,19 @@ where $Id$ stands for the identity operator from $X$ to $X$.  Now we use the Cau
 \begin{aligned}
 \langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y\leq
 &\sum_{K\in T}\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K \left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_K\\
--&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \right|\right|_E \left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_E\\
--&\sum_{K\in T}\left|\left|q\right|\right|_K\left|\left|\nabla \cdot \textbf{u}_T\right|\right|_K.
++&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \right|\right|_E \left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_E\\
++&\sum_{K\in T}\left|\left|q\right|\right|_K\left|\left|\nabla \cdot \textbf{u}_T\right|\right|_K.
 \end{aligned}
 \end{equation}
 We now introduce some further results from \cite{verfurth2013posteriori} which will help us bound the quantities $\left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_K$, $\left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_E$ and $\left|\left|q\right|\right|_K$ in terms of the norm $\left|\left|\left(\cdot,\cdot\right)\right|\right|_X$ introduced in (\ref{verf_eqns}).
 \begin{proposition}{(See \cite[ \S3.5]{verfurth2013posteriori}: Proposition 3.33)} \label{verf_prop_bounds} For every Lebesque exponent p, every element $K\in T$and every face $E\in\mathcal{E}_K$ thereof, the local error estimates
-\begin{equation}
+\begin{equation}\label{proposition_bounds_verf}
 \begin{aligned}
 \left|\left|v-\mathcal{I}_Tv\right|\right|_{p;K}&\leq C_{A,1,p}\left(K\right)\left|\left|v\right|\right|_{p;\widetilde{\omega}_K}\\
 \left|\left|v-\mathcal{I}_Tv\right|\right|_{p;K}&\leq C_{A,2,p}\left(K\right)h_K\left|\left|\nabla v\right|\right|_{p;\widetilde{\omega}_K}\\
 \left|\left|\nabla\left(v-\mathcal{I}_Tv\right)\right|\right|_{p;K}&\leq C_{A,3,p}\left(K\right)\left|\left|\nabla v\right|\right|_{p;\widetilde{\omega}_K}\\
 \left|\left|v-\mathcal{I}_Tv\right|\right|_{p;E}&\leq C_{A,4,p}\left(E\right)h_E^{1-1/p}\left|\left|v\right|\right|_{p;\widetilde{\omega}_E},
-\end{aligned}
+\end{aligned}\nonumber
 \end{equation}
 where $C_{A,\left(\cdot\right),p}\left(\cdot\right)$ are appropriate constants, hold for all functions $v\in W^{1,p}_D\left(\Omega\right)$ (See \cite{verfurth2013posteriori}: Proposition 3.33 for the constants' values and for a proof of this proposition).
 \end{proposition}
@@ -937,9 +937,9 @@ We use the results in Proposition \ref{verf_prop_bounds} to bound the right-hand
 \begin{aligned}\small
 \langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y\leq
 &\sum_{K\in T}\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K C_{A,2,2}\left(K\right)h_K \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_K}\\
--&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \right|\right|_EC_{A,4,2}\left(K\right)h_E^{1/2} \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_E}\\
--&\sum_{K\in T}\left|\left|q\right|\right|_K\left|\left|\nabla \cdot \textbf{u}_T\right|\right|_K\\
-\leq &c\max \{C_{A,2,2}\left(K\right),C_{A,4,2}\left(E\right)\}\left|\left|\left(\textbf{v},q\right)\right|\right|_X\times\\ \{\sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K^2+\left|\left|\textbf{u}_T\right|\right|^2_K+&\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \right|\right|_E^2 \}^{1/2},
++&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \right|\right|_EC_{A,4,2}\left(K\right)h_E^{1/2} \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_E}\\
++&\sum_{K\in T}\left|\left|q\right|\right|_K\left|\left|\nabla \cdot \textbf{u}_T\right|\right|_K\\
+\leq &c\max \{C_{A,2,2}\left(K\right),C_{A,4,2}\left(E\right)\}\left|\left|\left(\textbf{v},q\right)\right|\right|_X\times\\ \{\sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T-\nabla p_T \right|\right|_K^2+\left|\left|\text{div } \textbf{u}_T\right|\right|^2_K+&\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \right|\right|_E^2 \}^{1/2},
 \end{aligned}
 \end{equation}
 where $c$ is a constant that depends on the shape parameter of our triangulation, $T$.  Since $\left(\textbf{v},q\right)$ was chosen arbitrarily, we see that the first condition in Theorem \ref{verf_thm_apost_bounds} is satisfied with $\eta_T$ given by  
@@ -977,8 +977,8 @@ We will not include the details of the analysis for the lower bound in the a-pos
 We summarise the a-posteriori analysis for the Stokes problem by including the relevant result from \cite{verfurth2013posteriori}.
 \begin{theorem}{(See \cite[\S4.10.3]{verfurth2013posteriori}: Theorem 4.70)}\label{verf_theorem_apost_err_ind}
 Denote by $\left(\textbf{u},p\right)$ the unique solution of the saddle-point formulation of the Stokes equations and by $\left(\textbf{u}_T,p_T\right)\in X_T$ its finite element approximation.  For every element $K\in T$ define the residual a-posteriori error indicator $\eta_{R,K}$ by
-\begin{equation}\small
-\eta_{R,K}=\left(h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T-\nabla p_T\right|\right|^2_K+\left|\left|\text{div} \textbf{u}_T\right|\right|^2_K+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}}h_E\left|\left| \llbracket \nabla \textbf{u}_T -p_T \rrbracket \right|\right|_E^2\right)^{1/2}.\nonumber
+\begin{equation}\small\label{a_posteriori_ind_stokes}
+\eta_{R,K}=\left(h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T-\nabla p_T\right|\right|^2_K+\left|\left|\text{div } \textbf{u}_T\right|\right|^2_K+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}}h_E\left|\left| \llbracket \nabla \textbf{u}_T -p_T \rrbracket \right|\right|_E^2\right)^{1/2}.\nonumber
 \end{equation}
 Then, denoting any piecewise polynomial approximation of the problem data, $\textbf{f}$, by $\textbf{f}_T$, there are two constants, $c^*$ and $c$ such that the estimates
 \begin{equation}\nonumber
@@ -1048,7 +1048,7 @@ B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_
 \end{equation}
  The reader will notice that the pressure is only defined over the Stokes part of the domain. This is also reflected in the norm we use.  
  We have to overcome this problem on two levels:  on an analysis level  and on an implementation level.  For  the analysis we use the interface (solvability) condition, (\ref{combi_cond_wellpos}), to get rid of the boundary contribution:
- \begin{equation}
+ \begin{equation}\label{interface_condition}
 \int_{\mathcal{I}} \left(pI \textbf{n}_S-\llbracket\nabla\textbf{u}\rrbracket\right)\cdot\textbf{v}= 0.
  \end{equation}
  By doing, this, we ensure that our problem is well-posed in the abstract variational framework.  
@@ -1081,24 +1081,90 @@ B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_
  Hence, the approximation of our combined problem is well-posed. 
 
 \subsubsection{A-posteriori indicator}
-In this section we will present the a-posteriori error indicator for our combined problem.  In deriving a-posteriori bounds we need to take into consideration that the error must be controlled in two respects: from a modelling perspective and from a discretisation perspective.  Essentially, our a-posteriori indicator must give us the capability to refine both our model and our mesh.
-\begin{equation}
-\int_{\mathcal{I}}{\llbracket\nabla\textbf{u}-pI\rrbracket}=0,
-\end{equation}
-where we have included the pressure term in the jump since it is simply zero in $\Omega_L$.  If we enforce this condition then Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} can be used to establish the well-posedness of the combined problem for the discretization shown in \S  in the same way as for the variational formulation of the Stokes problem.   Hence, we would also expect to be able to use a similar a-posteriori error-indicator as proposed in Theorem \ref{verf_theorem_apost_err_ind}. 
+In this section we will present the strategy for a-posteriori error control for our combined problem.  In deriving a-posteriori bounds we need to take into consideration that the error must be controlled in two respects: from a modelling perspective and from a discretisation perspective.  Essentially, our a-posteriori indicator must give us the capability to refine both our model and our mesh.  Hence, our a-posteriori indicator will also depend on which part of the domain we are in.  
 
-The starting point of our analysis would be the $L^2$-representation of the residual.  This would be similar to what we did for the Stokes equations in (\ref{L2-rep-residual}).   More specifically, the $L^2$-representation of the mixed problem residual would be
-\begin{eqnarray}\label{L2-rep-residual-mixed}
-\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(\textbf{v},q\right) \rangle_Y= &\sum_{K\in T}&\int_{K}\left(\textbf{f}+\Delta \textbf{u}_T-\nabla p_T\right)\cdot \textbf{v}\nonumber\\-&\sum_{E\in \mathcal{E}_{\Omega}\setminus\mathcal{I}}&\int_{E}\llbracket\nabla \textbf{u}_T-p_TI\rrbracket \cdot \textbf{v}\\
--&\sum_{K\in T}&\int_{K}q \nabla \cdot \textbf{u}_T. \nonumber
-\end{eqnarray}
-The final step is to obtain the a-posteriori error indicator for the mixed problem.  We omit this procedure but it involves the sames steps we went through to get the indicator for the Stokes problem.  In the case of the mixed problem, the indicator is
-\begin{equation}\small
-\eta_{R,K}=\left(h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T-\nabla p_T\right|\right|^2_K+\left|\left|\text{div} \textbf{u}_T\right|\right|^2_K+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}\setminus\mathcal{I}}h_E\left|\left| \llbracket \nabla \textbf{u}_T -p_T \rrbracket \right|\right|_E^2\right)^{1/2}.
-\end{equation}
-Compare this with the indicator given in Theorem \ref{verf_theorem_apost_err_ind} for the Stokes problem.
-
+ In order to do this, we will firstly  decide which model we should be solving for a given celll $K$.  Then, we will decide on whether the level of error in that cell is within an acceptable tolerance.  If it is not, we will refine the cell.  This strategy is used in \cite[\S6: Algorithm 6.1]{giesselmann2017posteriori}.  
  
+At this point we need to decide on our a-posteriori indicator.  There are two approaches we can take.  The first approach would be to  use the Stokes a-posteriori indicator in $\Omega_S$ and the Laplace a-posteriori indicator in $\Omega_L$.  In this way we would obtain an indicator $\eta_{R,K}$ for each $K\in T$ that would look like this:
+\begin{equation}\small\label{approach1_indicator}
+\eta_{R,K}=\begin{cases}
+\left(h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T-\nabla p_T\right|\right|^2_K+\left|\left|\text{div} \textbf{u}_T\right|\right|^2_K+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}\setminus\mathcal{I}}h_E\left|\left| \llbracket \nabla \textbf{u}_T -p_T \rrbracket \right|\right|_E^2\right)^{1/2} \\\text{ if }K\in\Omega_S,\\
+\left(h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T\right|\right|^2_K+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}\setminus\mathcal{I}}h_E\left|\left| \llbracket \nabla \textbf{u}_T  \rrbracket \right|\right|_E^2\right)^{1/2}\text{ if }K\in\Omega_L
+\end{cases}
+\end{equation}
+The set $\mathcal{E}_{K,\Omega}$ is the set of of edges of $K$ that are interior in the mesh $T$ (i.e. not on the boundary).  Notice that the terms over the edges do not include the contribution from the edges on the interface, $\mathcal{I}$ since these are equal to zero.  
+
+The alternative is to go through the same analysis as we did for the Stokes problem in order to obtain the a-posteriori indicator in \S \ref{a_posteriori_stokes}.  The starting point of our analysis would be the $L^2$-representation of the residual.  This would be similar to what we did for the Stokes equations in (\ref{L2-rep-residual}).   More specifically, the $L^2$-representation of the combined problem residual would be
+\begin{eqnarray}\label{L2-rep-residual-mixed}
+\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(\textbf{v},q\right) \rangle_Y= &\sum_{K\in T}&\int_{K}\left(\textbf{f}+\Delta \textbf{u}_T\right)\cdot \textbf{v}\nonumber\\-&\sum_{K\in T\cap\Omega_S}&\int_{K}\nabla p_T\cdot \textbf{v}\nonumber\\-&\sum_{E\in \mathcal{E}_{\Omega}\setminus\mathcal{I}}&\int_{E}\llbracket\nabla \textbf{u}_T\rrbracket \cdot \textbf{v}+\sum_{E\in \mathcal{E}_{\Omega_S}\setminus\mathcal{I}}\int_{E}p_TI\textbf{n}_S\cdot \textbf{v}\nonumber\\
+-&\sum_{K\in T\cap\Omega_S}&\int_{K}q \nabla \cdot \textbf{u}_T. \nonumber
+\end{eqnarray}
+Now we follow the same approach that we used for the Stokes a-posteriori indicator.  Namely, we use the restriction operator $Q_T$ defined in (\ref{restrict_operator}) and the bounds introduced in Proposition \ref{verf_prop_bounds} to obtain:
+
+\begin{equation}\small
+\begin{aligned}\small
+\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y\leq
+&\sum_{K\in T}\left|\left|\textbf{f}+\Delta \textbf{u}_T\right|\right|_K C_{A,2,2}\left(K\right)h_K \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_K}\\
++&\sum_{K\in T\cap\Omega_S}\left|\left|\nabla p_T \right|\right|_K C_{A,2,2}\left(K\right)h_K \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_K}\\
++&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\nabla \textbf{u}_T\rrbracket \right|\right|_EC_{A,4,2}\left(K\right)h_E^{1/2} \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_E}\\
++&\sum_{E\in \mathcal{E}_{\Omega_S}}\left|\left| p_TI\textbf{n}_S\right|\right|_EC_{A,4,2}\left(K\right)h_E^{1/2} \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_E}\\
++&\sum_{K\in T\cap\Omega_S}\left|\left|q\right|\right|_K\left|\left|\nabla \cdot \textbf{u}_T\right|\right|_K\\
+\leq c\max \{C_{A,2,2}\left(K\right),C_{A,4,2}\left(E\right)\}\left|\left|\left(\textbf{v},q\right)\right|\right|_X\times\\ \{\sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T\right|\right|_K^2+\left|\left|\text{div }\textbf{u}_T\right|\right|^2_K+&\sum_{K\in T\cap\Omega_S}h^2_K\left|\left|\nabla p_T \right|\right|_K^2\\+\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\nabla \textbf{u}_T\rrbracket \right|\right|_E^2 +&\sum_{E\in \mathcal{E}_{\Omega_S}}h_E\left|\left|p_TI\textbf{n}_S\right|\right|_E^2\}^{1/2},
+\end{aligned}
+\end{equation}
+where $c$ is a constant that depends on the shape parameter of our triangulation, $T$ and the norm $\left|\left|\left(\textbf{v},q\right)\right|\right|_X$ is as defined in (\ref{frame_combined}).
+
+The final step is to obtain the a-posteriori error indicator, $\eta_{R,K}$ for the combined problem, which is given by
+\begin{equation}\small
+\begin{aligned}
+\eta_{R,K}^2=h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T\right|\right|^2_K+h^2_K\left|\left|\nabla p_T\right|\right|^2_K+\left|\left|\text{div} \textbf{u}_T\right|\right|^2_K\\+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}\setminus\mathcal{I}}h_E\left|\left| \llbracket \nabla \textbf{u}_T \rrbracket \right|\right|_E^2+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega_S}\setminus\mathcal{I}}h_E\left|\left|p_T I\textbf{n}_S \right|\right|_E^2,
+\end{aligned}
+\end{equation}
+where the pressure terms are only defined over $\Omega_S$.  Between the two approaches, we will use the first one, whereby we will first decide what model we are using for a given cell and then using the a-posteriori indicator from that model, as shown in (\ref{approach1_indicator}).  The reason for this choice is twofold.  Firstly, it will make for a simpler, cleaner implementation.  Furthermore, it will most likely result in a sharper bound as we have not used a triangle inequality to isolate  the pressure terms in the indicator.
+As we mentioned earlier in this section, the first step is to decide on which model we are solving.  We will use a similar algorithm to that used in \cite[\S 6: Algorithm 6.1]{giesselmann2017posteriori}.  
+
+Firstly, we will break our indicator into a modelling and discretisation error $\mathcal{E}_M$ and $\mathcal{E}_D$ respectively.   The modelling error will be given by 
+\begin{equation}
+\mathcal{E}_M= \left|\left|\text{div }\textbf{u}\right|\right|_K.
+\end{equation}
+
+After each cycle of computations, we will be to evaluate $\mathcal{E}_M$ for a given cell.  Since the Laplace model is supposed to be divergenceless, if $\mathcal{E}_M$ is within a predefined tolerance then we assign an appropriate flag for that cell, which will correspond to the Laplace model.  If $\mathcal{E}_M$ is higher than the tolerance we will flag that cell with an index corresponding to the Stokes Model and the Stokes model will be solved on that cell for the next computation cycle.  
+
+Then, we check the combined $\mathcal{E}_M+\mathcal{E}_D$ for a given cell.  Notice that this will be the corresponding a-posteriori indicator $\eta_{R,K}$ for that cell, given by (\ref{approach1_indicator}).  If this value is higher than a predefined tolerance we will refine this cell and if it is not we will leave it as is.  Deal.II allows for both global refinement and adaptive refinement.  In the case of adaptive refinement we have the option of selecting how many cells we want to have refined.  
+
+Basically, the cells are ranked  from highest to lowest in terms of error.  Then we choose which cells will be refined based on the proportion of the total error that corresponds to that cell.  For example, by specifying a coefficient of 0.3 we ask that the cells which, when arranged in ascending order cumulatively correspond to $0.3\left(\mathcal{E}_M+\mathcal{E}_D\right)$, will be refined in the next cycle.  This procedure is summarised in pseudocode form in Algorithm \ref{Algorithm_MM_adaptivity}.
+ \begin{algorithm}[t]
+ 	\caption{Model-Mesh Adaptivity (see \cite[\S6: Algorithm 6.1]{giesselmann2017posteriori})}\label{Algorithm_MM_adaptivity}
+ 	\begin{algorithmic}
+ 		\State $\textbf{Require: }$ model tolerance, $tol_{M}$, discretisation tolerance $tol$, number of refinement cycles $n_{cycles}$.
+ 		\State Set cycle counter $n$ to $0$.
+ 		\State Assign initial  model to every cell.
+ 		\While{$n<n_{cycles}$}
+ 		\State Solve one cycle of the model
+ 		\State Compute $\mathcal{E}_M$ on every cell
+ 		\For{\texttt{$K\in T$}}
+ 		\If{$\mathcal{E}_M|_K<tol_M\max_{J\in T}\mathcal{E}_M|J$}
+ 		\State Set cell K's \texttt{active\_cell\_index} to Laplace model
+ 		%\ElsIf{$quality\ge 7$}
+ 		%\State $a\gets good$
+ 	%	\ElsIf{$quality\ge 5$}
+ 	%	\State $a\gets medium$
+ 	%	\ElsIf{$quality\ge 3$}
+ 	%	\State $a\gets bad$
+ 		\Else
+ 		\State Set cell K's \texttt{active\_cell\_index} to Stokes model
+ 		\EndIf
+ 		\State Compute $\mathcal{E}_M+\mathcal{E}_D$ for cell $K$
+ 		\If{$\mathcal{E}_M|_K+\mathcal{E}_D|_K>tol\max_{J\in T}\left(\mathcal{E}_M+\mathcal{E}_D\right)|_J$}
+ 		\State Mark cell $K$ for refinement
+ 		\Else
+ 		\State Mark cell $K$ for coarsening, if this has been allowed for.
+ 		\EndIf
+ 		\EndFor
+ 		\EndWhile
+ 		\State $\textbf{end}$
+ 	\end{algorithmic}
+ \end{algorithm}
  \subsubsection{Implementation}\label{sec_combi_implementation}
 In this section we will discuss how will implement our combined problem in Deal.II.   Deal.II is a C++, open-source, finite element library which we will be using for the implementation of the computational aspects of this project.   
 
@@ -1135,7 +1201,10 @@ where
 
 
 \section{Deal.II}\label{sec_numerics}
-Deal.II is a C++, open-source, finite element library which we will be using for the implementation of the computational aspects of this project.  As a benchmark we will be solving the following problem:
+Deal.II is a C++, open-source, finite element library which we will be using for the implementation of the computational aspects of this project.   In this section we will describe the models we constructed in Deal.II and the tests we carried out on them.  This section will be structured as follows.  In  \S \ref{sec_dealii_tests} we will describe the models we built.  In \S \ref{sec_dealii_results} we will present the results from these models.  Lastly, we will conclude this section with a discussion of the results in \S \ref{sec_dealii_discussion}.  
+\subsection{Tests}\label{sec_dealii_tests}
+\subsubsection{Stokes Model}\label{sec_test_stokes}
+The first test we ran is a simple Stokes model with homogeneous Dirichlet boundary conditions and a forcing, $\textbf{f}$ on the right-hand side.  This is given by:
 \begin{eqnarray}
 \label{benchmark_u}
 \textbf{u}\left(\textbf{x}\right)&=&\begin{bmatrix}
@@ -1144,9 +1213,23 @@ Deal.II is a C++, open-source, finite element library which we will be using for
 \end{bmatrix} \text{ and}\\\label{benchmark_p}
 p &=& 10\left(x-1/2\right)^3y^2+\left(1-x\right)^3\left(y-1/2\right)^3,
 \end{eqnarray}
-where $\textbf{x}=\left(x,y\right)^T$.    We will substitute (\ref{benchmark_u}) and (\ref{benchmark_p}) as exact solutions (\ref{stokes_eq})to obtain the forcing $\textbf{f}$.  We will use this benchmark example to test for convergence in our model.
-\subsection{Computational results}
-We are solving (\ref{stokes_eq}) using Deal.II with an adaptive mesh.  Figure \ref{fig_stokes_sol}  shows the magnitude of $\textbf{u}$ plotted at each of 5 refinement cycles required to solve the problem for $\left(\textbf{u}, p\right)$ given by (\ref{benchmark_u}) and (\ref{benchmark_p}).  The convergence results are listed in Table \ref{tablebenchmark_convergence} and illustrated in Figure \ref{fig_errors}.
+where $\textbf{x}=\left(x,y\right)^T$.    We will substitute (\ref{benchmark_u}) and (\ref{benchmark_p}) as exact solutions to (\ref{stokes_eq}) to obtain the forcing $\textbf{f}$.  We have used this benchmark example to test for convergence in our model.  The reason for this choice of $\left(\textbf{u},p\right)$ is that $\textbf{u}$ has zero divergence.
+\subsubsection{Combined Model with fixed Interface}\label{sec_test_combi_fixed}
+This  test is the first step towards implementing model adaptivity.  We divided our (unit square) domain into two halves at $y=0.5$: in the lower half we are solving the Laplace model and in the upper-half we are solving the Stokes model.  This test serves a number of purposes.
+Firstly, we see how we can implement and work with the interface condition.   Secondly, to see how we can implement and evaluate our a-posterior error indicator in Deal.II.  The $\left(\textbf{u},p\right)$ we are using in this case is given by:
+\begin{eqnarray}
+\label{benchmark_u_mm1}
+\textbf{u}\left(\textbf{x}\right)&=&\begin{bmatrix}
+200x^2\left(1-x\right)^2y\left(1-y\right)\left(1-2y\right)  \\
+-200y^2\left(1-y\right)^2x\left(1-x\right)\left(1-2x\right)  
+\end{bmatrix} \text{ and}\\\label{benchmark_p_mm1}
+p &=& x\left(x-0.5\right)\left(x-1\right)\left(y^2-y+1/6\right),
+\end{eqnarray}
+The reason for this choice of $\left(\textbf{u},p\right)$ is that $\textbf{u}$ is divergenceless and that $p$ is in $L^2_0$ in the whole of $\Omega$ and also when restricted to $\Omega_S$ or on the interface $\mathcal{I}$.  The reason we need such a $p$ is in order for the interface condition (\ref{interface_condition}) to be satisfied exactly on the interface $\mathcal{I}$ to enable us to test for convergence in this problem.
+\subsection{Computational results}\label{sec_dealii_results}
+In this section we will solve the simple Stokes model and the combined model with a fixed interface that we presented in \S \ref{sec_test_stokes} and \S \ref{sec_test_combi_fixed} respectively. 
+\subsubsection{Stokes model}
+Figure \ref{fig_stokes_sol}  shows the magnitude of $\textbf{u}$ plotted at each of 5 refinement cycles required to solve the problem for $\left(\textbf{u}, p\right)$ given by (\ref{benchmark_u}) and (\ref{benchmark_p}).  The convergence results are listed in Table \ref{tablebenchmark_convergence} and illustrated in Figure \ref{fig_errors}.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=10cm]{stokes_cg_velocities}
@@ -1164,7 +1247,7 @@ We are solving (\ref{stokes_eq}) using Deal.II with an adaptive mesh.  Figure \r
 			4 & 2128 & 21115 & 1.1988e-02 & 6.2091e-04 & 5.2756e-02\\ \hline
 			5 & 5128 & 50427 & 2.4096e-03 & 8.6223e-05 & 1.5147e-02\\ \hline
 		\end{tabular}
-		\caption{Convergence for $\textbf{u}$ and $p$ in different norms.}
+		\caption{Convergence for $\textbf{u}$ and $p$ in different norms for the simple Stokes model.}
 		\label{tablebenchmark_convergence}
 	\end{center}
 \end{table}
@@ -1190,6 +1273,17 @@ We are solving (\ref{stokes_eq}) using Deal.II with an adaptive mesh.  Figure \r
 	\caption{loglog plots of errors }
 	\label{fig_errors}
 \end{figure}
+\subsubsection{Combined Problem with fixed Interface}
+Figure \ref{fig_stokes_sol}  shows a surface plot of the magnitude of $\textbf{u}$ plotted at the last of $5$ refinement cycles for $\left(\textbf{u}, p\right)$ given by (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}).
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{combi_u}
+	\caption{The magnitude of $\textbf{u}$ plotted at each refinement cycle to (\ref{stokes_eq}) with $\textbf{u}$ given by (\ref{benchmark_u_mm1}).}
+	\label{fig_combi_sol}
+\end{figure}
+Notice that although the chosen pressure is in  $L^2_0\left(\Omega\right)$, $L^2_0\left(\Omega_S\right)$ and also $L^2_0\left(\mathcal{I}\right)$, the interface condition seems to be satisfied as though it is not since the jum in the gradient across the interface is non-zero.  The pressure plot is not included here as it has no relevance to the right-hand side that was prescribed and behaves extremely erratically.  Instead, we include it along with the other convergence results in 
+
+\subsection{Discussion}\label{sec_dealii_discussion}
 \section{Concluding remarks and next steps}\label{sec_conclusion}
 In this report we have shown the well-posedness of the Stokes problem and of the adaptive continuous problem.  We have also implemented the Stokes problem in Deal.II in order to acquire some familiarity with this software library.  The next steps will be to carry out the a-posteriori analysis of Stokes and for adaptive Stokes and to implement the latter  in Deal.II.  
 
