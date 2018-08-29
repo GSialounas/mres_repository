@@ -156,7 +156,7 @@
 \pagebreak
 \thispagestyle{empty}
 \begin{abstract}
-In this work we formulate a combined Stokes-Laplace problem and construct a numerical model for it using finite elements.  We prove the well-posedness of its variational formulation and derive an a-posteriori indicator that can drive model adaptivity.  The motivation behind the use of model adaptivity is to approximate a complex problem with a simpler one, thereby resulting in computational savings.  The a-posteriori indicator enables the choice between models for different parts of the domain to occur automatically during a computation.  The indicator can also be used to drive mesh adaptivity.  We also construct an example of the combined model with a fixed interface between the Stokes and Laplace models as a first step of testing the indicator.
+In this work we formulate a combined Stokes-Laplace problem and construct a numerical model for it using finite elements.  We prove the well-posedness of its variational formulation and derive an a-posteriori indicator that can drive model adaptivity.  The motivation behind the use of model adaptivity is to approximate a complex problem with a simpler one in parts of the domain where the results produced by the two models do not differ greatly, while maintaining the complexity and accuracy of the complex model where it is necessary.  The a-posteriori indicator enables the choice between models for different parts of the domain to occur automatically during a computation.  The indicator can also be used to drive mesh adaptivity.  We also construct an example of the combined model with a fixed interface between the Stokes and Laplace models as a first step of testing the indicator.
 \end{abstract}
 \thispagestyle{empty}
 \pagebreak
@@ -1305,7 +1305,7 @@ Figure \ref{fig_stokes_sol}  shows the magnitude of $\textbf{u}$ plotted at each
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=10cm]{stokes_cg_velocities}
-	\caption{The magnitude of $\textbf{u}$ plotted at each refinement cycle to (\ref{stokes_eq}) with $\textbf{u}$ given by (\ref{benchmark_u}).}
+	\caption{The magnitude of the solution $\textbf{u}_h$ of plotted at the refinement cycle to (\ref{frame_stokes_disc}) with $\textbf{u}$ given by (\ref{benchmark_u}).}
 	\label{fig_stokes_sol}
 \end{figure}
 \begin{table}[H]
@@ -1319,7 +1319,7 @@ Figure \ref{fig_stokes_sol}  shows the magnitude of $\textbf{u}$ plotted at each
 			4 & 2128 & 21115 & 1.1988e-02 & 6.2091e-04 & 5.2756e-02\\ \hline
 			5 & 5128 & 50427 & 2.4096e-03 & 8.6223e-05 & 1.5147e-02\\ \hline
 		\end{tabular}
-		\caption{Convergence for $\textbf{u}$ and $p$ in different norms for the simple Stokes model.}
+		\caption{Convergence for $\textbf{u}$ and $p$ in different norms for the simple Stokes model (for the first 5 refinement cycles).}
 		\label{tablebenchmark_convergence}
 	\end{center}
 \end{table}
@@ -1353,7 +1353,7 @@ Figure \ref{fig_stokes_sol}  shows a surface plot of the magnitude of $\textbf{u
 	\caption{The magnitude of $\textbf{u}$ plotted at each refinement cycle to (\ref{stokes_eq}) with $\textbf{u}$ given by (\ref{benchmark_u_mm1}).}
 	\label{fig_combi_sol}
 \end{figure}
-Notice that although the chosen pressure is in  $L^2_0\left(\Omega\right)$, $L^2_0\left(\Omega_S\right)$ and also $L^2_0\left(\mathcal{I}\right)$, the interface condition seems to be satisfied as though it is not since the jum in the gradient across the interface is non-zero.  The pressure plot is not included here as it has no relevance to the right-hand side that was prescribed and behaves extremely erratically.  Instead, we include it along with the other convergence results in Table \ref{tablebenchmark_convergence_mm1}.  
+Notice that although the chosen pressure is in  $L^2_0\left(\Omega\right)$, $L^2_0\left(\Omega_S\right)$ and also $L^2_0\left(\mathcal{I}\right)$, the interface condition seems to be satisfied as though it is not since the jum in the gradient across the interface is non-zero.  The convergence results are tabulated in Table \ref{tablebenchmark_convergence_mm1}.  
 \begin{table}[H]
 	\begin{center}
 	\begin{tabular}{|c|c|c|c|c|c|} \hline
@@ -1370,9 +1370,20 @@ Notice that although the chosen pressure is in  $L^2_0\left(\Omega\right)$, $L^2
 \end{table}
 The most noteworthy feature of the results in Table \ref{tablebenchmark_convergence_mm1} is that, although we have convergence in both pressure and velocity in the $L^2$ norm, neither converges to what we would expect given the right hand side we prescribed.  Furthermore, the computed velocity solution is not divergenceless.
 \subsection{Discussion}\label{sec_dealii_discussion}
-The solution for the simple Stokes problem converges as we would expect it to for both velocity and pressure.  
+The solution for the simple Stokes problem converges as we would expect it to for both velocity and pressure.  In contrast, for the combined problem both the velocity and the pressure do converge, but not to the solution we would expect given the right-hand side we have prescribed. 
+
+
+It has not been possible to accurately pinpoint the reason for this discrepancy.    However, it is noteworthy that this discrepancy occurs most noticeably at the interface.  Recall that the interface condition in this case was prescribed such that the pressure would integrate to zero along the interface.  The intention behind this was that the jump in the velocity gradient across the interface would also integrate to zero.  This does not happen.  In fact, the solution is behaving as though there is a non-zero gradient jump across the interface.  
+
+It has not been possible to assess this as of yet.
+
+
 \section{Concluding remarks and next steps}\label{sec_conclusion}
-In this report we have shown the well-posedness of the Stokes problem and of the adaptive continuous problem.  We have also implemented the Stokes problem in Deal.II in order to acquire some familiarity with this software library.  The next steps will be to carry out the a-posteriori analysis of Stokes and for adaptive Stokes and to implement the latter  in Deal.II.  
+In this report we have shown the well-posedness of the combined Stokes-Laplace problem.  Furthermore, we have derived an a-posteriori indicator for the combined problem based on the abstract variational framework from \cite{verfurth2013posteriori}.  This indicator can drive both model and mesh-adaptivity.  It is based on the approach of \cite{giesselmann2017posteriori}, where the indicator is also built to drive both mesh and model adaptivity.  Finally, we have created a model  for the combined problem in Deal.II with a fixed interface in order to test the indicator.  The model exhibited  behavior which was unexpected given the interface condition and the problem data we prescribed.  The next step would be to to find the reasons behind this behaviour.  
+
+More specifically, the pressure shoots off to infinity at the points where our interface ($y=0.5$) touched upon the sides of our unit square domain, where we prescribe homogeneous Dirichlet boundary conditions for the velocity.  The velocity also exhibits a jump in gradient across the interface.  The next step would be to see what the effect of the boundary conditions is on this.  At the moment the interface has a non-empty intersection with the boundary at  two points where it intersects the boundary.  This is also  where the pressure exhibits unexpected behaviour .   We need to carry out more tests and see what happens when the interface has no contact with the boundary.  Another possibility is to multiply the second derivatives of the model by a parameter and let it go to zero, to see if this will eliminate the jump in the velocity-gradient.  
+
+Once the reasons behind this behaviour are discovered we can then take the project towards full model and mesh adaptiviy in three steps.  These are to first use the indicator just for mesh adaptivity, then just for model adaptivity and finally for both,  without fixing the interface.  The expectation from this indicator is to enable us to use the extra complexity in the parts of the domain where it is necessary while maintaining the computational expesnses low by using the Laplace model everywhere else.  If this is succesful then we can use the knowledge and rationale behind this project to more complex models with more direct applications to climate simulation.
 
 %\noindent\begin{minipage}{\textwidth} %
 %	\begin{minipage}{0.5\textwidth}
