@@ -423,14 +423,14 @@ where the linear and bilinear forms defined in (\ref{form-a}) are defined as
     F\left(\textbf{v}\right) &=& \int_{\Omega}\textbf{f}\cdot \textbf{v} .
 \end{eqnarray}
 
-\subsubsection{Well Posedness}\label{sec_wellposed}
+\subsubsection{Well Posedness of the continuous problem}\label{PDE_cont}
 We will introduce some notation that will be used for the analysis in this section.  We will adopt the same notation as \cite{Chen2016} for ease of cross-checking, as the analysis in this section relies heavily on results presented therein. 
 We will also be frequently making use of the symbol
 \begin{equation}
 	\lesssim \nonumber,
 \end{equation}
 which we define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  Such multiplicative constants arise often in finite-element analysis and they may depend on a number of factors, such as domain geometry, the shape of the finite-element or the size of the mesh.  
-\subsubsection{PDE}\label{PDE_cont}
+
 In order to prove (\ref{form-a})-(\ref{form-b}) we need to show that the following hold:
 	 \begin{eqnarray}\label{coerc_a}
 	\inf_{\textbf{u}\in \mathbb{V}}\sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{u}\right|_1 \left|\textbf{v}\right|_1}&=&\alpha>0,\\\label{coerc_b}
@@ -488,7 +488,7 @@ We divide throughout by $\left|\textbf{u}\right|_1$, which we assume not to be z
 \inf_{\textbf{u}\in \mathbb{V}}\sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{v}\right|_1\left|\textbf{u}\right|_1} \geq \alpha>0\nonumber.
 \end{equation}
 Lastly, (\ref{cont_a}) and (\ref{cont_b}) follow from an application of the Cauchy-Schwarz inequality on the corresponding bilinear forms.
-\subsubsection{Discrete form of the $\textit{inf-sup}$ condition}\label{PDE_disc}
+\subsubsection{Well-posedness of the discrete problem}\label{PDE_disc}
 In \S \ref{PDE_cont} we considered (\ref{weak-a}) and (\ref{weak-b}) in the setting of infinite-dimensional function spaces.  In practice we will be dealing with a finite-dimensional version of these.  Hence, we need to show that the discrete, finite-dimensional problem is also well-posed:
 \begin{eqnarray}
 		a\left(\textbf{u}_h,\textbf{v}\right) + b\left(\textbf{v},p_h\right) &=& F\left(\textbf{v}\right)\quad \forall 
@@ -600,7 +600,7 @@ with boundary conditions given by
 \begin{equation}\label{bc_adapt}
 	\textbf{u}= 0 \text{\quad on $\partial \Omega$}.
 \end{equation}
-Naturally, we would like to know whether the problem given by (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) has a unique, stable solution.  In order to do this we will first derive the variational form for (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) and then we will use some of the procedures from \S \ref{sec_wellposed} to show that our problem is indeed well-posed.
+Naturally, we would like to know whether the problem given by (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) has a unique, stable solution.  In order to do this we will first derive the variational form for (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) and then we will use some of the procedures from \S \ref{PDE_cont} to show that our problem is indeed well-posed.
 
 \begin{figure}[H]
 	\begin{center}
@@ -1336,7 +1336,7 @@ Figure \ref{fig_stokes_sol}  shows the magnitude of the computed solution $\text
 	\caption{loglog plots of errors }
 	\label{fig_errors}
 \end{figure}
-\subsubsection{Combined Problem with fixed Interface}
+\subsubsection{Combined model with fixed interface}
 Figures \ref{fig_combi_sol}  and \ref{fig_combi_sol_p} show surface plots of the magnitude of the computed solutions $\textbf{u}_h$  and $p_h$ respectively to problem (\ref{frame_combi_disc}) with exact solutions $\left(\textbf{u}, p\right)$ given by (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}).
 \begin{figure}[H]
 	\centering
@@ -1387,9 +1387,9 @@ There are multiple possibilities for this behaviour.  It could be a bug in the c
 \section{Concluding remarks and next steps}\label{sec_conclusion}
 In this report we have shown the well-posedness of the combined Stokes-Laplace problem.  Furthermore, we have derived an a-posteriori indicator for the combined problem based on the abstract variational framework from \cite{verfurth2013posteriori}.  This indicator can drive both model and mesh-adaptivity.  It is based on the approach of \cite{giesselmann2017posteriori}, where the indicator is also built to drive both mesh and model adaptivity.  Lastly, we have created a model  for the combined problem in Deal.II with a fixed interface in order to test the indicator.  The model exhibited  behavior which was unexpected given the interface condition and the problem data we prescribed.  The next step would be to to find the reasons behind this behaviour.  
 
-More specifically, the pressure shoots attains values it should not be attaining at the points where our interface ($y=0.5$) intersects the boundary, where we prescribe homogeneous Dirichlet boundary conditions for the velocity.  The velocity also exhibits a jump in gradient across the interface.  The next step would be to see what the effect of the boundary conditions is on this bahaviour.  We need to carry out more tests, including varying the shape of the interface and see what happens when the interface has no contact with the boundary.  Another possibility is to multiply the second derivatives of the model by a parameter and let it go to zero, to see if this will eliminate the jump in the velocity-gradient.  
+More specifically, the pressure attains values it should not be attaining at the points where our interface ($y=0.5$) intersects the boundary, where we prescribe homogeneous Dirichlet boundary conditions for the velocity.  The velocity also exhibits a jump in gradient across the interface.  The next step would be to see what the effect of the boundary conditions is on this bahaviour.  We need to carry out more tests, including varying the shape of the interface and see what happens when the interface has no contact with the boundary.  Another possibility is to multiply the second derivatives of the model by a parameter and let it go to zero, to see if this will eliminate the jump in the velocity-gradient.  
 
-Once the reasons behind this behaviour are discovered we can then take the project towards full model and mesh adaptiviy in three steps.  These are to first use the indicator just for mesh adaptivity, then just for model adaptivity and finally for both,  without fixing the interface.  The expectation from this indicator is to enable us to use the extra complexity in the parts of the domain where it is necessary while maintaining the computational expenses low by using the Laplace model everywhere else.  If this is succesful then we can use the knowledge and rationale behind this project to more complex models with more direct applications to climate simulation.
+Once the reasons behind this behaviour are understood we can  take the project towards full model and mesh adaptiviy in three steps.  These are to firstly use the indicator just for mesh adaptivity, then just for model adaptivity and finally for both,  without fixing the interface.  The expectation from this indicator is to enable us to use the complex (Stokes) model in the parts of the domain where it is necessary while maintaining the computational expenses low by using the simpler (Laplace) model everywhere else.  If this is succesful then we can use the knowledge and rationale behind this project to more complex models with more direct applications to climate simulation.
 
 %\noindent\begin{minipage}{\textwidth} %
 %	\begin{minipage}{0.5\textwidth}
