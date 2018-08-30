@@ -1191,11 +1191,11 @@ The set $\mathcal{E}_{K,\Omega}$ is the set of of edges of $K$ that are interior
 \begin{equation}
 \mathcal{E}_M= \left|\left|\text{div }\textbf{u}\right|\right|_K.
 \end{equation}
-After each cycle of computations, we will be to evaluate $\mathcal{E}_M$ for a given cell.  Since the Laplace model is supposed to be divergenceless, if $\mathcal{E}_M$ is within a predefined tolerance then we assign an appropriate flag for that cell, which will correspond to the Laplace model.  If $\mathcal{E}_M$ is higher than the tolerance we will flag that cell with an index corresponding to the Stokes Model and the Stokes model will be solved on that cell for the next computation cycle.  
+After each cycle of computations, we will be to evaluate $\mathcal{E}_M$ for a given cell.  Since the Laplace model is supposed to be divergenceless, if $\mathcal{E}_M$ is within a predefined tolerance then we assign an appropriate flag for that cell, which will correspond to the Laplace model.  If $\mathcal{E}_M$ is higher than the tolerance we will flag that cell with an index corresponding to the Stokes model. This flag will determine the model that will be solved on that cell for the next computation cycle.  
 
-Then, we check the combined $\mathcal{E}_M+\mathcal{E}_D$ for a given cell.  Notice that this will be the corresponding a-posteriori indicator $\eta_{R,K}$ for that cell, given by (\ref{approach1_indicator}).  If this value is higher than a predefined tolerance we will refine this cell and if it is not we will leave it as is.  Deal.II allows for both global refinement and adaptive refinement.  In the case of adaptive refinement we have the option of selecting how many cells we want to have refined.  
+Then, we check the combined $\mathcal{E}_M+\mathcal{E}_D$ for a given cell.  The quantity $\mathcal{E}_D$ is the portion of $\eta_{R,K}$ (\ref{approach1_indicator}) for a given cell that is not included in $\mathcal{E}_M$.  In the Stokes indicator, $\mathcal{E}_M$ is part of the indicator whereas for the Laplace indicator, it is not.  If this value is higher than a predefined tolerance we will refine this cell and if it is not we will leave it as is.  Deal.II allows for both global refinement and adaptive refinement.  In the case of adaptive refinement we have the option of selecting how many cells we want to have refined.  
 
-Basically, the cells are ranked  from highest to lowest in terms of error.  Then we choose which cells will be refined based on the proportion of the total error that corresponds to that cell.  For example, by specifying a coefficient of 0.3 we ask that the cells which, when arranged in ascending order cumulatively correspond to $0.3\left(\mathcal{E}_M+\mathcal{E}_D\right)$, will be refined in the next cycle.  This procedure is summarised in pseudocode form in Algorithm \ref{Algorithm_MM_adaptivity}.
+Basically, the cells are ranked  from highest to lowest in terms of error contribution.  Then we choose which cells will be refined based on the proportion of the total error we would like to refine.  For example, by specifying a coefficient of 0.3 we ask that the cells which, when arranged in ascending order cumulatively correspond to $0.3\left(\mathcal{E}_M+\mathcal{E}_D\right)$, will be refined in the next cycle.  This procedure is summarised in pseudocode form in Algorithm \ref{Algorithm_MM_adaptivity}.
  \begin{algorithm}[t]
  	\caption{Model-Mesh Adaptivity (see \cite[\S6: Algorithm 6.1]{giesselmann2017posteriori})}\label{Algorithm_MM_adaptivity}
  	\begin{algorithmic}
@@ -1233,7 +1233,7 @@ In this section we will discuss how will implement our combined problem in Deal.
 
 There will be differences between the way in which we have conducted the analysis for our combined problem and the way we will implement it.  The most important difference is the way we will implement pressure.  In \S \ref{sec_combi_var_form}, where we specified the variational forms for both our continuous problem and its approximation, we mentioned that pressure is defined only in the Stokes part of the domain, $\Omega_S$.  However from an implementation perspective we will do things slightly differently.
 
-Specifically, we will define pressure globally by extending it by $0$ to the Laplace part of the domain, $\Omega_L$.  In order to do this, let us firs introduce the space of functions which are (constant) zero on a cell, $\textbf{Z}$:
+Specifically, we will define pressure globally by extending it by $0$ to the Laplace part of the domain, $\Omega_L$.  In order to do this, let us first introduce the space of functions which are (constant) zero on a cell, $\textbf{Z}$:
 \begin{equation}
 \textbf{Z}=\left\lbrace  f: f\left(x\right)=0 \right\rbrace.
 \end{equation}
@@ -1264,7 +1264,7 @@ where
 
 
 \section{Deal.II}\label{sec_numerics}
-Deal.II is a C++, open-source, finite element library which we will be using for the implementation of the computational aspects of this project.   In this section we will describe the models we constructed in Deal.II and the tests we carried out on them.  This section will be structured as follows.  In  \S \ref{sec_dealii_tests} we will describe the models we built.  In \S \ref{sec_dealii_results} we will present the results from these models.  Lastly, we will conclude this section with a discussion of the results in \S \ref{sec_dealii_discussion}.  
+In this section we will describe the models we constructed in Deal.II and the tests we carried out on them.  This section will be structured as follows.  In  \S \ref{sec_dealii_tests} we will describe the models we built.  In \S \ref{sec_dealii_results} we will present the results from these models.  Lastly, we will conclude this section with a discussion of the results in \S \ref{sec_dealii_discussion}.  
 \subsection{Tests}\label{sec_dealii_tests}
 \subsubsection{Stokes Model}\label{sec_test_stokes}
 The first test we ran is a simple Stokes model with homogeneous Dirichlet boundary conditions and a forcing, $\textbf{f}$ on the right-hand side.  This is given by:
@@ -1276,10 +1276,10 @@ The first test we ran is a simple Stokes model with homogeneous Dirichlet bounda
 \end{bmatrix} \text{ and}\\\label{benchmark_p}
 p &=& 10\left(x-1/2\right)^3y^2+\left(1-x\right)^3\left(y-1/2\right)^3,
 \end{eqnarray}
-where $\textbf{x}=\left(x,y\right)^T$.    We will substitute (\ref{benchmark_u}) and (\ref{benchmark_p}) as exact solutions to (\ref{stokes_eq}) to obtain the forcing $\textbf{f}$.  We have used this benchmark example to test for convergence in our model.  The reason for this choice of $\left(\textbf{u},p\right)$ is that $\textbf{u}$ has zero divergence.
+where $\textbf{x}=\left(x,y\right)^T$.    We will substitute (\ref{benchmark_u}) and (\ref{benchmark_p}) as exact solutions to (\ref{stokes_eq}) to obtain the forcing $\textbf{f}$.  We have used this benchmark example to test for convergence in our model.  The reason for this choice of $\textbf{u}$ is that it has zero divergence.
 \subsubsection{Combined Model with fixed Interface}\label{sec_test_combi_fixed}
 This  test is the first step towards implementing model adaptivity.  We divided our (unit square) domain into two halves at $y=0.5$: in the lower half we are solving the Laplace model and in the upper-half we are solving the Stokes model.  This test serves a number of purposes.
-Firstly, we see how we can implement and work with the interface condition.   Secondly, to see how we can implement and evaluate our a-posterior error indicator in Deal.II.  The $\left(\textbf{u},p\right)$ we are using in this case is given by:
+Firstly, we see how we can implement and work with the interface condition.   Secondly, to see how we can implement and evaluate our a-posterior error indicator in Deal.II.   The $\left(\textbf{u},p\right)$ we are using in this case is given by:
 \begin{eqnarray}
 \label{benchmark_u_mm1}
 \textbf{u}\left(\textbf{x}\right)&=&\begin{bmatrix}
@@ -1296,7 +1296,7 @@ Figure \ref{fig_stokes_sol}  shows the magnitude of $\textbf{u}$ plotted at each
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=10cm]{stokes_cg_velocities}
-	\caption{The magnitude of the solution $\textbf{u}_h$ of plotted at the refinement cycle to (\ref{frame_stokes_disc}) with $\textbf{u}$ given by (\ref{benchmark_u}).}
+	\caption{The magnitude of the solution $\textbf{u}_h$ of plotted at the refinement cycle with $\left(\textbf{u},p\right)$ given by (\ref{benchmark_u}) and (\ref{benchmark_p}).}
 	\label{fig_stokes_sol}
 \end{figure}
 \begin{table}[H]
@@ -1341,10 +1341,16 @@ Figure \ref{fig_stokes_sol}  shows a surface plot of the magnitude of $\textbf{u
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=10cm]{combi_u}
-	\caption{The magnitude of $\textbf{u}$ plotted at each refinement cycle to (\ref{stokes_eq}) with $\textbf{u}$ given by (\ref{benchmark_u_mm1}).}
+	\caption{The magnitude of $\textbf{u}_h$ plotted at the last refinement cycle with $\left(\textbf{u},p\right)$ given by (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}).}
 	\label{fig_combi_sol}
 \end{figure}
-Notice that although the chosen pressure is in  $L^2_0\left(\Omega\right)$, $L^2_0\left(\Omega_S\right)$ and also $L^2_0\left(\mathcal{I}\right)$, the interface condition seems to be satisfied as though it is not since the jum in the gradient across the interface is non-zero.  The convergence results are tabulated in Table \ref{tablebenchmark_convergence_mm1}.  
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{combi_p}
+	\caption{The magnitude of $p_h$ plotted at the last refinement cycle with $\left(\textbf{u},p\right)$ given by (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}).}
+	\label{fig_combi_sol_p}
+\end{figure}
+Notice that although the chosen pressure is in  $L^2_0\left(\Omega\right)$, $L^2_0\left(\Omega_S\right)$ and also $L^2_0\left(\mathcal{I}\right)$, the interface condition seems to be satisfied as though it is not since the jump in the gradient of the velocity across the interface is non-zero. Furthermore, the pressure itself is not behaving according to the data we are prescribing in  (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}).  The convergence results are tabulated in Table \ref{tablebenchmark_convergence_mm1}.  
 \begin{table}[H]
 	\begin{center}
 	\begin{tabular}{|c|c|c|c|c|c|} \hline
@@ -1359,22 +1365,24 @@ Notice that although the chosen pressure is in  $L^2_0\left(\Omega\right)$, $L^2
 		\label{tablebenchmark_convergence_mm1}
 	\end{center}
 \end{table}
-The most noteworthy feature of the results in Table \ref{tablebenchmark_convergence_mm1} is that, although we have convergence in both pressure and velocity in the $L^2$ norm, neither converges to what we would expect given the right hand side we prescribed.  Furthermore, the computed velocity solution is not divergenceless.
+\vspace{-10mm}
+A noteworthy feature of the results in Table \ref{tablebenchmark_convergence_mm1} is that, although we have convergence in both pressure and velocity in the $L^2$ norm, neither converges to what we would expect given the right hand side we prescribed.  Furthermore, the computed velocity solution is not divergenceless.
 \subsection{Discussion}\label{sec_dealii_discussion}
-The solution for the simple Stokes problem converges as we would expect it to for both velocity and pressure.  In contrast, for the combined problem both the velocity and the pressure do converge, but not to the solution we would expect given the right-hand side we have prescribed. 
+The solution for the simple Stokes problem converges as we would expect it to for both velocity and pressure.  In contrast, for the combined problem both the velocity and the pressure do converge, but not to the solution we would expect given the right-hand side we have prescribed.   We can readily observe this by examining Figures \ref{fig_combi_sol} and \ref{fig_combi_sol_p} and comparing them with the prescribed data (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}). 
 
 
-It has not been possible to accurately pinpoint the reason for this discrepancy.    However, it is noteworthy that this discrepancy occurs most noticeably at the interface.  Recall that the interface condition in this case was prescribed such that the pressure would integrate to zero along the interface.  The intention behind this was that the jump in the velocity gradient across the interface would also integrate to zero.  This does not happen.  In fact, the solution is behaving as though there is a non-zero gradient jump across the interface.  
+It has not been possible to accurately pinpoint the reason for this discrepancy.    However, it is noteworthy that this occurs most noticeably at the interface.  Recall that the interface condition in this case was prescribed such that the pressure would integrate to zero along the interface.  The intention behind this was that the jump in the velocity gradient across the interface would also integrate to zero.  This does not happen.  In fact, the solution is behaving as though there is a non-zero gradient jump across the interface.  
 
-It has not been possible to assess this as of yet.
+There are multiple possibilities for this behaviour.  It could be a bug in the code or of the analysis.  For example, the boundary conditions could be incompatible with the interface condition. The problem is that it is not easy to discern the source of this behaviour at the moment.
+
 
 
 \section{Concluding remarks and next steps}\label{sec_conclusion}
-In this report we have shown the well-posedness of the combined Stokes-Laplace problem.  Furthermore, we have derived an a-posteriori indicator for the combined problem based on the abstract variational framework from \cite{verfurth2013posteriori}.  This indicator can drive both model and mesh-adaptivity.  It is based on the approach of \cite{giesselmann2017posteriori}, where the indicator is also built to drive both mesh and model adaptivity.  Finally, we have created a model  for the combined problem in Deal.II with a fixed interface in order to test the indicator.  The model exhibited  behavior which was unexpected given the interface condition and the problem data we prescribed.  The next step would be to to find the reasons behind this behaviour.  
+In this report we have shown the well-posedness of the combined Stokes-Laplace problem.  Furthermore, we have derived an a-posteriori indicator for the combined problem based on the abstract variational framework from \cite{verfurth2013posteriori}.  This indicator can drive both model and mesh-adaptivity.  It is based on the approach of \cite{giesselmann2017posteriori}, where the indicator is also built to drive both mesh and model adaptivity.  Lastly, we have created a model  for the combined problem in Deal.II with a fixed interface in order to test the indicator.  The model exhibited  behavior which was unexpected given the interface condition and the problem data we prescribed.  The next step would be to to find the reasons behind this behaviour.  
 
-More specifically, the pressure shoots off to infinity at the points where our interface ($y=0.5$) touched upon the sides of our unit square domain, where we prescribe homogeneous Dirichlet boundary conditions for the velocity.  The velocity also exhibits a jump in gradient across the interface.  The next step would be to see what the effect of the boundary conditions is on this.  At the moment the interface has a non-empty intersection with the boundary at  two points where it intersects the boundary.  This is also  where the pressure exhibits unexpected behaviour .   We need to carry out more tests and see what happens when the interface has no contact with the boundary.  Another possibility is to multiply the second derivatives of the model by a parameter and let it go to zero, to see if this will eliminate the jump in the velocity-gradient.  
+More specifically, the pressure shoots attains values it should not be attaining at the points where our interface ($y=0.5$) intersects the boundary, where we prescribe homogeneous Dirichlet boundary conditions for the velocity.  The velocity also exhibits a jump in gradient across the interface.  The next step would be to see what the effect of the boundary conditions is on this bahaviour.  We need to carry out more tests, including varying the shape of the interface and see what happens when the interface has no contact with the boundary.  Another possibility is to multiply the second derivatives of the model by a parameter and let it go to zero, to see if this will eliminate the jump in the velocity-gradient.  
 
-Once the reasons behind this behaviour are discovered we can then take the project towards full model and mesh adaptiviy in three steps.  These are to first use the indicator just for mesh adaptivity, then just for model adaptivity and finally for both,  without fixing the interface.  The expectation from this indicator is to enable us to use the extra complexity in the parts of the domain where it is necessary while maintaining the computational expesnses low by using the Laplace model everywhere else.  If this is succesful then we can use the knowledge and rationale behind this project to more complex models with more direct applications to climate simulation.
+Once the reasons behind this behaviour are discovered we can then take the project towards full model and mesh adaptiviy in three steps.  These are to first use the indicator just for mesh adaptivity, then just for model adaptivity and finally for both,  without fixing the interface.  The expectation from this indicator is to enable us to use the extra complexity in the parts of the domain where it is necessary while maintaining the computational expenses low by using the Laplace model everywhere else.  If this is succesful then we can use the knowledge and rationale behind this project to more complex models with more direct applications to climate simulation.
 
 %\noindent\begin{minipage}{\textwidth} %
 %	\begin{minipage}{0.5\textwidth}
