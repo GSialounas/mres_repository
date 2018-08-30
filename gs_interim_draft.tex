@@ -156,7 +156,7 @@
 \pagebreak
 \thispagestyle{empty}
 \begin{abstract}
-In this work we formulate a combined Stokes-Laplace problem and construct a numerical model for it using finite elements.  We prove the well-posedness of its variational formulation and derive an a-posteriori indicator that can drive model adaptivity.  The motivation behind the use of model adaptivity is to approximate a complex problem with a simpler one in parts of the domain where the results produced by the two models do not differ greatly, while maintaining the complexity and accuracy of the complex model where it is necessary.  The a-posteriori indicator enables the choice between models for different parts of the domain to occur automatically during a computation.  The indicator can also be used to drive mesh adaptivity.  We also construct an example of the combined model with a fixed interface between the Stokes and Laplace models as a first step of testing the indicator.
+In this work we formulate a combined Stokes-Laplace problem and construct a numerical model for it using finite elements.  We prove the well-posedness of its variational formulation and derive an a-posteriori indicator that can drive model adaptivity.  The motivation behind the use of model adaptivity is to approximate a complex problem with a simpler one in parts of the domain where the results produced by the two models do not differ greatly, while simultaneously maintaining the sophistication of the complex model where it is necessary.  The a-posteriori indicator enables the choice between models for different parts of the domain to occur automatically during a computation.  The indicator can also be used to drive mesh adaptivity.  We also construct an example of the combined model with a fixed interface between the Stokes and Laplace models as a first step of testing the indicator.
 \end{abstract}
 \thispagestyle{empty}
 \pagebreak
@@ -179,9 +179,9 @@ I would like to thank my supervisors, Prof. Tristan Pryer and Dr Oliver Sutton, 
 
 \section{Introduction and Motivation}
 
-In this work we are concerned with model adaptivity in the context of fluid flows.  The interest in this topic from an MPE perspective lies in the fact that climate modelling involves fluid flows to a great extent.  This could be in the atmosphere or in ocean modelling.  The adaptive aspect comes in through the variety of models of different complexity which can be applied to these flows.  Increasing complexity (e.g. by inclusion of more terms in the PDE) usually implies a more faithful description of the underlying physics and also greater computational expense. Hence, a hierarchy of models describing the flow, differening in complexity, arises naturally.
+In this work we are concerned with model adaptivity in the context of fluid flows.  The interest in this topic from an MPE perspective lies in the fact that climate modelling involves fluid flows to a great extent.  This could be in the atmosphere or in ocean modelling.  The adaptive aspect comes in through the variety of models which can be applied to these flows. These models differ from each other incrementally in complexity (e.g. by including more terms in the PDE).  Increasing complexity  usually implies a more faithful description of the underlying physics and also greater computational expense. Hence, a hierarchy of models describing the flow, differing in complexity, arises naturally.
 
-The next question is how to choose which model in the hierarchy we want to use. When modelling a physical phenomenon it is often the case that in the majority of our domain the simpler model is a good approximation to a more complicated model further up the hierarchy.  As a realistic example, as \cite{giesselmann2017posteriori} point out, the compressible Euler equations are the limit of the Navier-Stokes-Fourier-Fourier equations as heat conduction and viscocity terms vanish.    The viscous terms for example may be important near obstacles (e.g. aerofoils) but we would expect them to be dominated by other terms (e.g. convection) in other parts of the flow.  As such, it would be preferrable not to expend computational resources on them in places where they are negligible and solve the simpler, Euler equations there instead.  However, we would still like to encapsulate the viscous effects are incorporated into our model close to the boundary.  This is also where adaptivity comes in.  
+The next question is how to choose  the most appropriate model from the model hierarchy. When modelling a physical phenomenon it is often the case that in the majority of our domain the simpler model is a good approximation to a more complicated model further up the hierarchy.  As a realistic example, as \cite{giesselmann2017posteriori} point out, the compressible Euler equations are the limit of the Navier-Stokes-Fourier equations as heat conduction and viscocity terms vanish.    The viscous terms for example may be important near obstacles (e.g. aerofoils) but we would expect them to be dominated by other terms (e.g. convection) in other parts of the flow.  As such, it would be preferrable not to expend computational resources on them in places where they are negligible and solve the simpler, Euler equations there instead.  However viscous terms are still important close to the boundary.  It would be a more faithful physical representation of the problem if their effects remained present there.  This is where adaptivity comes in.  
 
 
 Model adaptivity involves coupling models in a hierarchy together so that we can adaptively choose which model to solve in a certain part of a domain.  In this paper we will try to implement model adaptivity with a model hierarchy consisting of the Stokes model as the complex model and the Laplace model as the simple model:
@@ -193,7 +193,7 @@ Model adaptivity involves coupling models in a hierarchy together so that we can
 \end{aligned}
 \end{equation}
 \begin{equation}
-\text{Laplace equation: }
+\text{Laplace equation: }\quad\quad\,\,\,
 \begin{aligned}
 -\Delta\textbf{u} = \textbf{f} \nonumber
 \end{aligned}
@@ -204,7 +204,7 @@ Instead of using model adaptivity based an a-priori division of our domain, we i
 
 The a-posteriori indicator is essentially a localised error estimate which is based on the computed solution at each refinement step and the given problem data. It enables the assignment of different models to different parts of the domain to take place automatically during the computation.  In addition to model adaptivity, the indicator also allows for adaptive mesh refinement, although this was not implemented.  
 
-In this work, we formulate a combined Stokes-Laplace problem and show its well-posedness using the framework of the Stokes problem used in \cite{verfurth2013posteriori}.  The procedure that \cite{verfurth2013posteriori} adopts is to derive well-posedness results in the context of the abstract framework and to then show how a specific problem fits within this framework.  We go through the well-posedness results for the Stokes problem as an example.  We will then base our well-posedness analysis for the combined Stokes-Laplace problem on these results.  We then derive an a-posteriori error-indicator for our combined problem.   This indicator theoretically has the capacity to drive both model and mesh adaptivity for our model.  Lastly, we create and test a model for the combined problem with a fixed interface.
+In this work, we formulate a combined Stokes-Laplace problem and show its well-posedness using the framework of the Stokes problem used in \cite{verfurth2013posteriori}.  The procedure that \cite{verfurth2013posteriori} adopts is to derive well-posedness results in the context of the abstract framework and to then show how a specific problem fits within this framework.  We go through the well-posedness results for the Stokes problem as an example.  We  base our well-posedness analysis for the combined Stokes-Laplace problem on these results.  We then derive an a-posteriori error-indicator for our combined problem.   This indicator theoretically has the capacity to drive both model and mesh adaptivity for our model.  Lastly, we create and test a model for the combined problem with a fixed interface.
 
 
 The rest of this report is structured as follows.  In \S \ref{literature_review} we present some background material that is relevant to this project. In \S \ref{sec_mathform} we present the variational formulation for Laplace's equation, Stokes equations and for the combined problem.  Additionally, we show that they are well-posed both in the continuous and discrete forms.  In \S \ref{sec_aposteriori_analysis} we  present the a-posteriori analysis for the Stokes problem and for the combined problem. In \S \ref{sec_numerics} we present test results for the models we build in Deal.II for the Stokes and the combined model.   We conclude the report in \S \ref{sec_conclusion}, where we also discuss directions for further work.
@@ -218,7 +218,7 @@ In this section we will briefly review what the Finite Element technique is and 
 u &= g \quad \text{on}\quad \partial \Omega
 \end{aligned}
 \end{equation}
-In order for this problem to have a solution we need certain characteristics from our functions $u$ and $f$.  For example, we require that $u\in C^2\left(\Omega\right) ,\,g\in C\left(\overline{\Omega}\right)$ and $f \in C\left(\Omega\right)$.  Furthermore, equality in (\ref{model_poisson}) is to be understood point-wise:  The left and right hand sides of the equations in (\ref{model_poisson}) must agree for all $x \in \Omega$ and on $\partial\Omega$ respectively. These requirements are too strict however:  the map $-\Delta : C^2\left(\mathbb{R}^2\right)\rightarrow C^0\left(\mathbb{R}^2\right)$ is not invertible.  Instead, we look for an alternative formulation of the problem which allows for more relaxed requirements on $u$.  This formulation is called the variational formulation.   In order to obtain this formulation multiply the first equation in (\ref{model_poisson}) by a test function $v$ from some infinite-dimensional function space $V$ (which we will define shortly) and then integrate by parts.  Also assume that $g=0$, since this is also what we will be using throughout this project.  This gives:
+In order for this problem to have a solution we need certain characteristics from our functions $u$ and $f$.  For example, we require that $u\in C^2\left(\Omega\right) ,\,g\in C\left(\overline{\Omega}\right)$ and $f \in C\left(\Omega\right)$.  Furthermore, equality in (\ref{model_poisson}) is to be understood point-wise:  The left and right hand sides of the equations in (\ref{model_poisson}) must agree for all $x \in \Omega$ and on $\partial\Omega$ respectively. These requirements are too strict however:  the map $-\Delta : C^2\left(\mathbb{R}^2\right)\rightarrow C^0\left(\mathbb{R}^2\right)$ is not invertible.  Instead, we look for an alternative formulation of the problem which allows for more relaxed requirements on $u$.  This formulation is called the variational formulation.   In order to obtain this formulation multiply the first equation in (\ref{model_poisson}) by a test function $v$ from some infinite-dimensional function space $V$ (which we will define shortly) and then integrate by parts.  Also assume that $g=0$, since this is what we will be using throughout this project.  This gives:
 \begin{equation}
 \int_{\Omega}\nabla u \cdot \nabla v dx =\int_{\Omega}fvdx,
 \end{equation}
@@ -234,7 +234,7 @@ and
 \begin{equation}
 F\left(v\right) = \int_{\Omega}fvdx.
 \end{equation}
-A careful inspection of the variational formulation will indicate that now the only thing we are asking of our solution $u$ is that it has one square-integrable derivative and that it is zero on the boundary.  This is a weaker requirement than the existence and uniqueness of two derivatives that we were asking for in (\ref{model_poisson}), which is why (\ref{model_var_form}) is also called the weak formulation.  The next step is to discretize our problem.  Since $V$ is an infinite-dimensional space we have no way of practically searching for a solution in it.   Instead, we will restrict our search in a finite-dimensional subspace of $V$, which we shall call $V_h$ and look for an approximation $u_h$ to $u$.  This gives us the Galerkin approximation to (\ref{model_var_form}):
+A careful inspection of the variational formulation will indicate that now the only thing we are asking of our solution $u$ is that it has one square-integrable derivative and that it is zero on the boundary.  This is a weaker requirement than the existence and uniqueness of two derivatives that we were asking for in (\ref{model_poisson}), which is why (\ref{model_var_form}) is also called the weak formulation.  The next step is to discretize our problem.  Since $V$ is an infinite-dimensional space we have no way of practically searching for a solution in it.   Instead, we will restrict our search in a finite-dimensional subspace of $V$, which we shall call $V_h$ and look for an approximation $u_h$ to $u$ in this space.  This gives us the Galerkin approximation to (\ref{model_var_form}):
 
 \theoremstyle{definition}
 \begin{definition}{$\left(\textbf{Galerkin Approximation}\,\text{of \ref{model_var_form}}\right)$} 
@@ -244,7 +244,7 @@ a\left(u_h,v_h\right)=F\left(v_h\right) \quad \forall v_h \in V_h.
 	\end{equation}
 \end{definition}
 This problem is more amenable to practical implementation compared to (\ref{model_poisson}) as it is finite-dimensional and can hence be coded on a computer.  We will not discuss questions about the well-posedness of (\ref{model_poisson}) and (\ref{model_var_form}) or why $u_h$ is a good approximation to $u$ (in fact it is the best in some sense).  For such topics the reader is advised to consult \cite{brenner2007mathematical} and \cite{ern2013theory}. Nonetheless, now that we have our approximate problem we can proceed to the next step, which is  to construct our finite-dimensional function space $V_h$.  
-The way we do this is to first geometrically decompose our domain into a finite collection of shapes (cells).  The collection of these cells is called a mesh or a triangulation.  We then equip this mesh with piecewise polynomial basis functions.  The geometric decomposition allows us to simulate complicated domains while the polynomial basis functions provide us with a lot of flexibility.  We know how to integrate them, how to enforce continuity from cell to cell (or to allow for discontinuity should the need arise) and they also allow us to approximate different functions on our domain  by expressing them as a weighted sum of our these basis functions.  Let us explain both concepts in a bit more detail.
+The way we do this is to first geometrically decompose our domain into a finite collection of shapes (cells).  The collection of these cells is called a mesh or a triangulation.  We then equip this mesh with piecewise polynomial basis functions.  The geometric decomposition allows us to simulate complicated domains while the polynomial basis functions provide us with a lot of flexibility.  We know how to integrate them, how to enforce continuity from cell to cell (or to allow for discontinuity should the need arise) and they also allow us to approximate different functions on our domain  by expressing them as a weighted sum of the basis functions.  Let us explain both concepts in a bit more detail.
 
 Cells, the constitutive elements of the mesh, are usually simple geometric shapes.  These could be intevals in $1D$, polygons (frequently triangles or quadrilaterals) in $2D$ and polyhedra in $3D$.  More formally, the definition of mesh/triangulation is as follows (see \cite{ern2013theory}: \S 1.3 Defn 1.49): 
 \theoremstyle{definition}
@@ -257,7 +257,7 @@ A mesh is the decomposition of a domain $\Omega$ into a finite collection of cel
 \end{definition}
 which loosely means that the cells have non-overlapping interiors.   Let us also define what basis functions are.  Basis functions have the same meaning (and use) one would expect of basis vectors: we use them so that we can construct any other function in our function space.  They are literally our function space's basis.  
 \begin{definition}{$\left(\textbf{Nodal Basis}\right)$}\label{defn_nodal_basis}
-	Consider a Triangulation $T$ of $\Omega$ with $N$ vertices $\lbrace x_i\rbrace_{i=0}^{N-1}$ the basis function $\phi_i$ associated with the $i$-th degree of freedom satisfies 
+	Consider a triangulation $T$ of $\Omega$ with $N$ vertices $\lbrace x_i\rbrace_{i=0}^{N-1}$ the basis function $\phi_i$ associated with the $i$-th degree of freedom satisfies 
 	\begin{equation}
 	\phi\left(x_j\right) = \delta_{ij},
 	\end{equation}
@@ -329,17 +329,17 @@ where the indices $i$ and $j$ cycle over the components of $\textbf{u}$ and over
 \end{equation}
 
 We will require that our $\textbf{u}$ is continuous and has continuous first derivatives. 
- In other words, that $\textbf{u}\in \textbf{H}^1_0\left(\Omega\right)^2$, where the Sobolev space $\textbf{H}^1_0\left(\Omega\right)^d$ is  the space of $d$-dimensional functions in $L^2\left(\Omega\right)$ which are zero on the boundary and have their first derivatives in $L^2\left(\Omega\right)$:
+ In other words, that $\textbf{u}\in \left[\textbf{H}^1_0\left(\Omega\right)\right]^2$, where the Sobolev space $\left[\textbf{H}^1_0\left(\Omega\right)\right]^d$ is  the space of $d$-dimensional functions in $L^2\left(\Omega\right)$ which are zero on the boundary and have their first derivatives in $L^2\left(\Omega\right)$:
 \begin{equation}
-\textbf{u}\in \textbf{H}^1_0\left(\Omega\right)^2 = \left\lbrace \textbf{u}\in L^2\left(\Omega\right)^d \text{ with } \nabla\textbf{u}_{i,j}\in L^2\left(\Omega\right) \text{ and } \textbf{u}|_{\partial\Omega}=\textbf{0}\right\rbrace. \nonumber
+\textbf{u}\in \left[\textbf{H}^1_0\left(\Omega\right)\right]^2 = \left\lbrace \textbf{u}\in \left[L^2\left(\Omega\right)\right]^d \text{ with } \nabla\textbf{u}_{i,j}\in L^2\left(\Omega\right) \text{ and } \textbf{u}|_{\partial\Omega}=\textbf{0}\right\rbrace. \nonumber
 \end{equation}
 This space's norm is given by 
 \begin{equation}
 \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega\right)}.\nonumber
 \end{equation}
- We will also require that our right-hand side function $\textbf{f}$ is square-integrable, i.e. $\textbf{f}\in L^2\left(\Omega\right)^2$.
+ We will also require that our right-hand side function $\textbf{f}$ is square-integrable, i.e. $\textbf{f}\in L^2\left(\Omega\right)$.
  
-In order to obtain the variational formulation of (\ref{poisson_problem_review}), we multiply the equation by a test function $\textbf{v}\in \textbf{H}^1_0\left(\Omega\right)^2$ and integrate by parts.  This gives us
+In order to obtain the variational formulation of (\ref{poisson_problem_review}), we multiply the equation by a test function $\textbf{v}\in \left[\textbf{H}^1_0\left(\Omega\right)\right]^2$ and integrate by parts.  This gives us
 \begin{equation}
 \int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}\;\mathrm{d}x  =\int_{\Omega}\textbf{f}\cdot \textbf{v} \;\mathrm{d}x.
 \end{equation}
@@ -405,7 +405,7 @@ where boldface indicates vectors.  In (\ref{stokes_eq}), $\textbf{u},\, \textbf{
 
 Let us begin by defining the  function spaces $\mathbb{V}$ (for velocity) and $\mathbb{P}$ (for pressure) we will be working with:
 \begin{eqnarray}\label{fspace_V}
-\mathbb{V}&=&\textbf{H}^1_0\left(\Omega\right)^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega\right)}, \\\label{fspace P}
+\mathbb{V}&=&\left[\textbf{H}^1_0\left(\Omega\right)\right]^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega\right)}, \\\label{fspace P}
 \mathbb{P}&=&L^2_0\left(\Omega\right)=\left\lbrace q\in L^2\left(\Omega\right): \int_\Omega q=0\right\rbrace\text{, with norm: } \left|\left|q\right|\right|_{L^2\left(\Omega\right)}
 \end{eqnarray}
  Henceforth, we will adopt the notation $\left|\textbf{u}\right|_1$ and $\left|\left|q\right|\right|_{L^2}$ for the norms pertaining to the function spaces specified in (\ref{fspace_V}) and (\ref{fspace P}).  
@@ -429,17 +429,17 @@ We will also be frequently making use of the symbol
 \begin{equation}
 	\lesssim \nonumber,
 \end{equation}
-which we we will define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  Such multiplicative constants arise often in finite-element analysis and they may depend on a number of factors, such as domain geometry, the shape of the finite-element or the size of the mesh.  
+which we define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  Such multiplicative constants arise often in finite-element analysis and they may depend on a number of factors, such as domain geometry, the shape of the finite-element or the size of the mesh.  
 \subsubsection{PDE}\label{PDE_cont}
-There are four components to proving the well-posedness of (\ref{form-a})-(\ref{form-b}):
+In order to prove (\ref{form-a})-(\ref{form-b}) we need to show that the following hold:
 	 \begin{eqnarray}\label{coerc_a}
 	\inf_{\textbf{u}\in \mathbb{V}}\sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{u}\right|_1 \left|\textbf{v}\right|_1}&=&\alpha>0,\\\label{coerc_b}
 			\inf_{q\in \mathbb{P}}\sup_{\textbf{u}\in \mathbb{V}}\frac{b\left(\textbf{u},q\right)}{\left|\textbf{u}\right|_1 \left|\left|q\right|\right|_{L^2}}&=&\beta>0,\\\label{cont_a}
-		a\left(\textbf{u},\textbf{v}\right)&\leq& C_a\left|\textbf{u}\right|_1\left|\textbf{v}\right|_1,\, \forall \textbf{u},\textbf{v} \in \mathbb{V}\text{ and}\\\label{cont_b}
-		b\left(\textbf{u},q\right)&\leq& C_b\left|\textbf{u}\right|_1\left|\left|q\right|\right|_{L^2},\,\forall \textbf{u} \in \mathbb{V},\, q \in \mathbb{P}.
+		a\left(\textbf{u},\textbf{v}\right)&\leq& C_a\left|\textbf{u}\right|_1\left|\textbf{v}\right|_1,\quad \forall \textbf{u},\textbf{v} \in \mathbb{V}\text{ and}\\\label{cont_b}
+		b\left(\textbf{u},q\right)&\leq& C_b\left|\textbf{u}\right|_1\left|\left|q\right|\right|_{L^2},\,\,\forall \textbf{u} \in \mathbb{V},\, q \in \mathbb{P}.
 	\end{eqnarray}
 Briefly, (\ref{coerc_a}) and (\ref{coerc_b}) correspond to the stability of the bi-linear forms specified in (\ref{weak-a}) and (\ref{weak-b}) respectively, while (\ref{cont_a}) and (\ref{cont_b}) correspond to their boundedness, in the same order. It is worth noting that (\ref{coerc_a}) is perhaps more widely known as the $\textit{inf-sup}$ condition (see \cite{brenner2007mathematical}: \S 12). 
-We will start by showing that conditions (\ref{coerc_b}), (\ref{cont_a}) and (\ref{cont_b}) hold.  Then we will show (\ref{coerc_a}) holds.  Firstly we will introduce a result that implies (\ref{coerc_b}) holds.  The result can be found in \cite{Chen2016} as Lemma 1.4.
+We will start by showing that conditions (\ref{coerc_b}), (\ref{cont_a}) and (\ref{cont_b}) hold.  Then we will show that (\ref{coerc_a}) holds.  Firstly we will introduce a result that implies (\ref{coerc_b}) holds.  The result can be found in \cite{Chen2016} as Lemma 1.4.
 \begin{lemma}\label{Lemma_equiv}
 	For any $q\in L^2_0\left(\Omega\right), \exists \textbf{v}\in \textbf{H}^1_0\left(\Omega\right)$ such that
 	\begin{equation}
@@ -448,7 +448,7 @@ We will start by showing that conditions (\ref{coerc_b}), (\ref{cont_a}) and (\r
 	Consequently, the inf-sup condition, (\ref{coerc_b}), holds.
 \end{lemma}
 \begin{proof}
-	See \cite{Chen2016}: Lemma 1.4
+	See \cite[Lemma 1.4]{Chen2016}.
 \end{proof}
 We will use the statement of Lemma \ref{Lemma_equiv} to show it implies (\ref{coerc_b}).  Consider (\ref{weak-b}).  We choose $\textbf{v}$ so that the result in Lemma (\ref{Lemma_equiv}) holds. We will label this $\textbf{v}$ as $\textbf{v}_q$ to remember the dependence on $q$.   Hence
 \begin{eqnarray}
@@ -459,7 +459,7 @@ Now, assume that $\left|\textbf{v}_q\right|_1$ is not zero, divide throughout by
 \begin{equation}
 \sup_{\textbf{0}\neq\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} \gtrsim \left|\left|q\right|\right|_{L^2}.\nonumber
 \end{equation}
-Now we divide throughout by $\left|\left|q\right|\right|_{L^2}$, which we also assume not to be equal to zero, and take the $\inf$ of that, which we can do since the inequality is required to hold for all $q\in \mathbb{P}$:
+Now we divide throughout by $\left|\left|q\right|\right|_{L^2}$, which we also assume not to be equal to zero, and take the infimum of that over $\mathbb{P}$.  We can do this since the inequality is required to hold for all $q\in \mathbb{P}$:
 \begin{equation}
 \inf_{q\in \mathbb{P}}\frac{1}{\left|\left|q\right|\right|_{L^2}}\sup_{\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} \gtrsim 1 \nonumber.
 \end{equation}
@@ -471,7 +471,7 @@ Next, we show that (\ref{coerc_a}) holds.  This is implied by the fact that (\re
 		&=&\int_{\Omega}\sum_{i}\nabla u_i \cdot \nabla u_i\;\mathrm{d}x\text{ and}\nonumber\\
 		&=&\left|\textbf{u}\right|_1^2,\nonumber
 \end{eqnarray}
-which is the coercivity condition with equality and $\alpha = 1$.  Now we show that  the coercivity of $a\left(\cdot,\cdot\right)$ implies (\ref{coerc_a}.  Since $a\left(\cdot,\cdot\right)$ is coercive, we have that
+which is the coercivity condition with equality and $\alpha = 1$.  Now we show that  the coercivity of $a\left(\cdot,\cdot\right)$ implies (\ref{coerc_a}).  Since $a\left(\cdot,\cdot\right)$ is coercive, we have that
 \begin{equation}
 a\left(\textbf{u},\textbf{u}\right)\geq \alpha  \left|\textbf{u}\right|_1^2 \nonumber.
 \end{equation}
@@ -489,7 +489,7 @@ We divide throughout by $\left|\textbf{u}\right|_1$, which we assume not to be z
 \end{equation}
 Lastly, (\ref{cont_a}) and (\ref{cont_b}) follow from an application of the Cauchy-Schwarz inequality on the corresponding bilinear forms.
 \subsubsection{Discrete form of the $\textit{inf-sup}$ condition}\label{PDE_disc}
-In \S \ref{PDE_cont} we consider (\ref{weak-a}) and \ref{weak-b} in the setting of infinite-dimensional function spaces.  In practice we will be dealing with a finite-dimensional version of these.  Hence, we need to show that the discrete, finite-dimensional problem is also well-posed:
+In \S \ref{PDE_cont} we considered (\ref{weak-a}) and (\ref{weak-b}) in the setting of infinite-dimensional function spaces.  In practice we will be dealing with a finite-dimensional version of these.  Hence, we need to show that the discrete, finite-dimensional problem is also well-posed:
 \begin{eqnarray}
 		a\left(\textbf{u}_h,\textbf{v}\right) + b\left(\textbf{v},p_h\right) &=& F\left(\textbf{v}\right)\quad \forall 
 	\textbf{v} \in \mathbb{V}_h \text{ and} \\
@@ -657,19 +657,19 @@ In this section we derive a variational form for (\ref{stokes_eq_adapt})-(\ref{p
 \mathbb{V}_L&=&\left[\textbf{H}^1_0\left(\Omega_L\right)\right]^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega_L\right)}, \\\label{fspace_P1}
 \mathbb{P}&=&L^2_0\left(\Omega_S\right)=\left\lbrace q\in L^2\left(\Omega_S\right): \int_{\Omega_S} q=0\right\rbrace\text{, with norm: } \left|\left|q\right|\right|_{L^2\left(\Omega_S\right)}
 \end{eqnarray}
-We proceed by testing (\ref{stokes_eq_adapt}) and (\ref{poisson_eq_adapt}) with test functions $\textbf{v}_S\in \mathbb{V}_S$ and $q\in \mathbb{P}$ for (\ref{stokes_eq_adapt}) and $\textbf{v}_L\in\mathbb{V}_L$. We the resulting equations by parts to obtain:
+We proceed by testing (\ref{stokes_eq_adapt})  with test functions $\textbf{v}_S\in \mathbb{V}_S$ and $q\in \mathbb{P}$  and and (\ref{poisson_eq_adapt}) with $\textbf{v}_L\in\mathbb{V}_L$ . We then integrate the resulting equations by parts to obtain:
 \begin{equation}\label{weak_stokes_1}
 \begin{aligned}
 \int_{\Omega_S}\nabla \textbf{u}_S : \nabla \textbf{v}_S-p\left(\nabla \cdot \textbf{v}_S\right) +\int_{\mathcal{I}} p\textbf{v}_S\cdot \textbf{n}_S-\textbf{v}_S\cdot\left(\nabla\textbf{u}_S\textbf{n}_S\right) &=\int_{\Omega_S}\textbf{f}\cdot \textbf{v}_S  \quad \forall  \textbf{v}\in \mathbb{V}_S\\
 \int_{\Omega_S}q\left(\nabla \cdot \textbf{u}_S\right) &= 0\quad \forall q\in \mathbb{P},
 \end{aligned}
 \end{equation}
-for subdomain $\Omega_S$ and
+in $\Omega_S$ and
 \begin{equation}\label{weak_poisson}
 \int_{\Omega_L}\nabla \textbf{u}_L : \nabla \textbf{v}_L - \int_{\mathcal{I}} \textbf{v}_L \left(\nabla\textbf{u}_L\textbf{n}_L\right)= 
 \int_{\Omega_L}\textbf{f}\cdot \textbf{v}_L  \quad \forall  \textbf{v}_L\in \mathbb{V}_L
 \end{equation}
-for $\Omega_L$, where the unit vectors $\textbf{n}_S$ and $\textbf{n}_L$ are the outward normals to $\Omega_{S}$ and $\Omega_{L}$ respectively and $\nabla \textbf{u}_S$ and $\nabla \textbf{u}_L$ are the velocity gradients in the two subdomains. Notice that the boundary integrals are taken over $\mathcal{I}$ and not over $\partial \Omega_{S}$ and $\partial \Omega_{L}$.  The reason is that, since we know $\textbf{u}_{S,L}=\textbf{0}$ on $\partial \Omega$, we require that $\textbf{v}_{S,L}=\textbf{0}$ on $ \partial \Omega = \partial \Omega_S\cup \Omega_{L}\setminus \mathcal{I}$.   
+in $\Omega_L$, where the unit vectors $\textbf{n}_S$ and $\textbf{n}_L$ are the outward normals to $\Omega_{S}$ and $\Omega_{L}$ respectively and $\nabla \textbf{u}_S$ and $\nabla \textbf{u}_L$ are the velocity gradients in the two subdomains. Notice that the boundary integrals are taken over $\mathcal{I}$ and not over $\partial \Omega_{S}$ and $\partial \Omega_{L}$.  The reason is that, since we know $\textbf{u}_{S,L}=\textbf{0}$ on $\partial \Omega$, we require that $\textbf{v}_{S,L}=\textbf{0}$ on $ \partial \Omega = \partial \Omega_S\cup \Omega_{L}\setminus \mathcal{I}$.   
 
 Before we proceed, we introduce a jump operator, which is simply a notational convenience for expressing the jump of a quantity across an interface.  Consider a (vector) quantity, $\textbf{u}$ in a domain $\Omega$.   Furthermore, suppose that the domain is divided into subdomains by an interface $\mathcal{I}$ such that the values of $\textbf{u}$ at either side of $\mathcal{I}$ in each subdomain are $\textbf{u}_1$ and $\textbf{u}_2$. In our example case we may consider $\mathcal{I}$ to be the interface between the two subdomains shown in Figure \ref{fig_domain}.  Then, the jump of $\textbf{u}$ across $\mathcal{I}$ is given by:
 \begin{equation}
