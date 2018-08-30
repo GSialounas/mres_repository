@@ -163,7 +163,7 @@ In this work we formulate a combined Stokes-Laplace problem and construct a nume
 \pagebreak
 \thispagestyle{empty}
 \section*{Acknowledgements}
-I would like to thank my supervisors, Prof. Tristan Pryer and Dr Oliver Sutton, for their help, guidance and support throughout all phases of this project.  I would further like to thank my parents, Loukas and Katerina, for their support throughout all these years.  Lastly, I would like to thank my girlfriend, Petrina for her support throughout the duration of this project.
+I would like to thank my supervisors, Dr Tristan Pryer and Dr Oliver Sutton, for their help, guidance and support throughout all phases of this project.  I would further like to thank my parents, Loukas and Katerina, for their support throughout all these years.  Lastly, I would like to thank my girlfriend, Petrina for her support throughout the duration of this project.
 
 \thispagestyle{empty}
 \pagebreak
@@ -719,19 +719,17 @@ We can combine this with (\ref{bound_vel_combi}) to obtain a bound on both the p
 Now we have control over both  velocity and  pressure.
 
 \section{A-posteriori Analysis} \label{sec_aposteriori_analysis}
-In this section we present an a-posteriori analysis for our problem.  The approach and the framework we will be using are presented in \cite{verfurth2013posteriori}.  There are some differences between this abstract framework and what we did so far.  
+In this section we present an a-posteriori analysis for our problem.  The approach and the framework we will be using are presented in \cite{verfurth2013posteriori}.  There are some differences between this abstract framework and the framework we used in \S \ref{sec_mathform}.  
 
-The main difference we are concerned with is the way a-posteriori bounds are derived in this framework.  Namely,  rather than start from a problem and show that it satisfies some a-posteriori bounds, we start from the abstract framework in which a-posteriori bounds (more specifically the form the bound will have) have been derived in abstract terms.  
+The main difference is the way a-posteriori bounds are derived in this framework.  Namely,  rather than start from a problem and show that it satisfies some a-posteriori bounds, we start from the abstract framework in which a-posteriori bounds (more specifically the form the bound will have) have been derived in abstract terms.  We then show that our specific problem (be it Laplace, Stokes or the combined problem) fits within the abstract framework.  Once this is done, the problem automatically inherits the form for the  a-posteriori  bounds, which have been derived in abstract terms.  The problem specific bound will then arise  by substituting the computed solution and the problem data in this abstract form. 
 
-The next step is to show that our specific problem (be it Laplace, Stokes or the combined problem) fits within the abstract framework.  Once this is done, the problem automatically inherits (from the abstract problem) the form for the  a-posteriori  bounds, which have been derived in abstract terms.  The problem specific bound will then arise  by substituting the computed solution and the problem specific data in this abstract form. 
-
-The results presented in this section (as well as the analysis for the Laplace and Stokes problem presented in this section) can be found in their entirety in \cite{verfurth2013posteriori} (see \S 4). The rest of this section will be structured as follows.  Firstly, we will introduce the abstract framework.  Then, we will introduce the well-posedness results for an abstract variational problem in this framework.   We will also present theorems regarding a-posteriori error control in abstract terms.  We will then show that the Laplace and Stokes problems fit within this framework, both in the continuous fomr and in the finite element approximation. The reason for doing this is that the analysis for the combined problem shares a lot of its analysis with the Laplace and Stokes problem.   We will conclude the section by presenting a-posteriori bounds for all three problems.   
+The results presented in this section for the analysis of the Stokes and Laplace problems can be found in their entirety in \cite[\S4]{verfurth2013posteriori}. The rest of this section will be structured as follows.  Firstly, we will introduce the abstract framework.  Then, we will introduce the well-posedness results for an abstract variational problem in this framework.   We will also present theorems regarding a-posteriori error control in abstract terms.  We will then show that the Laplace and Stokes problems fit within this framework, both in the continuous form and in the finite element approximation. The reason is because the analysis for the combined problem shares a lot with that for the Laplace and Stokes problems.   We will conclude the section by presenting a-posteriori bounds for all three problems.   
 
 
 \subsection{Abstract Problems-Framework}\label{sec_abst_var_prob}
-In this section we will introduce the abstract framework we will be using throughout the following sections.  We will begin by presenting the notation we will be using.  Then we will give results that will be used to show the well-posedness of an abstract variational problem in the continuous form and also for its finite-element approximation.  Lastly, we will give some results that will be used to construct a-posteriori error estimators for an abstract variational problem. This section relies heavily on the material presented in \S 4.1 of \cite{verfurth2013posteriori} so the reader is advised to consult it for a more detailed exposition.
+In this section we will introduce the abstract framework we will be using throughout the following sections.  We will begin by presenting the notation we will be using.  Then we will give results that will be used to show the well-posedness of an abstract variational problem in the continuous form and also for its finite-element approximation.  Lastly, we will give some results that will be used to construct a-posteriori error estimators for an abstract variational problem. This section relies heavily on the material presented in   \cite[\S 4.1]{verfurth2013posteriori} so the reader is advised to consult it for a more detailed exposition.
 \subsubsection{Abstract Variational Problem}\label{subsec_verf_abst_var_prob}
-We start by defining the spaces in which we will present our problem.  We will adopt the same notation and spaces as \cite[\S4.1.1]{verfurth2013posteriori} for ease of reference.  Consider Banach spaces $\left(X,\left|\left|\cdot\right|\right|_X\right)$ and $\left(Y,\left|\left|\cdot\right|\right|_Y\right)$. In this context we  define:
+We start by defining the spaces in which we will present our problem.  We will adopt the same notation and spaces as in \cite[\S4.1.1]{verfurth2013posteriori} for ease of reference.  Consider Banach spaces $\left(X,\left|\left|\cdot\right|\right|_X\right)$ and $\left(Y,\left|\left|\cdot\right|\right|_Y\right)$. In this context we  define:
 \begin{itemize}
 	\item $\mathcal{L}\left(X,Y\right)$ to be the space of continuous linear mappings from $X$ to $Y$ with norm 
 	\begin{equation}
@@ -748,9 +746,7 @@ The spaces $\mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ and $\mathcal{L}\left(X,Y^
 \begin{equation}\label{verf_isomorphism}
 B\left(\phi,\psi\right)=\langle L\phi,\psi\rangle_Y\quad \forall \phi \in X\text{ and }\forall \psi \in Y,
 \end{equation}
-where $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ corresponds to $L\in \mathcal{L}\left(X,Y^*\right)$.  Now that we have all of our notation in place, this is a good point to introduce the sort of problem we are interested in.  This is done in a general, abstract sense here.  We will tailor it to Laplace, Stokes and our combined problem in the sections that follow.
-
-In general, given a $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ and $\ell \in Y^*$ the problem is to find $\phi \in X$ such that 
+where $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ corresponds to $L\in \mathcal{L}\left(X,Y^*\right)$.  Now that we have all of our notation in place, this is a good point to introduce the sort of problem we are interested in.  This is done in a general, abstract sense here.  We will tailor it to Laplace, Stokes and our combined problem in the sections that follow.  In general, given a $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ and $\ell \in Y^*$ the problem is to find $\phi \in X$ so that 
 \begin{equation}\label{verf_eqn_var}
 B\left(\phi,\psi\right)=\langle\ell,\psi\rangle_Y\quad \forall \psi \in Y.
 \end{equation}
@@ -758,7 +754,7 @@ Equivalently we can use the isomorphism (\ref{verf_isomorphism}) to express (\re
 \begin{equation}\label{verf_eqn_var_equiv}
 L\phi=\ell.
 \end{equation}
-The reasons we are doing this are related to the analysis required to obtain a-posteriori bounds and will be explained in the sections that follow.  However, before proceeding with any sort of error analysis, we would like to know whether our problem is well-posed.   Recall that we have already presented the conditions for the well-posedness of (\ref{verf_eqn_var})-(\ref{verf_eqn_var_equiv}) in the case of Stokes in \S \ref{PDE_cont} as conditions (\ref{coerc_a})-(\ref{coerc_b}).
+The reasons we are doing this are related to the analysis required to obtain a-posteriori bounds and will be explained in \S \ref{a_posteriori_stokes} and \S \ref{a_posteriori_combined_prob}.  However, before proceeding with error analysis, we would like to know whether our problem is well-posed.   Recall that we have already presented the conditions for the well-posedness of (\ref{verf_eqn_var})-(\ref{verf_eqn_var_equiv}) in the case of Stokes in \S \ref{PDE_cont} as conditions (\ref{coerc_a})-(\ref{coerc_b}).
 
 We now present conditions for the well-posedness of the abstract problem, which   fit into the abstract framework we are using in this section.  
 \begin{proposition}{$\textbf{Well-posedness of (\ref{verf_eqn_var})}$} (See \cite[\S4.1.1]{verfurth2013posteriori}:  Proposition 4.1)\label{prop_well_pos_verf}
@@ -772,7 +768,7 @@ holds for all $\psi\in Y\setminus \lbrace 0 \rbrace$ and that
 \end{equation}
 Then (\ref{verf_eqn_var}) admits a unique solution for every right-hand side $\ell\in Y^*$ - where $Y^*$ is the dual of $Y$- and the solution depends continuously on the right-hand side.
 \end{proposition}
-One may (rightly) wonder why we would go to the trouble of reformulating the conditions that we introduced in \S \ref{PDE_cont}.  Once, again, the reason is because this helps in the analysis that follows.  Observe that the reformulation allows for both the bilinear form $\textbf{a}\left(\cdot,\cdot\right)$ and the linear form $\textbf{b}\left(\cdot\right)$ from \S \ref{PDE_cont} to be incorporated in the bilinear form $B\left(\cdot,\cdot\right)$ in (\ref{verf_eqn_var}).  This will make it easy to use a single norm for the tuple space of the velocities and pressures we will be using for our Stokes problem and also our combined problem.  In turn, this will simplify the analysis we need to do to obtain the bounds
+One may (rightly) wonder why we would go to the trouble of reformulating the conditions that we introduced in \S \ref{PDE_cont}.  Once, again, the reason is because this helps in the analysis that follows.  More specifically, the reformulation allows for both the bilinear form $\textbf{a}\left(\cdot,\cdot\right)$ and the linear form $\textbf{b}\left(\cdot\right)$ from \S \ref{PDE_cont} to be incorporated in the bilinear form $B\left(\cdot,\cdot\right)$ in (\ref{verf_eqn_var}).  This will make it easy to use a single norm for the tuple space of the velocities and pressures we will be using for our Stokes problem and also our combined problem.  In turn, this will simplify the analysis we need to do to obtain the bounds.
 \subsubsection{Abstract Discrete Problem}
 The  next step is to discretize our variational problem (\ref{verf_eqn_var}).  The procedure presented in this subsection is detailed in  \cite[\S4.1.1]{verfurth2013posteriori}.  We will first introduce the finite dimensional spaces we will search in for the solution.  Then we will present the conditions we will use to verify that our finite-element approximation is well-posed.  These are the finite-dimensional equivalent  to the well-posedness conditions in Proposition \ref{prop_well_pos_verf}.  Our  discrete problem  is to find $\phi_T\in X_T$ so that
 \begin{equation}\label{verf_eqn_disc}
@@ -795,7 +791,7 @@ where $L_T\in\mathcal{L}\left(X_T,Y_T^*\right)$ is the linear map that correspon
 	Then (\ref{verf_eqn_disc}) admits a unique solution for every right-hand side $\ell_T\in Y^*_T$.
 \end{proposition}
 \subsubsection{Residual a-posteriori estimates}
-In this section we would like to obtain information about what conditions we expect our a-posteriori error indicators to fulfil.  These conditions are given in in Theorem \ref{verf_thm_apost_bounds} (see\cite[Theorem 4.7]{verfurth2013posteriori}).  Essentially, this result gives us general upper and lower bounds on a-posteriori error indicators, subject to certain conditions.  
+In this section we would like to obtain information about the conditions we expect our a-posteriori error indicators to fulfil.  These conditions are given in in Theorem \ref{verf_thm_apost_bounds} (see\cite[Theorem 4.7]{verfurth2013posteriori}).  Essentially, this result gives us general upper and lower bounds on a-posteriori error indicators, subject to certain conditions.  
 
 In order to present the results we will need, we will follow the analysis from \cite[\S4.1.4]{verfurth2013posteriori}, which leads to them.  We will then use these results to show that our a-posteriori error-indicator for the Stokes problem fulfils the conditions of the theorem and hence bounds the error from above and from below as explained in Theorem \ref{verf_thm_apost_bounds}.  
 
@@ -874,7 +870,7 @@ If we can do this, then, as \cite{verfurth2013posteriori} points out, the a-post
 	\end{equation}
 \end{theorem}
 
-Theorem \ref{verf_thm_apost_bounds} is the result we are most interested in from this section as it is essentially of all the exposition we presented herein.  We will be using it in the cases of the Stokes and the combined problem to show that our indicator can be used to bound the error in each of our problems.  Additionally, although this is most relevant for later sections, we will use our indicator to control both the discretization and the modelling errors. Next, we tailor the results we presented in this section to the specific case of the Stokes problem.
+Theorem \ref{verf_thm_apost_bounds} is the result we are most interested in from this section as it is essentially a summary of all the exposition we presented herein.  We will be using it in the cases of the Stokes and the combined problem to show that our indicator can be used to bound the error.  Additionally, although this is most relevant for later sections, we will use our indicator to control both the discretization and the modelling errors. Next, we tailor the results we presented in this section to the specific case of the Stokes problem.
 \subsection{Stokes Problem}
 In this section we will present the variational formulation of the Stokes problem in the abstract framework we introduced in \S \ref{sec_abst_var_prob}.  Firstly we will introduce the infinite-dimensional problem and show how we fit it within the abstract variational problem framework. We will then do the same for the discrete version.  
 \subsubsection{Stokes Problem Variational formulation}
@@ -936,7 +932,7 @@ a^2+b^2\geq 2ab \nonumber
 with \begin{equation}\nonumber
 a=\sqrt{\frac{\delta}{2\beta}}\left|\left|\nabla\textbf{v}\right|\right|\text{ and } b = \sqrt{\frac{\delta \beta }{2}}\left|\left|q\right|\right|
 \end{equation}
-to show that the quantity in the last equality in is greater than
+to show that the quantity in the last equality is greater than
 \begin{equation}
 \begin{aligned}\nonumber
 &\left|\left|\nabla \textbf{v}\right|\right|^2 -  \delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{v}\right|\right| +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2 + \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2 +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2 - \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2\\
@@ -972,8 +968,8 @@ In this section we present the finite element approximation to (\ref{verf_eqns})
 	\mathbb{V}_T&\subset&\left[\textbf{H}^1_0\left(\Omega\right)\right]^d \text{ and}\nonumber\\
 	P_T&\subset& L^2_0\left(\Omega\right),\nonumber
 \end{eqnarray}
-where $T$ is an appropriate triangulation of our domain $\Omega$.  More specifically, by appropriate we mean affine-equivalent (consists of triangles (and parallelograms)), shape-regular (minmal angle of all elements in $T$ is strictly greater than $0$)  and admissible (the intersection between any two elements in $T$ is at most a vertex or an edge).  The reader can consult \cite{verfurth2013posteriori} or \cite{brenner2007mathematical} for more details.
-Our approximate version of the forms and norm in (\ref{verf_eqns}) are then as follows:
+where $T$ is an appropriate triangulation of our domain $\Omega$.  More specifically, by appropriate we mean affine-equivalent (consists of triangles and parallelograms), shape-regular (minimal angle of all elements in $T$ is strictly greater than zero)  and admissible (the intersection between any two elements in $T$ is at most a vertex or an edge).  The reader can consult \cite{verfurth2013posteriori} or \cite{brenner2007mathematical} for more details.
+Our approximate version of the forms and norm in (\ref{verf_eqns}) is  as follows:
 \begin{equation}\label{verf_eqns_approx}
 \begin{aligned}
 X_T=Y_T&=\mathbb{V}_T\times P_T,\\
@@ -982,18 +978,18 @@ B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_
 \end{aligned}
 \end{equation}
 Our approximate problem will be well-posed if the discrete version of Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} are satisfied for all triangulations $T$ that we consider.  This is ensured if we choose our finite element spaces for the velocity $\mathbb{V}_T$ and the pressure $\mathbb{P}_T$ in (\ref{verf_eqns_approx}) appropriately.
-There are many such choices (see \cite[\S 4.10.2]{verfurth2013posteriori} for multiple examples) but we will be only use the Taylor-Hood element, which is a well-known, stable choice for the Stokes equation:
+There are many such choices (see \cite[\S 4.10.2]{verfurth2013posteriori} for multiple examples) but we will only use the Taylor-Hood element, which is a well-known, stable choice for the Stokes equation:
 \begin{eqnarray}
 \begin{aligned}
 \mathbb{V}_T&=\left[S^{2,0}_0\left(T\right)\right]^d,\\
 \mathbb{P}_T&=S^{1,0}\left(T\right)\cap L^2_0\left(\Omega\right).
 \end{aligned}
 \end{eqnarray}
-This choice ensures that the forms we introduced in (\ref{verf_eqns_approx}) fulfil the discrete form of the conditions in Proposition \ref{prop_well_pos_verf_saddle_1} (i.e. with $(\textbf{v}_T,q_T))$ and hence Proposition \ref{prop_well_pos_verf_saddle}.  This in turn ensures that the conditions in Proposition \ref{prop_well_pos_verf_disc} are met, leading to stable discretizations (\cite{verfurth2013posteriori}).  Hence, our discrete problem - i.e. find $\left(\textbf{u}_T, p_T\right)$ such that (\ref{verf_eqns_approx}) holds for all $\left(\textbf{v}_T,q_T\right)\in \left(\mathbb{V}_T\times \mathbb{P}_T\right)$ - is well-posed.
+This choice ensures that the forms we introduced in (\ref{verf_eqns_approx}) fulfil the discrete form of the conditions in Proposition \ref{prop_well_pos_verf_saddle_1} (i.e. with $(\textbf{v}_T,q_T))$ and hence Proposition \ref{prop_well_pos_verf_saddle}.  This in turn ensures that the conditions in Proposition \ref{prop_well_pos_verf_disc} are met.  Hence, our discrete problem - i.e. find $\left(\textbf{u}_T, p_T\right)$ such that (\ref{verf_eqns_approx}) holds for all $\left(\textbf{v}_T,q_T\right)\in \left(\mathbb{V}_T\times \mathbb{P}_T\right)$ - is well-posed.
 
 \subsubsection{Stokes: A-posteriori Estimate}\label{a_posteriori_stokes}
 
-Now we need to show that we can produce an appropriate a-posteriori indicator $\eta_T$ that fulfils the conditions in Theorem \ref{verf_thm_apost_bounds}.  At the same time note that we are considering the data error, $\theta_T$ to be zero at the moment.  We will start by showing that we can come up with an indicator that satisfies the first condition in Theorem \ref{verf_thm_apost_bounds}.    The analysis in this section can be found in \cite[\S4.10.3]{verfurth2013posteriori}
+Now we need to show that we can produce an appropriate a-posteriori indicator $\eta_T$ that fulfils the conditions in Theorem \ref{verf_thm_apost_bounds}.  At the same time note that we are considering the data error, $\theta_T$ to be zero.  We will start by showing that we can come up with an indicator that satisfies the first condition in Theorem \ref{verf_thm_apost_bounds}.    The analysis in this section can be found in \cite[\S4.10.3]{verfurth2013posteriori}
 
 Let $\left(\textbf{u},p\right)\in X$ be the unique solution to (\ref{verf_eqns}) and $\left(\textbf{u}_T,p_T\right)\in X_T$ be the unique solution to (\ref{verf_eqns_approx}).  Now consider a $\left(\textbf{v},q\right)\in X$ and keep it fixed.  Our residual (more accurately an $L^2$-representation of our residual) is given by writing (\ref{verf_eqns_approx}) as a sum over the elements $K\in T$, integrating by parts and subtracting it from the right-hand side of \ref{verf_eqn_var_equiv} (see \cite{verfurth2013posteriori} \S 4.10.3):
 \begin{eqnarray}\label{L2-rep-residual}
@@ -1024,7 +1020,7 @@ where $Id$ stands for the identity operator from $X$ to $X$.  Now we use the Cau
 \end{aligned}
 \end{equation}
 We now introduce some further results from \cite{verfurth2013posteriori} which will help us bound the quantities $\left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_K$, $\left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_E$ and $\left|\left|q\right|\right|_K$ in terms of the norm $\left|\left|\left(\cdot,\cdot\right)\right|\right|_X$ introduced in (\ref{verf_eqns}).
-\begin{proposition}{(See \cite[ \S3.5]{verfurth2013posteriori}: Proposition 3.33)} \label{verf_prop_bounds} For every Lebesque exponent p, every element $K\in T$and every face $E\in\mathcal{E}_K$ thereof, the local error estimates
+\begin{proposition}{(See \cite[ \S3.5]{verfurth2013posteriori}: Proposition 3.33)} \label{verf_prop_bounds} For every Lebesque exponent p, every element $K\in T$ and every face $E\in\mathcal{E}_K$ thereof, the local error estimates
 \begin{equation}\label{proposition_bounds_verf}
 \begin{aligned}
 \left|\left|v-\mathcal{I}_Tv\right|\right|_{p;K}&\leq C_{A,1,p}\left(K\right)\left|\left|v\right|\right|_{p;\widetilde{\omega}_K}\\
@@ -1062,7 +1058,7 @@ Next, we consider the second condition of Theorem \ref{verf_thm_apost_bounds}.  
 B_T\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=&B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)\text{ and that }\\
 \langle \ell_T,\psi_T \rangle_{Y_T}&=&\langle \ell,\psi_T \rangle_{Y}.
 \end{eqnarray}
-In this case, assuming Galerkin orthogonality holds, i.e.
+In this case,  Galerkin orthogonality holds, i.e.
 \begin{equation}
 B\left(\left(\textbf{u},p\right)-\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right) = 0
 \end{equation} 
@@ -1076,9 +1072,7 @@ Hence, the second condition of Theorem \ref{verf_thm_apost_bounds} is also satis
 
 Before we proceed, it is worth noting that our proof so far has relied on the fact that our chosen spaces were continuous for both the pressure and the velocity and our discretization was $\textit{stable}$.   Had we allowed for the pressure to be discontinuous, we would have to have changed our variational form to reflect this.  More specifically, we would need to include stabilization terms.  This would also have an impact on our a-posteriori indicator.
 
-We will not include the details of the analysis for the lower bound in the a-posteriori indicator here.  The reason is that we have not made use of it in the implementation .  Interested readers can go through both this analysis and the one for the stabilized problem in \cite[\S 4.10.3]{verfurth2013posteriori}.  Instead, we will just include the lower bound in (Theorem \ref{verf_theorem_apost_err_ind}) along with the upper bound, the analysis for which we went through in this section.
-
-We summarise the a-posteriori analysis for the Stokes problem by including the relevant result from \cite{verfurth2013posteriori}.
+We will not include the details of the analysis for the lower bound in the a-posteriori indicator here.  The reason is that we have not made use of it in the implementation .  Interested readers can go through both this analysis and the one for the stabilized problem in \cite[\S 4.10.3]{verfurth2013posteriori}.  Instead, we will just include the lower bound in Theorem \ref{verf_theorem_apost_err_ind} along with the upper bound.  We summarise the a-posteriori analysis for the Stokes problem by including the relevant result from \cite{verfurth2013posteriori}.
 \begin{theorem}{(See \cite[\S4.10.3]{verfurth2013posteriori}: Theorem 4.70)}\label{verf_theorem_apost_err_ind}
 Denote by $\left(\textbf{u},p\right)$ the unique solution of the saddle-point formulation of the Stokes equations and by $\left(\textbf{u}_T,p_T\right)\in X_T$ its finite element approximation.  For every element $K\in T$ define the residual a-posteriori error indicator $\eta_{R,K}$ by
 \begin{equation}\small\label{a_posteriori_ind_stokes}
@@ -1151,24 +1145,22 @@ B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_
 \end{aligned}
 \end{equation}
  The reader will notice that the pressure is only defined over the Stokes part of the domain. This is also reflected in the norm we use.  
- We have to overcome this problem on two levels:  on an analysis level  and on an implementation level.  For  the analysis we use the interface (solvability) condition, (\ref{combi_cond_wellpos}), to get rid of the boundary contribution:
+ We have to overcome this problem on two levels:  on an analysis level  and on an implementation level.  For  the analysis we use the interface (solvability) condition, (\ref{combi_cond_wellpos}), to get rid of the interface contribution:
  \begin{equation}\label{interface_condition}
 \int_{\mathcal{I}} \left(pI \textbf{n}_S-\llbracket\nabla\textbf{u}\rrbracket\right)\cdot\textbf{v}= 0.
  \end{equation}
- By doing, this, we ensure that our problem is well-posed in the abstract variational framework.  
- 
- For the implementation part we extend the pressure space by $0$ to the Laplace part of the domain.  This trick was used by \cite{BangerthHartmannKanschat2007} in Tutorial 46.   In this way we can have pressures over the whole  domain: they are simply zero in the Laplace part.  We will provide details about this in \S \ref{sec_combi_implementation} where we will talk about the implementation of our problem in Deal.II (see \cite{BangerthHartmannKanschat2007}).
+ This ensures that our problem is well-posed in the abstract variational framework.  For the implementation  we extend the pressure space by $0$ to the Laplace part of the domain.  This trick was used by \cite{BangerthHartmannKanschat2007} in Tutorial 46.   In this way we can have pressures defined over the whole  domain: they are simply zero in the Laplace part.  This trick simply facilitates the use of Deal.II funcitonality over the whole domain and enables us to avoid  using conditional statements extensively in our code.  We will provide details about this in \S \ref{sec_combi_implementation}, where we will talk about the implementation of our problem in Deal.II (see \cite{BangerthHartmannKanschat2007}).
  \subsubsection{Well-Posedness}
- We will briefly show that the combined problem is well-posed in the abstract framework (we have already done this in \S \ref{combi_wellpos_generalframe} but not using the abstract framework).  Let us first look at the case where we are in the Stokes part of the domain.  In this case, the results we need to show well-posedness are Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle}.  
+ We will briefly show that the combined problem is well-posed in the abstract framework (we have already done this in \S \ref{combi_wellpos_generalframe} but not in the abstract framework).  Let us first look at the case where we are in the Stokes part of the domain.  In this case, the results we need to show well-posedness are Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle}.  
  
  Firstly, we enforce the interface condition.  Then we observe that, if we are in $\Omega_S$, the framework for the combined problem introduce in (\ref{frame_combined}) is the same as that for the Stokes problem, for which the conditions in Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} are indeed satisfied.  Hence, the Stokes part of the problem is well-posed.
  
- Now, if we are in a Laplace part of the domain, after we enforce the interface condition, the combined problem framework introduced in (\ref{frame_combined}) reduces to that of the Laplace problem in (\ref{frame_laplace}.  The bilinear form for the Laplace problem is symmetric, coercive and bounded.  Hence, it automatically satisfies the well-posedness conditions of the abstract variational problem set forth in Proposition (\ref{prop_well_pos_verf}).  As a matter of fact, it satisfies even stronger conditions than this, since it satisfies Lax-Milgram. 
+ Now, if we are in a Laplace part of the domain, after we enforce the interface condition, the combined problem framework introduced in (\ref{frame_combined}) reduces to that of the Laplace problem in (\ref{frame_laplace}).  The bilinear form for the Laplace problem is symmetric, coercive and bounded.  Hence, it automatically satisfies the well-posedness conditions of the abstract variational problem set forth in Proposition (\ref{prop_well_pos_verf}).  As a matter of fact, it satisfies even stronger conditions than this, since it satisfies Lax-Milgram. 
   Hence, since both the Stokes and the Laplace part of the problem are  well-posed, our combined problem is well-posed. 
  
-  Now we want to know whether or not the discretizations our stable.  Firstly, for the Stoke's part of the problem we choose the Taylor-Hood element just as we did for the Stokes problem in (\ref{frame_stokes_disc}), while for the Laplace part of the problem we choose quadratics over quadrilaterals as shown in (\ref{frame_laplace_disc}).
+  Now we want to know whether or not the discretization of the combined problem is stable.  Firstly, for the Stoke's part of the problem we choose the Taylor-Hood element just as we did for the Stokes problem in (\ref{frame_stokes_disc}), while for the Laplace part of the problem we choose quadratics over quadrilaterals as shown in (\ref{frame_laplace_disc}).
   
-  Let us start with the Taylor-Hood element.   The stability of our discretisation is shown by first showing that the discrete form  of (\ref{prop_well_pos_verf_saddle_1})  holds (after enforcing our interface condition) (see \cite[\S4.10.2]{verfurth2013posteriori}).  That is, that there exists a constant $\widetilde{\beta}$ such that for all triangulations $T$ which are obtained by global or adaptive refinement 
+  Let us start with the Taylor-Hood element.   The stability of our discretisation is shown by first showing that the discrete form  of (\ref{prop_well_pos_verf_saddle_1})  holds after enforcing the interface condition (\ref{interface_condition}) (see \cite[\S4.10.2]{verfurth2013posteriori}).  That is,  there exists a constant $\widetilde{\beta}$ such that for all triangulations $T$ which are obtained by global or adaptive refinement 
   \begin{equation}\label{verf_infsup_disc}
   \inf_{q_T\in \mathbb{P}_T\setminus \lbrace 0 \rbrace}\sup_{\textbf{v}_T\in \mathbb{V}_T\setminus \lbrace 0 \rbrace}\frac{\int_{\Omega}q_T\nabla\cdot\textbf{v}_T}{\left|\textbf{v}_T\right|_1 \left|\left|q_T\right|\right|_{L^2}}=\widetilde{\beta}>0.
   \end{equation}
@@ -1179,13 +1171,12 @@ B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_
 \mathbb{P}_T&=\left(S^{1,0}\left(T\cap\Omega_S\right)\cap L^2_0\left(T\cap\Omega_S\right)\right).
  \end{aligned}\nonumber
  \end{equation}
- We have given a proof for (\ref{verf_infsup_disc}) in \S \ref{PDE_disc}.  Interested readers will find additional proofs that (\ref{verf_infsup_disc}) holds in \cite{verfurth1984error}, which was written by the same author as \cite{verfurth2013posteriori}.  Next, given that (\ref{verf_infsup_disc}) holds, we can show that the discrete form of (\ref{prop_well_pos_verf_saddle}) in the same way as was shown in the proof we included for Proposition \ref{prop_well_pos_verf_saddle} (see \cite[\S4.10.1]{verfurth2013posteriori}: Proposition 4.69).  
+ We have given a proof for (\ref{verf_infsup_disc}) in \S \ref{PDE_disc}.  Interested readers will find additional proofs that (\ref{verf_infsup_disc}) holds in \cite{verfurth1984error}.  Next, given that (\ref{verf_infsup_disc}) holds, we can show that the discrete form of our problem satisfies Proposition \ref{prop_well_pos_verf_saddle} in the same way as was shown in the proof we included for Proposition \ref{prop_well_pos_verf_saddle} (see \cite[\S4.10.1]{verfurth2013posteriori}: Proposition 4.69).  
  
- With regard to the well-posedness of the Laplace portion of the problem, after we enforce the interface condition,  the discrete bilinear form $B_T$ for our combined problem essentially reduces to the $B_T$ defined in (\ref{frame_laplace_disc}). This $B_T$, as \cite{verfurth2013posteriori} points out, is bounded, symmetric and coercive so it satisfies the conditions in Proposition (\ref{prop_well_pos_verf_disc}) so it results in a stable discretisation.
- Hence, the approximation of our combined problem is well-posed. 
+ With regard to the well-posedness of the Laplace portion of the problem, after we enforce the interface condition,  the discrete bilinear form $B_T$ for our combined problem essentially reduces to the $B_T$ defined in (\ref{frame_laplace_disc}). This $B_T$, as \cite{verfurth2013posteriori} points out, is bounded, symmetric and coercive so it satisfies the conditions in Proposition (\ref{prop_well_pos_verf_disc}).  Hence, the approximation of our combined problem is well-posed. 
 
-\subsubsection{A-posteriori indicator}
-In this section we will present the strategy for a-posteriori error control for our combined problem.  In deriving a-posteriori bounds we need to take into consideration that the error must be controlled in two respects: from a modelling perspective and from a discretisation perspective.  Essentially, our a-posteriori indicator must give us the capability to refine both our model and our mesh.  Hence, our a-posteriori indicator will also depend on which part of the domain we are in.  
+\subsubsection{A-posteriori indicator}\label{a_posteriori_combined_prob}
+In this section we will present the strategy for a-posteriori error control for our combined problem.  In deriving a-posteriori bounds we need to take into consideration that the error must be controlled in two respects: from a modelling perspective and from a discretisation perspective.  Ideally our a-posteriori indicator must give us the capability to refine both our model and our mesh.  Hence, our a-posteriori indicator will also depend on the model governing the flow in the part of the domain we are in.  
 
  In order to do this, we will firstly  decide which model we should be solving for a given celll $K$.  Then, we will decide on whether the level of error in that cell is within an acceptable tolerance.  If it is not, we will refine the cell.  This strategy is used in \cite[\S6: Algorithm 6.1]{giesselmann2017posteriori}.  
  
