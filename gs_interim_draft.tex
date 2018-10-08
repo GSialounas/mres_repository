@@ -67,12 +67,108 @@
 	basicstyle=\fontsize{9}{11}\ttfamily\linespread{0.85}\ttfamily,
     breaklines=true
 }
-\title{Hierarchical Model Adaptivity}
-\author{Author: Georgios Sialounas}
+
+
 
 \begin{document}
+	\begin{titlepage} % Suppresses headers and footers on the title page
+		\centering % Centre everything on the title page
+		\scshape % Use small caps for all text on the title page
+	%	\vspace*{\baselineskip} % White space at the top of the page
+		%------------------------------------------------
+		%	Title
+		%------------------------------------------------
+		\rule{\textwidth}{1.6pt}\vspace*{-\baselineskip}\vspace*{2pt} % Thick horizontal rule
+		\rule{\textwidth}{0.4pt} % Thin horizontal rule
+	%	\vspace{0.75\baselineskip} % Whitespace above the title
+		
+		{\LARGE Hierarchical\ Model\\ Adaptivity\\} % Title
+		
+		\vspace{0.75\baselineskip} % Whitespace below the title
+		
+		\rule{\textwidth}{0.4pt}\vspace*{-\baselineskip}\vspace{3.2pt} % Thin horizontal rule
+		\rule{\textwidth}{1.6pt} % Thick horizontal rule
+		
+		%\vspace{2\baselineskip} % Whitespace after the title block
+		
+		%------------------------------------------------
+		%	Subtitle
+		%------------------------------------------------
+	%	A Number of Fascinating and Life-changing Templates Presented in a Clear and Concise Way % Subtitle or further description
+		
+		%\vspace*{1\baselineskip} % Whitespace under the subtitle
+		
+		%------------------------------------------------
+		%	Editor(s)
+		%------------------------------------------------
+		
+
+		
+		\vspace{0.5\baselineskip} % Whitespace before the editors
+		
+		{\scshape\Large Author:\\ Georgios Sialounas \\$\,$\\ Supervisors: \\Dr Tristan Pryer\\Dr Oliver Sutton} % Editor list
+		
+	%	\vspace{0.5\baselineskip} % Whitespace below the editor list
+		
+	%	\textit{The University of Reading\\} % Editor affiliation
+		
+		\vfill % Whitespace between editor names and publisher logo
+		
+		
+		%------------------------------------------------
+		%	Publisher
+		%------------------------------------------------
+		
+		\begin{figure}[H]
+			\begin{subfigure}[b]{.15\linewidth}
+				\includegraphics[width=\linewidth]{icl_logo_big}
+			%	\caption{Velocity in $L^2$: $\left|\left|u-u_h\right|\right|_{L^2}$.}
+				\label{icl_logo_big}
+			\end{subfigure}
+			\begin{subfigure}[b]{.1263\linewidth}
+				\includegraphics[width=\linewidth]{uor_logo_big}
+			%	\caption{Velocity in $H^1$: $\left|\left|u-u_h\right|\right|_{H^1}$.}
+				\label{uor_logo_big}
+			\end{subfigure}
+			\centering
+		\end{figure}
+	\vspace{-14mm}
+		\begin{figure}[H]
+			\includegraphics[width=.3\linewidth]{mpe_cdt_logo}
+			\centering
+		\end{figure}
+		\vfill % Whitespace between editor names and publisher logo
+		\textit{Submitted to Imperial College London and the University of Reading \\in fulfilment of the
+			requirements for the Degree of Master by Research\\ $\,$\\} % Editor affiliation
+		31 August, 2018 % Publication year
+		
+		%{\large publisher} % Publisher
+		
+	\end{titlepage}
+\pagebreak
+\thispagestyle{empty}
+\emph{I confirm that this is my work and that it has not been submitted for a degree at another university or institution.\\}
+\emph{\\}
+\emph{\\}
+	\vspace{1\baselineskip} 
+\text{Georgios Sialounas}
+\pagebreak
+\pagebreak
+\thispagestyle{empty}
+\begin{abstract}
+In this work we formulate a combined Stokes-Laplace problem and construct a numerical model for it using finite elements.  We prove the well-posedness of its variational formulation and derive an a-posteriori indicator that can drive model adaptivity.  The motivation behind the use of model adaptivity is to approximate a complex problem with a simpler one in parts of the domain where the results produced by the two models do not differ greatly, while simultaneously maintaining the sophistication of the complex model where it is necessary.  The a-posteriori indicator enables the choice between models for different parts of the domain to occur automatically during a computation.  The indicator can also be used to drive mesh adaptivity.  We also construct an example of the combined model with a fixed interface between the Stokes and Laplace models as a first step of testing the indicator.
+\end{abstract}
+\thispagestyle{empty}
+\pagebreak
+\pagebreak
+\thispagestyle{empty}
+\section*{Acknowledgements}
+I would like to thank my supervisors, Dr Tristan Pryer and Dr Oliver Sutton, for their help, guidance and support throughout all phases of this project.  I would further like to thank my parents, Loukas and Katerina, for their support throughout all these years.  Lastly, I would like to thank my girlfriend, Petrina for her support throughout the duration of this project.
+
+\thispagestyle{empty}
+\pagebreak
 \counterwithin{lstlisting}{section}
-\maketitle
+
 \thispagestyle{empty}
 \newpage
 \tableofcontents
@@ -83,29 +179,35 @@
 
 \section{Introduction and Motivation}
 
-It is often the case when modelling physical phenomena that we need to solve a complicated system of Partial Differential Equations (PDEs).  This may result in (non-)linear systems which are computationally expensive to solve.  One way to overcome this difficulty is to use some physical reasoning to simplify the model.  The justification is that the simpler model describes the physical system adequately even with the loss of information incurred through the reduction.  
+In this work we are concerned with model adaptivity in the context of fluid flows.  The interest in this topic from an MPE perspective lies in the fact that climate modelling involves fluid flows to a great extent.  This could be in the atmosphere or in ocean modelling.  The adaptive aspect comes in through the variety of models which can be applied to these flows. These models differ from each other incrementally in complexity (e.g. by including more terms in the PDE).  Increasing complexity  usually implies a more faithful description of the underlying physics and also greater computational expense. Hence, a hierarchy of models describing the flow, differing in complexity, arises naturally.
 
-There are many situations where such a reduction may be desirable.  As an example consider oceanic flow, which is governed by the Navier-Stokes equations.  However, if we are interested in the flow away from fixed boundaries, where viscocity is not important, one can accurately describe the flow with  Euler's equations.
+The next question is how to choose  the most appropriate model from the model hierarchy. When modelling a physical phenomenon it is often the case that in the majority of our domain the simpler model is a good approximation to a more complicated model further up the hierarchy.  As a realistic example, as \cite{giesselmann2017posteriori} point out, the compressible Euler equations are the limit of the Navier-Stokes-Fourier equations as heat conduction and viscocity terms vanish.    The viscous terms for example may be important near obstacles (e.g. aerofoils) but we would expect them to be dominated by other terms (e.g. convection) in other parts of the flow.  As such, it would be preferrable not to expend computational resources on them in places where they are negligible and solve the simpler, Euler equations there instead.  However viscous terms are still important close to the boundary.  It would be a more faithful physical representation of the problem if their effects remained present there.  This is where adaptivity comes in.  
 
-The natural problem with this approach are cases in which we actually do need to make use of the complex model in a small part of the domain in order to produce reliable, accurate results.   The mathematical challenge that arises is in the coupling of the simple and complex models so that we retain the savings from using the former in the majority of the domain and the accuracy from using the latter in specific parts of the domain as necessary.
 
-This model refinement can be based on knowledge available $\textit{a priori}$, which informs the decomposition of the domain or on results made available $\textit{a posteriori}$, i.e. during the computation, after each iteration of the algorithm.
+Model adaptivity involves coupling models in a hierarchy together so that we can adaptively choose which model to solve in a certain part of a domain.  In this paper we will try to implement model adaptivity with a model hierarchy consisting of the Stokes model as the complex model and the Laplace model as the simple model:
+\begin{equation}
+\text{Stokes equations: }
+\begin{aligned}
+	-\Delta\textbf{u} + \nabla p &= \textbf{f}\nonumber \\ 
+\nabla\cdot \textbf{u}&= 0\nonumber
+\end{aligned}
+\end{equation}
+\begin{equation}
+\text{Laplace equation: }\quad\quad\,\,\,
+\begin{aligned}
+-\Delta\textbf{u} = \textbf{f} \nonumber
+\end{aligned}
+\end{equation}
+The Laplace equation is a good approximation to the Stokes Equations when the gradient of the pressure is small or zero and when the fluid is divergenceless.   The question then is how to couple the two models without creating numerical artefacts. One way would be to solve each model in a certain part of the domain.  This division would take place before the computation and would be based on knowledge about the predominant physics in each part of the domain.  An example of such a decomposition is \cite{coclici2001analysis}, where the computational domain is divided a-priori and different flow models are used for near-field (Navier-Stokes equations) and far-field (linearized Euler equations) computations.  Another example of such an implementation of model adaptivity includes \cite{utzmann2006heterogeneous} from the field of computational aeroacoustics. In this example the computational domain is subdivided into subdomains a-priori.  Then, in each subdomain different equations, discretizations and time-steps are adapted depending on local problem characteristics.  
 
-The aim of this project will be to develop a strategy to adaptively choose an appropriate model to approximate over specific parts of the domain in real time.  The specific example we will consider is flow governed by Stokes equations, to be reduced to the vectorial Laplacian in parts of the domain where pressure is nearly constant.  The reduction will be based on localised error estimates.  We will examine the errors due to numerical approximation and also due to the model reduction itself.
+Instead of using model adaptivity based an a-priori division of our domain, we implement it based on the approach of \cite{giesselmann2017posteriori}, who implement a coupled model consisting of the Navier-Stokes-Fourier equations and the compressible Euler equations.   In this approach  the choice between models will be automatic for different parts of the domain.  This choice will depend on local characteristics of the computed solution and the given problem data and it will be driven by an \emph{a-posteriori} error indicator.  
 
-The rest of the project is structured as follows.  In \S \ref{sec_obj} we present the work we intent to complete by the end of the project.  In \S \ref{sec_mathform} we describe Stokes's equations, introduce their weak form and show that the resulting problem is well-posed.  In \S \ref{sec_adaptivity} we  describe adaptivity and how it will be implemented in this project in greater depth.  In \S \ref{sec_numerics} we present some preliminary results that are produced with the Deal.II software (see \cite{BangerthHartmannKanschat2007}), which  will be used for the numerical implementation component of the project.  We conclude the report in \S \ref{sec_conclusion}, where we also discuss the next steps.
+The a-posteriori indicator is essentially a localised error estimate which is based on the computed solution at each refinement step and the given problem data. It enables the assignment of different models to different parts of the domain to take place automatically during the computation.  In addition to model adaptivity, the indicator also allows for adaptive mesh refinement, although this was not implemented.  
 
-\section{Objectives}\label{sec_obj}
-The objectives presented in this section pertain to the entirety of the project and not just to the work presented in this work.  They are essentially a breakdown of the work that must be done in order to  Briefly, our aims for the rest of the project are the following:
-\begin{itemize}
-\item Mathematical analysis of the weak formulation of the Stokes and Laplace problems.
-\item A-posteriori error bounds for the Stokes and Laplace problems.
-\item Implement the Stokes model in Deal.II.
-\item Mathematical analysis of weak formulation of the combined Stokes-Laplace problem
-\item Obtain a-posteriori error bounds for the combined Stokes-Laplace problem.
-\item Implementation of the combined Stokes-Laplace problem in Deal.II.
-\end{itemize}
+In this work, we formulate a combined Stokes-Laplace problem and show its well-posedness using the framework of the Stokes problem used in \cite{verfurth2013posteriori}.  The procedure that \cite{verfurth2013posteriori} adopts is to derive well-posedness results in the context of the abstract framework and to then show how a specific problem fits within this framework.  We go through the well-posedness results for the Stokes problem as an example.  We  base our well-posedness analysis for the combined Stokes-Laplace problem on these results.  We then derive an a-posteriori error-indicator for our combined problem.   This indicator theoretically has the capacity to drive both model and mesh adaptivity for our model.  Lastly, we create and test a model for the combined problem with a fixed interface.
 
+
+The rest of this report is structured as follows.  In \S \ref{literature_review} we present some background material that is relevant to this project. In \S \ref{sec_mathform} we present the variational formulation for Laplace's equation, Stokes equations and for the combined problem.  Additionally, we show that they are well-posed both in the continuous and discrete forms.  In \S \ref{sec_aposteriori_analysis} we  present the a-posteriori analysis for the Stokes problem and for the combined problem. In \S \ref{sec_numerics} we present test results for the models we build in Deal.II for the Stokes and the combined model.   We conclude the report in \S \ref{sec_conclusion}, where we also discuss directions for further work.
 
 \section{Background}\label{literature_review}
 \subsection{Finite Elements}
@@ -116,7 +218,7 @@ In this section we will briefly review what the Finite Element technique is and 
 u &= g \quad \text{on}\quad \partial \Omega
 \end{aligned}
 \end{equation}
-In order for this problem to have a solution we need certain characteristics from our functions $u$ and $f$.  For example, we require that $u\in C^2\left(\Omega\right) ,\,g\in C\left(\overline{\Omega}\right)$ and $f \in C\left(\Omega\right)$.  Furthermore, equality in (\ref{model_poisson}) is to be understood point-wise:  The left and right hand sides of the equations in (\ref{model_poisson}) must agree for all $x \in \Omega$ and on $\partial\Omega$ respectively. These requirements are too strict however:  the map $-\Delta : C^2\left(\mathbb{R}^2\right)\rightarrow C^0\left(\mathbb{R}^2\right)$ is not invertible.  Instead, we look for an alternative formulation of the problem which allows for more relaxed requirements on $u$.  This formulation is called the variational formulation.   In order to obtain this formulation multiply the first equation in (\ref{model_poisson}) by a test function $v$ from some infinite-dimensional function space $V$ (which we will define shortly) and then integrate by parts.  Also assume that $g=0$, since this is also what we will be using throughout this project.  This gives:
+In order for this problem to have a solution we need certain characteristics from our functions $u$ and $f$.  For example, we require that $u\in C^2\left(\Omega\right) ,\,g\in C\left(\overline{\Omega}\right)$ and $f \in C\left(\Omega\right)$.  Furthermore, equality in (\ref{model_poisson}) is to be understood point-wise:  The left and right hand sides of the equations in (\ref{model_poisson}) must agree for all $x \in \Omega$ and on $\partial\Omega$ respectively. These requirements are too strict however:  the map $-\Delta : C^2\left(\mathbb{R}^2\right)\rightarrow C^0\left(\mathbb{R}^2\right)$ is not invertible.  Instead, we look for an alternative formulation of the problem which allows for more relaxed requirements on $u$.  This formulation is called the variational formulation.   In order to obtain this formulation multiply the first equation in (\ref{model_poisson}) by a test function $v$ from some infinite-dimensional function space $V$ (which we will define shortly) and then integrate by parts.  Also assume that $g=0$, since this is what we will be using throughout this project.  This gives:
 \begin{equation}
 \int_{\Omega}\nabla u \cdot \nabla v dx =\int_{\Omega}fvdx,
 \end{equation}
@@ -132,7 +234,7 @@ and
 \begin{equation}
 F\left(v\right) = \int_{\Omega}fvdx.
 \end{equation}
-A careful inspection of the variational formulation will indicate that now the only thing we are asking of our solution $u$ is that it has one square-integrable derivative and that it is zero on the boundary.  This is a weaker requirement than the existence and uniqueness of two derivatives that we were asking for in (\ref{model_poisson}), which is why (\ref{model_var_form}) is also called the weak formulation.  The next step is to discretize our problem.  Since $V$ is an infinite-dimensional space we have no way of practically searching for a solution in it.   Instead, we will restrict our search in a finite-dimensional subspace of $V$, which we shall call $V_h$ and look for an approximation $u_h$ to $u$.  This gives us the Galerkin approximation to (\ref{model_var_form}):
+A careful inspection of the variational formulation will indicate that now the only thing we are asking of our solution $u$ is that it has one square-integrable derivative and that it is zero on the boundary.  This is a weaker requirement than the existence and uniqueness of two derivatives that we were asking for in (\ref{model_poisson}), which is why (\ref{model_var_form}) is also called the weak formulation.  The next step is to discretize our problem.  Since $V$ is an infinite-dimensional space we have no way of practically searching for a solution in it.   Instead, we will restrict our search in a finite-dimensional subspace of $V$, which we shall call $V_h$ and look for an approximation $u_h$ to $u$ in this space.  This gives us the Galerkin approximation to (\ref{model_var_form}):
 
 \theoremstyle{definition}
 \begin{definition}{$\left(\textbf{Galerkin Approximation}\,\text{of \ref{model_var_form}}\right)$} 
@@ -142,7 +244,7 @@ a\left(u_h,v_h\right)=F\left(v_h\right) \quad \forall v_h \in V_h.
 	\end{equation}
 \end{definition}
 This problem is more amenable to practical implementation compared to (\ref{model_poisson}) as it is finite-dimensional and can hence be coded on a computer.  We will not discuss questions about the well-posedness of (\ref{model_poisson}) and (\ref{model_var_form}) or why $u_h$ is a good approximation to $u$ (in fact it is the best in some sense).  For such topics the reader is advised to consult \cite{brenner2007mathematical} and \cite{ern2013theory}. Nonetheless, now that we have our approximate problem we can proceed to the next step, which is  to construct our finite-dimensional function space $V_h$.  
-The way we do this is to first geometrically decompose our domain into a finite collection of shapes (cells).  The collection of these cells is called a mesh or a triangulation.  We then equip this mesh with piecewise polynomial basis functions.  The geometric decomposition allows us to simulate complicated domains while the polynomial basis functions provide us with a lot of flexibility.  We know how to integrate them, how to enforce continuity from cell to cell (or to allow for discontinuity should the need arise) and they also allow us to approximate different functions on our domain  by expressing them as a weighted sum of our these basis functions.  Let us explain both concepts in a bit more detail.
+The way we do this is to first geometrically decompose our domain into a finite collection of shapes (cells).  The collection of these cells is called a mesh or a triangulation.  We then equip this mesh with piecewise polynomial basis functions.  The geometric decomposition allows us to simulate complicated domains while the polynomial basis functions provide us with a lot of flexibility.  We know how to integrate them, how to enforce continuity from cell to cell (or to allow for discontinuity should the need arise) and they also allow us to approximate different functions on our domain  by expressing them as a weighted sum of the basis functions.  Let us explain both concepts in a bit more detail.
 
 Cells, the constitutive elements of the mesh, are usually simple geometric shapes.  These could be intevals in $1D$, polygons (frequently triangles or quadrilaterals) in $2D$ and polyhedra in $3D$.  More formally, the definition of mesh/triangulation is as follows (see \cite{ern2013theory}: \S 1.3 Defn 1.49): 
 \theoremstyle{definition}
@@ -155,7 +257,7 @@ A mesh is the decomposition of a domain $\Omega$ into a finite collection of cel
 \end{definition}
 which loosely means that the cells have non-overlapping interiors.   Let us also define what basis functions are.  Basis functions have the same meaning (and use) one would expect of basis vectors: we use them so that we can construct any other function in our function space.  They are literally our function space's basis.  
 \begin{definition}{$\left(\textbf{Nodal Basis}\right)$}\label{defn_nodal_basis}
-	Consider a Triangulation $T$ of $\Omega$ with $N$ vertices $\lbrace x_i\rbrace_{i=0}^{N-1}$ the basis function $\phi_i$ associated with the $i$-th degree of freedom satisfies 
+	Consider a triangulation $T$ of $\Omega$ with $N$ vertices $\lbrace x_i\rbrace_{i=0}^{N-1}$ the basis function $\phi_i$ associated with the $i$-th degree of freedom satisfies 
 	\begin{equation}
 	\phi\left(x_j\right) = \delta_{ij},
 	\end{equation}
@@ -163,7 +265,7 @@ which loosely means that the cells have non-overlapping interiors.   Let us also
 \end{definition}
 Definition \ref{defn_nodal_basis} essentially says that nodal basis functions take a value of $1$ at their associated degree of freedom and $0$ at all others.
 At this point we could go through the details of how to go from the PDE problem to a linear algebraic problem (which is what we solve to get $u_h$).  Interested readers are advised to consult \cite{elman2014finite} for details of this procedure.  Instead, we are going to conclude this section by explaining what a finite element is.  The only additional ingredient we need to explain is what a nodal variable is.  Consider a function $p\in V_h$, where $V_h$ is a finite dimensional function space defined on our cell $K$.  Then, a nodal variable could be a function evaluation of $p$ at a node in $K$, or its derivative at that point, or its integral over $K$.  Now we can give the definition of a finite element.
-\begin{definition}{$\left(\textbf{Ciarlet's Finite Element}\right)$}\label{defn_finite-element}
+\begin{definition}{$\left(\textbf{Ciarlet's Finite Element}\right)$: see \cite[\S3.1: Definition 3.1.1]{brenner2007mathematical}}\label{defn_finite-element}
 	Let
 \begin{enumerate}
 \item $K\subset \mathbb{R}^n$ be a bounded closed set with nonempty interior and piece-wise smooth boundary (the element domain),
@@ -175,7 +277,9 @@ Then the triplet $\left(K,\mathcal{P},\mathcal{N}\right)$ is called a finite ele
 
 
 \subsection{Model Adaptivity}
-iar with (see \cite{ern2013theory}).   
+Model adaptivity as a concept arises from an attempt to decrease the computational
+cost of our algorithm. In this regard it is not unlike mesh adaptivity, which
+readers may be more familiar with (see \cite{ern2013theory}).   
 
 The idea behind mesh adaptivity is simple: use a mesh which features high resolution  where this is needed and low resolution everywhere else so as to reduce computational cost.  Possible reasons for doing this may include the regularity or smoothness of our problem data or our solution.  If for example our solution changes abruptly in certain areas of our domain and barely in others then this would be a good idea.  In such cases we would like high mesh resolution in places requiring high detail and low resolutions everywhere else.  This will decrease our algorithm's computational cost relative to the case when we have high resolution everywhere.  This naturally leads us to the question of how to implement this reduction of computational costs by a clever allocation of resolution in our domain.
 
@@ -193,7 +297,7 @@ In \cite{giesselmann2017posteriori} Giesselman and Pryer present an a posteriori
 \end{equation}
 where $\textbf{u}$ is the vector of unknown conserved quantities, $\varepsilon$ is a small parameter, $\textbf{f}_{\alpha}\in C^2\left(U,\mathbb{R}^n\right), \alpha = 1,\cdots,d$ are the components of the advective flux and $\textbf{g}_{\alpha}\in C^2\left(U\times \mathbb{R}^{d\times n},\mathbb{R}^n\right), \alpha = 1,\cdots,d $ are the componenets of a diffusive flux.  $C$ denotes the space of continuous functions. The state space $U$ is an open set, $T$ is some finite time and $\mathbb{T}^d$ denotes the $d-$ dimensional flat torus. The latter set of equations are a good approximation to the former in the case of very little or no viscosity.  The Euler Equations are given by  (see (\cite{giesselmann2017posteriori}:  $\S 1: Eq. \left(1.2\right))$)
 \begin{equation}
-\partial_t\textbf{u} +\sum_{\alpha}\partial_{x_\alpha}\textbf{f}_{\alpha}\left(\textbf{u}\right) = \quad \text{on} \quad \mathbb{T}^d \times \left(0,T\right),
+\partial_t\textbf{u} +\sum_{\alpha}\partial_{x_\alpha}\textbf{f}_{\alpha}\left(\textbf{u}\right) = 0\quad \text{on} \quad \mathbb{T}^d \times \left(0,T\right),
 \end{equation}
 which is a good approximation to (\ref{eq_NSF}) when $\varepsilon$ is small.  Something like this might arise naturally in flows away from obstacles, where advection terms dominate viscous terms.  A model like this could have applications in modelling flows that arise in e.g. aerospace engineering and potentially aeroacoustics. 
 
@@ -225,17 +329,17 @@ where the indices $i$ and $j$ cycle over the components of $\textbf{u}$ and over
 \end{equation}
 
 We will require that our $\textbf{u}$ is continuous and has continuous first derivatives. 
- In other words, that $\textbf{u}\in \textbf{H}^1_0\left(\Omega\right)^2$, where the Sobolev space $\textbf{H}^1_0\left(\Omega\right)^d$ is  the space of $d$-dimensional functions in $L^2\left(\Omega\right)$ which are zero on the boundary and have their first derivatives in $L^2\left(\Omega\right)$:
+ In other words, that $\textbf{u}\in \left[\textbf{H}^1_0\left(\Omega\right)\right]^2$, where the Sobolev space $\left[\textbf{H}^1_0\left(\Omega\right)\right]^d$ is  the space of $d$-dimensional functions in $L^2\left(\Omega\right)$ which are zero on the boundary and have their first derivatives in $L^2\left(\Omega\right)$:
 \begin{equation}
-\textbf{u}\in \textbf{H}^1_0\left(\Omega\right)^2 = \left\lbrace \textbf{u}\in L^2\left(\Omega\right)^d \text{ with } \nabla\textbf{u}_{i,j}\in L^2\left(\Omega\right) \text{ and } \textbf{u}|_{\partial\Omega}=\textbf{0}\right\rbrace. \nonumber
+\textbf{u}\in \left[\textbf{H}^1_0\left(\Omega\right)\right]^2 = \left\lbrace \textbf{u}\in \left[L^2\left(\Omega\right)\right]^d \text{ with } \nabla\textbf{u}_{i,j}\in L^2\left(\Omega\right) \text{ and } \textbf{u}|_{\partial\Omega}=\textbf{0}\right\rbrace. \nonumber
 \end{equation}
 This space's norm is given by 
 \begin{equation}
 \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega\right)}.\nonumber
 \end{equation}
- We will also require that our right-hand side function $\textbf{f}$ is square-integrable, i.e. $\textbf{f}\in L^2\left(\Omega\right)^2$.
+ We will also require that our right-hand side function $\textbf{f}$ is square-integrable, i.e. $\textbf{f}\in L^2\left(\Omega\right)$.
  
-In order to obtain the variational formulation of (\ref{poisson_problem_review}), we multiply the equation by a test function $\textbf{v}\in \textbf{H}^1_0\left(\Omega\right)^2$ and integrate by parts.  This gives us
+In order to obtain the variational formulation of (\ref{poisson_problem_review}), we multiply the equation by a test function $\textbf{v}\in \left[\textbf{H}^1_0\left(\Omega\right)\right]^2$ and integrate by parts.  This gives us
 \begin{equation}
 \int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}\;\mathrm{d}x  =\int_{\Omega}\textbf{f}\cdot \textbf{v} \;\mathrm{d}x.
 \end{equation}
@@ -301,7 +405,7 @@ where boldface indicates vectors.  In (\ref{stokes_eq}), $\textbf{u},\, \textbf{
 
 Let us begin by defining the  function spaces $\mathbb{V}$ (for velocity) and $\mathbb{P}$ (for pressure) we will be working with:
 \begin{eqnarray}\label{fspace_V}
-\mathbb{V}&=&\textbf{H}^1_0\left(\Omega\right)^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega\right)}, \\\label{fspace P}
+\mathbb{V}&=&\left[\textbf{H}^1_0\left(\Omega\right)\right]^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega\right)}, \\\label{fspace P}
 \mathbb{P}&=&L^2_0\left(\Omega\right)=\left\lbrace q\in L^2\left(\Omega\right): \int_\Omega q=0\right\rbrace\text{, with norm: } \left|\left|q\right|\right|_{L^2\left(\Omega\right)}
 \end{eqnarray}
  Henceforth, we will adopt the notation $\left|\textbf{u}\right|_1$ and $\left|\left|q\right|\right|_{L^2}$ for the norms pertaining to the function spaces specified in (\ref{fspace_V}) and (\ref{fspace P}).  
@@ -319,23 +423,23 @@ where the linear and bilinear forms defined in (\ref{form-a}) are defined as
     F\left(\textbf{v}\right) &=& \int_{\Omega}\textbf{f}\cdot \textbf{v} .
 \end{eqnarray}
 
-\subsubsection{Well Posedness}\label{sec_wellposed}
+\subsubsection{Well Posedness of the continuous problem}\label{PDE_cont}
 We will introduce some notation that will be used for the analysis in this section.  We will adopt the same notation as \cite{Chen2016} for ease of cross-checking, as the analysis in this section relies heavily on results presented therein. 
 We will also be frequently making use of the symbol
 \begin{equation}
 	\lesssim \nonumber,
 \end{equation}
-which we we will define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  Such multiplicative constants arise often in finite-element analysis and they may depend on a number of factors, such as domain geometry, the shape of the finite-element or the size of the mesh.  
-\subsubsection{PDE}\label{PDE_cont}
-There are four components to proving the well-posedness of (\ref{form-a})-(\ref{form-b}):
+which we define as follows: if $a\lesssim b$ this means $a\leq C\cdot b$, with $C>0$.  Such multiplicative constants arise often in finite-element analysis and they may depend on a number of factors, such as domain geometry, the shape of the finite-element or the size of the mesh.  
+
+In order to prove (\ref{form-a})-(\ref{form-b}) we need to show that the following hold:
 	 \begin{eqnarray}\label{coerc_a}
 	\inf_{\textbf{u}\in \mathbb{V}}\sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{u}\right|_1 \left|\textbf{v}\right|_1}&=&\alpha>0,\\\label{coerc_b}
 			\inf_{q\in \mathbb{P}}\sup_{\textbf{u}\in \mathbb{V}}\frac{b\left(\textbf{u},q\right)}{\left|\textbf{u}\right|_1 \left|\left|q\right|\right|_{L^2}}&=&\beta>0,\\\label{cont_a}
-		a\left(\textbf{u},\textbf{v}\right)&\leq& C_a\left|\textbf{u}\right|_1\left|\textbf{v}\right|_1,\, \forall \textbf{u},\textbf{v} \in \mathbb{V}\text{ and}\\\label{cont_b}
-		b\left(\textbf{u},q\right)&\leq& C_b\left|\textbf{u}\right|_1\left|\left|q\right|\right|_{L^2},\,\forall \textbf{u} \in \mathbb{V},\, q \in \mathbb{P}.
+		a\left(\textbf{u},\textbf{v}\right)&\leq& C_a\left|\textbf{u}\right|_1\left|\textbf{v}\right|_1,\quad \forall \textbf{u},\textbf{v} \in \mathbb{V}\text{ and}\\\label{cont_b}
+		b\left(\textbf{u},q\right)&\leq& C_b\left|\textbf{u}\right|_1\left|\left|q\right|\right|_{L^2},\,\,\forall \textbf{u} \in \mathbb{V},\, q \in \mathbb{P}.
 	\end{eqnarray}
 Briefly, (\ref{coerc_a}) and (\ref{coerc_b}) correspond to the stability of the bi-linear forms specified in (\ref{weak-a}) and (\ref{weak-b}) respectively, while (\ref{cont_a}) and (\ref{cont_b}) correspond to their boundedness, in the same order. It is worth noting that (\ref{coerc_a}) is perhaps more widely known as the $\textit{inf-sup}$ condition (see \cite{brenner2007mathematical}: \S 12). 
-We will start by showing that conditions (\ref{coerc_b}), (\ref{cont_a}) and (\ref{cont_b}) hold.  Then we will show (\ref{coerc_a}) holds.  Firstly we will introduce a result that implies (\ref{coerc_b}) holds.  The result can be found in \cite{Chen2016} as Lemma 1.4.
+We will start by showing that conditions (\ref{coerc_b}), (\ref{cont_a}) and (\ref{cont_b}) hold.  Then we will show that (\ref{coerc_a}) holds.  Firstly we will introduce a result that implies (\ref{coerc_b}) holds.  The result can be found in \cite{Chen2016} as Lemma 1.4.
 \begin{lemma}\label{Lemma_equiv}
 	For any $q\in L^2_0\left(\Omega\right), \exists \textbf{v}\in \textbf{H}^1_0\left(\Omega\right)$ such that
 	\begin{equation}
@@ -344,7 +448,7 @@ We will start by showing that conditions (\ref{coerc_b}), (\ref{cont_a}) and (\r
 	Consequently, the inf-sup condition, (\ref{coerc_b}), holds.
 \end{lemma}
 \begin{proof}
-	See \cite{Chen2016}: Lemma 1.4
+	See \cite[Lemma 1.4]{Chen2016}.
 \end{proof}
 We will use the statement of Lemma \ref{Lemma_equiv} to show it implies (\ref{coerc_b}).  Consider (\ref{weak-b}).  We choose $\textbf{v}$ so that the result in Lemma (\ref{Lemma_equiv}) holds. We will label this $\textbf{v}$ as $\textbf{v}_q$ to remember the dependence on $q$.   Hence
 \begin{eqnarray}
@@ -355,7 +459,7 @@ Now, assume that $\left|\textbf{v}_q\right|_1$ is not zero, divide throughout by
 \begin{equation}
 \sup_{\textbf{0}\neq\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} \gtrsim \left|\left|q\right|\right|_{L^2}.\nonumber
 \end{equation}
-Now we divide throughout by $\left|\left|q\right|\right|_{L^2}$, which we also assume not to be equal to zero, and take the $\inf$ of that, which we can do since the inequality is required to hold for all $q\in \mathbb{P}$:
+Now we divide throughout by $\left|\left|q\right|\right|_{L^2}$, which we also assume not to be equal to zero, and take the infimum of that over $\mathbb{P}$.  We can do this since the inequality is required to hold for all $q\in \mathbb{P}$:
 \begin{equation}
 \inf_{q\in \mathbb{P}}\frac{1}{\left|\left|q\right|\right|_{L^2}}\sup_{\textbf{v}\in \mathbb{V}}\frac{b\left(\textbf{v},q\right)}{\left|\textbf{v}\right|_1} \gtrsim 1 \nonumber.
 \end{equation}
@@ -367,7 +471,7 @@ Next, we show that (\ref{coerc_a}) holds.  This is implied by the fact that (\re
 		&=&\int_{\Omega}\sum_{i}\nabla u_i \cdot \nabla u_i\;\mathrm{d}x\text{ and}\nonumber\\
 		&=&\left|\textbf{u}\right|_1^2,\nonumber
 \end{eqnarray}
-which is the coercivity condition with equality and $\alpha = 1$.  Now we show that  the coercivity of $a\left(\cdot,\cdot\right)$ implies (\ref{coerc_a}.  Since $a\left(\cdot,\cdot\right)$ is coercive, we have that
+which is the coercivity condition with equality and $\alpha = 1$.  Now we show that  the coercivity of $a\left(\cdot,\cdot\right)$ implies (\ref{coerc_a}).  Since $a\left(\cdot,\cdot\right)$ is coercive, we have that
 \begin{equation}
 a\left(\textbf{u},\textbf{u}\right)\geq \alpha  \left|\textbf{u}\right|_1^2 \nonumber.
 \end{equation}
@@ -384,8 +488,8 @@ We divide throughout by $\left|\textbf{u}\right|_1$, which we assume not to be z
 \inf_{\textbf{u}\in \mathbb{V}}\sup_{\textbf{v}\in \mathbb{V}}\frac{a\left(\textbf{u},\textbf{v}\right)}{\left|\textbf{v}\right|_1\left|\textbf{u}\right|_1} \geq \alpha>0\nonumber.
 \end{equation}
 Lastly, (\ref{cont_a}) and (\ref{cont_b}) follow from an application of the Cauchy-Schwarz inequality on the corresponding bilinear forms.
-\subsubsection{Discrete form of the $\textit{inf-sup}$ condition}\label{PDE_disc}
-In \S \ref{PDE_cont} we consider (\ref{weak-a}) and \ref{weak-b} in the setting of infinite-dimensional function spaces.  In practice we will be dealing with a finite-dimensional version of these.  Hence, we need to show that the discrete, finite-dimensional problem is also well-posed:
+\subsubsection{Well-posedness of the discrete problem}\label{PDE_disc}
+In \S \ref{PDE_cont} we considered (\ref{weak-a}) and (\ref{weak-b}) in the setting of infinite-dimensional function spaces.  In practice we will be dealing with a finite-dimensional version of these.  Hence, we need to show that the discrete, finite-dimensional problem is also well-posed:
 \begin{eqnarray}
 		a\left(\textbf{u}_h,\textbf{v}\right) + b\left(\textbf{v},p_h\right) &=& F\left(\textbf{v}\right)\quad \forall 
 	\textbf{v} \in \mathbb{V}_h \text{ and} \\
@@ -461,9 +565,9 @@ We now try to obtain a bound for $\left|\left|p\right|\right|_{L^2}$ in terms of
 We now choose $q=p$, which gives 
 \begin{eqnarray}\nonumber
 \beta \left|\left|p\right|\right|_{L^2} &\leq& \sup_{\textbf{v}\in \mathbb{V}, \,\left|\textbf{v}\right|_1\leq1}  b\left(\textbf{v},p\right)\\\nonumber
-&=& \sup \left(\int_{\Omega}\textbf{f}\cdot\textbf{v} -\nabla\textbf{u}:\nabla\textbf{v}\right)\\\nonumber
-\text{Cauchy-Schwarz: }&\leq& \sup \left(\left|\left|\textbf{f}\right| \right|_{L^2} \left|\left|\textbf{v}\right|\right|_{L^2}+\left|\textbf{u}\right|_1 \left|\textbf{v}\right|_1\right)\\\nonumber
-\text{Poincar\'e's: }&=&\sup \left[\left(C_p\left|\left|\textbf{f}\right| \right|_{L^2}+ \left|\textbf{u}\right|_1\right) \left|\textbf{v}\right|_1\right] \\\nonumber
+&=& \sup_{\textbf{v}\in \mathbb{V}, \,\left|\textbf{v}\right|_1\leq1}  \left(\int_{\Omega}\textbf{f}\cdot\textbf{v} -\nabla\textbf{u}:\nabla\textbf{v}\right)\\\nonumber
+\text{Cauchy-Schwarz: }&\leq& \sup_{\textbf{v}\in \mathbb{V}, \,\left|\textbf{v}\right|_1\leq1}  \left(\left|\left|\textbf{f}\right| \right|_{L^2} \left|\left|\textbf{v}\right|\right|_{L^2}+\left|\textbf{u}\right|_1 \left|\textbf{v}\right|_1\right)\\\nonumber
+\text{Poincar\'e's: }&=&\sup_{\textbf{v}\in \mathbb{V}, \,\left|\textbf{v}\right|_1\leq1}  \left[\left(C_p\left|\left|\textbf{f}\right| \right|_{L^2}+ \left|\textbf{u}\right|_1\right) \left|\textbf{v}\right|_1\right] \\\nonumber
 \left|\textbf{v}\right|_1\leq 1\text{:} &\leq&C_p\left|\left|\textbf{f}\right| \right|_{L^2}+ \left|\textbf{u}\right|_1\\\nonumber
 \text{Using }\left(\ref{bound-u-cont}\right):&\leq&2C_p\left|\left|\textbf{f}\right| \right|_{L^2}
 \end{eqnarray}
@@ -496,7 +600,7 @@ with boundary conditions given by
 \begin{equation}\label{bc_adapt}
 	\textbf{u}= 0 \text{\quad on $\partial \Omega$}.
 \end{equation}
-Naturally, we would like to know whether the problem given by (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) has a unique, stable solution.  In order to do this we will first derive the variational form for (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) and then we will use some of the procedures from \S \ref{sec_wellposed} to show that our problem is indeed well-posed.
+Naturally, we would like to know whether the problem given by (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) has a unique, stable solution.  In order to do this we will first derive the variational form for (\ref{stokes_eq_adapt})-(\ref{bc_adapt}) and then we will use some of the procedures from \S \ref{PDE_cont} to show that our problem is indeed well-posed.
 
 \begin{figure}[H]
 	\begin{center}
@@ -553,19 +657,19 @@ In this section we derive a variational form for (\ref{stokes_eq_adapt})-(\ref{p
 \mathbb{V}_L&=&\left[\textbf{H}^1_0\left(\Omega_L\right)\right]^2\text{, with norm: } \left|\textbf{v}\right|_{1}=\left|\left|\nabla\textbf{v}\right|\right|_{L^2\left(\Omega_L\right)}, \\\label{fspace_P1}
 \mathbb{P}&=&L^2_0\left(\Omega_S\right)=\left\lbrace q\in L^2\left(\Omega_S\right): \int_{\Omega_S} q=0\right\rbrace\text{, with norm: } \left|\left|q\right|\right|_{L^2\left(\Omega_S\right)}
 \end{eqnarray}
-We proceed by testing (\ref{stokes_eq_adapt}) and (\ref{poisson_eq_adapt}) with test functions $\textbf{v}_S\in \mathbb{V}_S$ and $q\in \mathbb{P}$ for (\ref{stokes_eq_adapt}) and $\textbf{v}_L\in\mathbb{V}_L$. We the resulting equations by parts to obtain:
+We proceed by testing (\ref{stokes_eq_adapt})  with test functions $\textbf{v}_S\in \mathbb{V}_S$ and $q\in \mathbb{P}$  and and (\ref{poisson_eq_adapt}) with $\textbf{v}_L\in\mathbb{V}_L$ . We then integrate the resulting equations by parts to obtain:
 \begin{equation}\label{weak_stokes_1}
 \begin{aligned}
 \int_{\Omega_S}\nabla \textbf{u}_S : \nabla \textbf{v}_S-p\left(\nabla \cdot \textbf{v}_S\right) +\int_{\mathcal{I}} p\textbf{v}_S\cdot \textbf{n}_S-\textbf{v}_S\cdot\left(\nabla\textbf{u}_S\textbf{n}_S\right) &=\int_{\Omega_S}\textbf{f}\cdot \textbf{v}_S  \quad \forall  \textbf{v}\in \mathbb{V}_S\\
 \int_{\Omega_S}q\left(\nabla \cdot \textbf{u}_S\right) &= 0\quad \forall q\in \mathbb{P},
 \end{aligned}
 \end{equation}
-for subdomain $\Omega_S$ and
+in $\Omega_S$ and
 \begin{equation}\label{weak_poisson}
 \int_{\Omega_L}\nabla \textbf{u}_L : \nabla \textbf{v}_L - \int_{\mathcal{I}} \textbf{v}_L \left(\nabla\textbf{u}_L\textbf{n}_L\right)= 
 \int_{\Omega_L}\textbf{f}\cdot \textbf{v}_L  \quad \forall  \textbf{v}_L\in \mathbb{V}_L
 \end{equation}
-for $\Omega_L$, where the unit vectors $\textbf{n}_S$ and $\textbf{n}_L$ are the outward normals to $\Omega_{S}$ and $\Omega_{L}$ respectively and $\nabla \textbf{u}_S$ and $\nabla \textbf{u}_L$ are the velocity gradients in the two subdomains. Notice that the boundary integrals are taken over $\mathcal{I}$ and not over $\partial \Omega_{S}$ and $\partial \Omega_{L}$.  The reason is that, since we know $\textbf{u}_{S,L}=\textbf{0}$ on $\partial \Omega$, we require that $\textbf{v}_{S,L}=\textbf{0}$ on $ \partial \Omega = \partial \Omega_S\cup \Omega_{L}\setminus \mathcal{I}$.   
+in $\Omega_L$, where the unit vectors $\textbf{n}_S$ and $\textbf{n}_L$ are the outward normals to $\Omega_{S}$ and $\Omega_{L}$ respectively and $\nabla \textbf{u}_S$ and $\nabla \textbf{u}_L$ are the velocity gradients in the two subdomains. Notice that the boundary integrals are taken over $\mathcal{I}$ and not over $\partial \Omega_{S}$ and $\partial \Omega_{L}$.  The reason is that, since we know $\textbf{u}_{S,L}=\textbf{0}$ on $\partial \Omega$, we require that $\textbf{v}_{S,L}=\textbf{0}$ on $ \partial \Omega = \partial \Omega_S\cup \Omega_{L}\setminus \mathcal{I}$.   
 
 Before we proceed, we introduce a jump operator, which is simply a notational convenience for expressing the jump of a quantity across an interface.  Consider a (vector) quantity, $\textbf{u}$ in a domain $\Omega$.   Furthermore, suppose that the domain is divided into subdomains by an interface $\mathcal{I}$ such that the values of $\textbf{u}$ at either side of $\mathcal{I}$ in each subdomain are $\textbf{u}_1$ and $\textbf{u}_2$. In our example case we may consider $\mathcal{I}$ to be the interface between the two subdomains shown in Figure \ref{fig_domain}.  Then, the jump of $\textbf{u}$ across $\mathcal{I}$ is given by:
 \begin{equation}
@@ -575,7 +679,7 @@ The next step is to combine (\ref{weak_stokes_1}) and (\ref{weak_poisson}) into 
 \begin{equation}\label{weak_total}
 \begin{aligned}
 \int_{\Omega}\nabla \textbf{u} : \nabla \textbf{v}-\int_{\Omega_S}p\left(\nabla \cdot \textbf{v}\right) +\int_{\mathcal{I}} p\textbf{v}\cdot \textbf{n}_S-\textbf{v}\cdot\llbracket\nabla\textbf{u}\rrbracket &=\int_{\Omega}\textbf{f}\cdot \textbf{v} \quad \forall  \textbf{v}\in \mathbb{V}\\
-\int_{\Omega_1}q\left(\nabla \cdot \textbf{u}\right) &= 0\quad\quad\,\,\,\quad \forall q\in \mathbb{P},
+\int_{\Omega_S}q\left(\nabla \cdot \textbf{u}\right) &= 0\quad\quad\,\,\,\quad \forall q\in \mathbb{P},
 \end{aligned}
 \end{equation}
 where we have used the fact that the velocity is defined in the entire domain and the spaces in which it lives in the Stokes and Laplace parts are the same.  As such we drop the notation $\textbf{u}_S$ and $\textbf{u}_L$ and replace them with $\textbf{u}$, which is defined in the entire domain.  Hence, $\mathbb{V}$ in (\ref{weak_total}) is actually $\mathbb{V}_S\cup\mathbb{V}_L$.  The reader should note however that $\mathbb{P}$ is only defined in $\Omega_S$ in this case.
@@ -614,20 +718,18 @@ We can combine this with (\ref{bound_vel_combi}) to obtain a bound on both the p
 \end{equation}
 Now we have control over both  velocity and  pressure.
 
-\section{A-posteriori Analysis} % Verf{\"u}rt
-In this section we present an a-posteriori analysis for our problem.  The approach and the framework we will be using are presented in \cite{verfurth2013posteriori}.  There are some differences between this abstract framework and what we did so far.  
+\section{A-posteriori Analysis} \label{sec_aposteriori_analysis}
+In this section we present an a-posteriori analysis for our problem.  The approach and the framework we will be using are presented in \cite{verfurth2013posteriori}.  There are some differences between this abstract framework and the framework we used in \S \ref{sec_mathform}.  
 
-The main difference we are concerned with is the way a-posteriori bounds are derived in this framework.  Namely,  rather than start from a problem and show that it satisfies some a-posteriori bounds, we start from the abstract framework in which a-posteriori bounds (more specifically the form the bound will have) have been derived in abstract terms.  
+The main difference is the way a-posteriori bounds are derived in this framework.  Namely,  rather than start from a problem and show that it satisfies some a-posteriori bounds, we start from the abstract framework in which a-posteriori bounds (more specifically the form the bound will have) have been derived in abstract terms.  We then show that our specific problem (be it Laplace, Stokes or the combined problem) fits within the abstract framework.  Once this is done, the problem automatically inherits the form for the  a-posteriori  bounds, which have been derived in abstract terms.  The problem-specific bound will then arise  by substituting the computed solution and the problem data in this abstract form. 
 
-The next step is to show that our specific problem (be it Laplace, Stokes or the combined problem) fits within the abstract framework.  Once this is done, the problem automatically inherits (from the abstract problem) the form for the  a-posteriori  bounds, which have been derived in abstract terms.  The problem specific bound will then arise  by substituting the computed solution and the problem specific data in this abstract form. 
+The results presented in this section for the analysis of the Stokes and Laplace problems can be found in their entirety in \cite[\S4]{verfurth2013posteriori}. The rest of this section will be structured as follows.  Firstly, we will introduce the abstract framework.  Then, we will introduce the well-posedness results for an abstract variational problem in this framework.   We will also present theorems regarding a-posteriori error control in abstract terms.  We will then show that the Laplace and Stokes problems fit within this framework, both in the continuous form and in the finite element approximation. The reason is because the analysis for the combined problem shares a lot with that for the Laplace and Stokes problems.   We will conclude the section by presenting a-posteriori bounds for all three problems.   
 
-The results presented in this section (as well as the analysis for the Laplace and Stokes problem presented in this section) can be found in their entirety in \cite{verfurth2013posteriori} (see \S 4). The rest of this section will be structured as follows.  Firstly, we will introduce the abstract framework.  Then, we will introduce the well-posedness results for an abstract variational problem in this framework.   We will also present theorems regarding a-posteriori error control in abstract terms.  We will then show that the Laplace and Stokes problems fit within this framework, both in the continuous fomr and in the finite element approximation. The reason for doing this is that the analysis for the combined problem shares a lot of its analysis with the Laplace and Stokes problem.   We will conclude the section by presenting a-posteriori bounds for all three problems.   
 
-\hl{Note to Tristan and Oliver:  I will make a section to explain dual spaces, dual norms and any other concepts I didn't explain properly throughout the text}
 \subsection{Abstract Problems-Framework}\label{sec_abst_var_prob}
-In this section we will introduce the abstract framework we will be using throughout the following sections.  We will begin by presenting the notation we will be using.  Then we will give results that will be used to show the well-posedness of an abstract variational problem in the continuous form and also for its finite-element approximation.  Lastly, we will give some results that will be used to construct a-posteriori error estimators for an abstract variational problem. This section relies heavily on the material presented in \S 4.1 of \cite{verfurth2013posteriori} so the reader is advised to consult it for a more detailed exposition.
+In this section we will introduce the abstract framework we will be using throughout the following sections.  We will begin by presenting the notation we will be using.  Then we will give results that will be used to show the well-posedness of an abstract variational problem in the continuous form and also for its finite-element approximation.  Lastly, we will give some results that will be used to construct a-posteriori error estimators for an abstract variational problem. This section relies heavily on the material presented in   \cite[\S 4.1]{verfurth2013posteriori} so the reader is advised to consult it for a more detailed exposition.
 \subsubsection{Abstract Variational Problem}\label{subsec_verf_abst_var_prob}
-We start by defining the spaces in which we will present our problem.  We will adopt the same notation and spaces as \cite[\S4.1.1]{verfurth2013posteriori} for ease of reference.  Consider Banach spaces $\left(X,\left|\left|\cdot\right|\right|_X\right)$ and $\left(Y,\left|\left|\cdot\right|\right|_Y\right)$. In this context we  define:
+We start by defining the spaces in which we will present our problem.  We will adopt the same notation and spaces as in \cite[\S4.1.1]{verfurth2013posteriori} for ease of reference.  Consider Banach spaces $\left(X,\left|\left|\cdot\right|\right|_X\right)$ and $\left(Y,\left|\left|\cdot\right|\right|_Y\right)$. In this context we  define:
 \begin{itemize}
 	\item $\mathcal{L}\left(X,Y\right)$ to be the space of continuous linear mappings from $X$ to $Y$ with norm 
 	\begin{equation}
@@ -644,9 +746,7 @@ The spaces $\mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ and $\mathcal{L}\left(X,Y^
 \begin{equation}\label{verf_isomorphism}
 B\left(\phi,\psi\right)=\langle L\phi,\psi\rangle_Y\quad \forall \phi \in X\text{ and }\forall \psi \in Y,
 \end{equation}
-where $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ corresponds to $L\in \mathcal{L}\left(X,Y^*\right)$.  Now that we have all of our notation in place, this is a good point to introduce the sort of problem we are interested in.  This is done in a general, abstract sense here.  We will tailor it to Laplace, Stokes and our combined problem in the sections that follow.
-
-In general, given a $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ and $\ell \in Y^*$ the problem is to find $\phi \in X$ such that 
+where $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ corresponds to $L\in \mathcal{L}\left(X,Y^*\right)$.  Now that we have all of our notation in place, this is a good point to introduce the sort of problem we are interested in.  This is done in a general, abstract sense.  We will tailor it to Laplace, Stokes and our combined problem in the sections that follow.  In general, given a $B\in \mathcal{L}^2\left(X,Y,\mathbb{R}\right)$ and $\ell \in Y^*$ the problem is to find $\phi \in X$ so that 
 \begin{equation}\label{verf_eqn_var}
 B\left(\phi,\psi\right)=\langle\ell,\psi\rangle_Y\quad \forall \psi \in Y.
 \end{equation}
@@ -654,7 +754,7 @@ Equivalently we can use the isomorphism (\ref{verf_isomorphism}) to express (\re
 \begin{equation}\label{verf_eqn_var_equiv}
 L\phi=\ell.
 \end{equation}
-The reasons we are doing this are related to the analysis required to obtain a-posteriori bounds and will be explained in the sections that follow.  However, before proceeding with any sort of error analysis, we would like to know whether our problem is well-posed.   Recall that we have already presented the conditions for the well-posedness of (\ref{verf_eqn_var})-(\ref{verf_eqn_var_equiv}) in the case of Stokes in \S \ref{PDE_cont} as conditions (\ref{coerc_a})-(\ref{coerc_b}).
+The reasons we are doing this are related to the analysis required to obtain a-posteriori bounds and will be explained in \S \ref{a_posteriori_stokes} and \S \ref{a_posteriori_combined_prob}.  However, before proceeding with error analysis, we would like to know whether our problem is well-posed.   Recall that we have already presented the conditions for the well-posedness of (\ref{verf_eqn_var})-(\ref{verf_eqn_var_equiv}) in the case of Stokes in \S \ref{PDE_cont} as conditions (\ref{coerc_a})-(\ref{coerc_b}).
 
 We now present conditions for the well-posedness of the abstract problem, which   fit into the abstract framework we are using in this section.  
 \begin{proposition}{$\textbf{Well-posedness of (\ref{verf_eqn_var})}$} (See \cite[\S4.1.1]{verfurth2013posteriori}:  Proposition 4.1)\label{prop_well_pos_verf}
@@ -668,9 +768,9 @@ holds for all $\psi\in Y\setminus \lbrace 0 \rbrace$ and that
 \end{equation}
 Then (\ref{verf_eqn_var}) admits a unique solution for every right-hand side $\ell\in Y^*$ - where $Y^*$ is the dual of $Y$- and the solution depends continuously on the right-hand side.
 \end{proposition}
-One may (rightly) wonder why we would go to the trouble of reformulating the conditions that we introduced in \S \ref{PDE_cont}.  Once, again, the reason is because this helps in the analysis that follows.  Observe that the reformulation allows for both the bilinear form $\textbf{a}\left(\cdot,\cdot\right)$ and the linear form $\textbf{b}\left(\cdot\right)$ from \S \ref{PDE_cont} to be incorporated in the bilinear form $B\left(\cdot,\cdot\right)$ in (\ref{verf_eqn_var}).  This will make it easy to use a single norm for the tuple space of the velocities and pressures we will be using for our Stokes problem and also our combined problem.  In turn, this will simplify the analysis we need to do to obtain the bounds
+One may  wonder why we would go to the trouble of reformulating the conditions that we introduced in \S \ref{PDE_cont}.  Once, again, the reason is because this helps in the analysis that follows.  More specifically, the reformulation allows for both the bilinear form $\textbf{a}\left(\cdot,\cdot\right)$ and the linear form $\textbf{b}\left(\cdot\right)$ from \S \ref{PDE_cont} to be incorporated in the bilinear form $B\left(\cdot,\cdot\right)$ in (\ref{verf_eqn_var}).  This will make it easy to use a single norm for the tuple space of the velocities and pressures we will be using for our Stokes and combined problems.  In turn, this will simplify the analysis we need to do to obtain the bounds.
 \subsubsection{Abstract Discrete Problem}
-The  next step is to discretize our variational problem (\ref{verf_eqn_var}).  The procedure presented in this subsection is detailed in  \cite[\S4.1.1]{verfurth2013posteriori}.  We will first introduce the finite dimensional spaces we will search in for the solution.  Then we will present the conditions we will use to verify that our finite-element approximation is well-posed.  These are the finite-dimensional equivalent  to the well-posedness conditions in Proposition \ref{prop_well_pos_verf}.  Our  discrete problem  is to find $\phi_T\in X_T$ so that
+The  next step is to discretize our variational problem (\ref{verf_eqn_var}).  The procedure presented in this subsection is detailed in  \cite[\S4.1.1]{verfurth2013posteriori}.  We will first introduce the finite-dimensional spaces in which we will search for the solution.  Then we will present the conditions we will use to verify that our finite-element approximation is well-posed.  These are the finite-dimensional equivalent  to the well-posedness conditions in Proposition \ref{prop_well_pos_verf}.  Our  discrete problem  is to find $\phi_T\in X_T$ so that
 \begin{equation}\label{verf_eqn_disc}
 B_T\left(\phi_T,\psi_T\right)=\langle\ell_T,\psi_T\rangle_{Y_T}\quad \forall \psi_T \in Y_T,
 \end{equation}
@@ -691,9 +791,9 @@ where $L_T\in\mathcal{L}\left(X_T,Y_T^*\right)$ is the linear map that correspon
 	Then (\ref{verf_eqn_disc}) admits a unique solution for every right-hand side $\ell_T\in Y^*_T$.
 \end{proposition}
 \subsubsection{Residual a-posteriori estimates}
-In this section we would like to obtain information about what conditions we expect our a-posteriori error indicators to fulfil.  These conditions are given in in Theorem \ref{verf_thm_apost_bounds} (see\cite[Theorem 4.7]{verfurth2013posteriori}).  Essentially, this result gives us general upper and lower bounds on a-posteriori error indicators, subject to certain conditions.  
+In this section we would like to obtain information about the conditions we expect our a-posteriori error indicators to fulfil.  These conditions are given in in Theorem \ref{verf_thm_apost_bounds} (see\cite[Theorem 4.7]{verfurth2013posteriori}).  Essentially, this result gives us general upper and lower bounds on a-posteriori error indicators, subject to certain conditions.  
 
-In order to present the results we will need, we will follow the analysis from \cite[\S4.1.4]{verfurth2013posteriori}, which leads to them.  We will then use these results to show that our a-posteriori error-indicator for the Stokes problem fulfils the conditions of the theorem and hence bounds the error from above and from below as explained in Theorem \ref{verf_thm_apost_bounds}.  
+In order to present the results we will need, we will follow the analysis from \cite[\S4.1.4]{verfurth2013posteriori}, which leads to them.  We will then use these results to show that our a-posteriori error indicator for the Stokes problem fulfils the conditions of the theorem and hence bounds the error from above and below as explained in Theorem \ref{verf_thm_apost_bounds}.  
 
 Firstly, assume that  our abstract variational problem, (\ref{verf_eqn_var}) is well-posed and has solution $\phi$ .  Furthermore, assume that its approximation, (\ref{verf_eqn_disc}) is also well-posed and has solution (\ref{verf_eqn_disc}). We now use the isomorphism,  (\ref{verf_isomorphism}), to get a bound on our error, $\phi-\phi_T$ as follows:
 \begin{equation}
@@ -733,7 +833,7 @@ At this point, \cite{verfurth2013posteriori} uses (\ref{verf_infdim_err_bounds})
 \end{equation}
 noting that, when Galerkin orthogonality holds, the terms involving $Q_T^*$ vanish.  Notice that although this is an upper bound, it still involves dual norms.  It would be more accurate to describe it as part of a condition that we will use to ensure that our a-posteriori error indicator can be used to get an upper bound on the error.
 
-\hl{Note to Tristan and Oliver: I will also explain why we are going to the trouble of choosing the subspace for the lower bound in the analysis that follows, hopefully soon, but as that involves a bit of extra reading I will postpone it until after I get the more essential parts of the analysis done}. Next, we want to get a condition for a lower-bound.  We firstly choose a finite-dimensional subspace $\widetilde{Y}_T$ of $Y$ such that $\widetilde{Y}_T\subset Y_T\subset Y$.  Then, we use the definition of the dual norm 
+Next, we want to get a condition for a lower-bound.  We firstly choose a finite-dimensional subspace $\widetilde{Y}_T$ of $Y$ such that $\widetilde{Y}_T\subset Y_T\subset Y$.  Then, we use the definition of the dual norm 
 together with the fact that $\widetilde{Y}_T\subset Y_T$ to obtain
 \begin{equation}\label{verf_subspace_dual_bound}
 \left|\left| \ell-L\phi_T\right|\right|_{\widetilde{Y}^*}\leq \left|\left| \ell-L\phi_T\right|\right|_{Y^*}.
@@ -752,7 +852,7 @@ holds. Suppose also that we can find an error indicator, $\eta_T$, that depends 
 
 If we can do this, then, as \cite{verfurth2013posteriori} points out, the a-posteriori error estimation for our problem is equivalent to finding the appropriate $\eta_T$ for our problem.  Note that it is also possible that we will need to include a data error, $\theta_T$, if we also need to approximate the given data.  The conditions that an appropriate a-posteriori indicator must fulfil are summarised in Theorem \ref{verf_thm_apost_bounds}.
 \begin{theorem}{Abstract framework for an a-posteriori error estimator}(See \cite[\S4.1.4]{verfurth2013posteriori}: Theorem 4.7)\label{verf_thm_apost_bounds}
-	Assume that the conditions of Propositions \ref{prop_well_pos_verf} and \ref{prop_well_pos_verf_disc} are satisfied and denote by $\phi$ and $\phi_T$ the unique solutions of respectively. Assume that there is a restriction operator $Q_T\in \mathcal{L}\left(Y,Y_T\right)$, a finite dimensional subspace $\widetilde{Y}_T$ of $Y$ such that $Y_T\subset\widetilde{Y}_T\subset Y$, an error indicator $\eta_T$, which only depends on the discrete solution $\phi_T$ and the given data of the variational problem and a data error which depends only on the data of the variational problem such that the estimates
+	Assume that the conditions of Propositions \ref{prop_well_pos_verf} and \ref{prop_well_pos_verf_disc} are satisfied and denote by $\phi$ and $\phi_T$ the unique solutions of problems (\ref{verf_eqn_var}) and (\ref{verf_eqn_disc}) respectively. Assume that there is a restriction operator $Q_T\in \mathcal{L}\left(Y,Y_T\right)$, a finite dimensional subspace $\widetilde{Y}_T$ of $Y$ such that $Y_T\subset\widetilde{Y}_T\subset Y$, an error indicator $\eta_T$, which only depends on the discrete solution $\phi_T$ and the given data of the variational problem and a data error which depends only on the data of the variational problem such that the estimates
 	\begin{equation}\nonumber
 	\begin{aligned}
 	\left|\left|\left(Id_Y-Q_T\right)^*\left(\ell -L\phi_T\right)\right|\right|_{Y^*}&\leq c_A \left(\eta_T + \theta_T\right),\\
@@ -770,7 +870,7 @@ If we can do this, then, as \cite{verfurth2013posteriori} points out, the a-post
 	\end{equation}
 \end{theorem}
 
-Theorem \ref{verf_thm_apost_bounds} is the result we are most interested in from this section as it is essentially of all the exposition we presented herein.  We will be using it in the cases of the Stokes and the combined problem to show that our indicator can be used to bound the error in each of our problems.  Additionally, although this is most relevant for later sections, we will use our indicator to control both the discretization and the modelling errors. Next, we tailor the results we presented in this section to the specific case of the Stokes problem.
+Theorem \ref{verf_thm_apost_bounds} is the result we are most interested in from this section as it is essentially a summary of all the exposition we presented herein.  We will be using it in the cases of the Stokes and the combined problem to show that our indicator can be used to bound the error.  Additionally, although this is most relevant for later sections, we will use our indicator to control both the discretization and the modelling errors. Next, we tailor the results we presented in this section to the specific case of the Stokes problem.
 \subsection{Stokes Problem}
 In this section we will present the variational formulation of the Stokes problem in the abstract framework we introduced in \S \ref{sec_abst_var_prob}.  Firstly we will introduce the infinite-dimensional problem and show how we fit it within the abstract variational problem framework. We will then do the same for the discrete version.  
 \subsubsection{Stokes Problem Variational formulation}
@@ -832,7 +932,7 @@ a^2+b^2\geq 2ab \nonumber
 with \begin{equation}\nonumber
 a=\sqrt{\frac{\delta}{2\beta}}\left|\left|\nabla\textbf{v}\right|\right|\text{ and } b = \sqrt{\frac{\delta \beta }{2}}\left|\left|q\right|\right|
 \end{equation}
-to show that the quantity in the last equality in is greater than
+to show that the quantity in the last equality is greater than
 \begin{equation}
 \begin{aligned}\nonumber
 &\left|\left|\nabla \textbf{v}\right|\right|^2 -  \delta\left|\left|q\right|\right|\left|\left|\nabla \textbf{v}\right|\right| +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2 + \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2 +\frac{\delta \beta }{2}\left|\left|q\right|\right|^2 - \frac{\delta}{2\beta}\left|\left|\nabla\textbf{v}\right|\right|^2\\
@@ -868,8 +968,8 @@ In this section we present the finite element approximation to (\ref{verf_eqns})
 	\mathbb{V}_T&\subset&\left[\textbf{H}^1_0\left(\Omega\right)\right]^d \text{ and}\nonumber\\
 	P_T&\subset& L^2_0\left(\Omega\right),\nonumber
 \end{eqnarray}
-where $T$ is an appropriate triangulation of our domain $\Omega$.  More specifically, by appropriate we mean affine-equivalent (consists of triangles (and parallelograms)), shape-regular (minmal angle of all elements in $T$ is strictly greater than $0$)  and admissible (the intersection between any two elements in $T$ is at most a vertex or an edge).  The reader can consult \cite{verfurth2013posteriori} or \cite{brenner2007mathematical} for more details.
-Our approximate version of the forms and norm in (\ref{verf_eqns}) are then as follows:
+where $T$ is an appropriate triangulation of our domain $\Omega$.  More specifically, by appropriate we mean affine-equivalent (consists of triangles and parallelograms), shape-regular (minimal angle of all elements in $T$ is strictly greater than zero)  and admissible (the intersection between any two elements in $T$ is at most a vertex or an edge).  The reader can consult \cite{verfurth2013posteriori} or \cite{brenner2007mathematical} for more details.
+Our approximate version of the forms and norm in (\ref{verf_eqns}) is  as follows:
 \begin{equation}\label{verf_eqns_approx}
 \begin{aligned}
 X_T=Y_T&=\mathbb{V}_T\times P_T,\\
@@ -878,18 +978,18 @@ B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_
 \end{aligned}
 \end{equation}
 Our approximate problem will be well-posed if the discrete version of Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} are satisfied for all triangulations $T$ that we consider.  This is ensured if we choose our finite element spaces for the velocity $\mathbb{V}_T$ and the pressure $\mathbb{P}_T$ in (\ref{verf_eqns_approx}) appropriately.
-There are many such choices (see \cite[\S 4.10.2]{verfurth2013posteriori} for multiple examples) but we will be only use the Taylor-Hood element, which is a well-known, stable choice for the Stokes equation:
+There are many such choices (see \cite[\S 4.10.2]{verfurth2013posteriori} for multiple examples) but we will only use the Taylor-Hood element, which is a well-known, stable choice for the Stokes equation:
 \begin{eqnarray}
 \begin{aligned}
 \mathbb{V}_T&=\left[S^{2,0}_0\left(T\right)\right]^d,\\
 \mathbb{P}_T&=S^{1,0}\left(T\right)\cap L^2_0\left(\Omega\right).
 \end{aligned}
 \end{eqnarray}
-This choice ensures that the forms we introduced in (\ref{verf_eqns_approx}) fulfil the discrete form of the conditions in Proposition \ref{prop_well_pos_verf_saddle_1} (i.e. with $(\textbf{v}_T,q_T))$ and hence Proposition \ref{prop_well_pos_verf_saddle}.  This in turn ensures that the conditions in Proposition \ref{prop_well_pos_verf_disc} are met, leading to stable discretizations (\cite{verfurth2013posteriori}).  Hence, our discrete problem - i.e. find $\left(\textbf{u}_T, p_T\right)$ such that (\ref{verf_eqns_approx}) holds for all $\left(\textbf{v}_T,q_T\right)\in \left(\mathbb{V}_T\times \mathbb{P}_T\right)$ - is well-posed.
+This choice ensures that the forms we introduced in (\ref{verf_eqns_approx}) fulfil the discrete form of the conditions in Proposition \ref{prop_well_pos_verf_saddle_1} (i.e. with $(\textbf{v}_T,q_T))$ and hence Proposition \ref{prop_well_pos_verf_saddle}.  This in turn ensures that the conditions in Proposition \ref{prop_well_pos_verf_disc} are met.  Hence, our discrete problem - i.e. find $\left(\textbf{u}_T, p_T\right)$ such that (\ref{verf_eqns_approx}) holds for all $\left(\textbf{v}_T,q_T\right)\in \left(\mathbb{V}_T\times \mathbb{P}_T\right)$ - is well-posed.
 
 \subsubsection{Stokes: A-posteriori Estimate}\label{a_posteriori_stokes}
 
-Now we need to show that we can produce an appropriate a-posteriori indicator $\eta_T$ that fulfils the conditions in Theorem \ref{verf_thm_apost_bounds}.  At the same time note that we are considering the data error, $\theta_T$ to be zero at the moment.  We will start by showing that we can come up with an indicator that satisfies the first condition in Theorem \ref{verf_thm_apost_bounds}.    The analysis in this section can be found in \cite[\S4.10.3]{verfurth2013posteriori}
+Now we need to show that we can produce an appropriate a-posteriori indicator $\eta_T$ that fulfils the conditions in Theorem \ref{verf_thm_apost_bounds}.  At the same time note that we are considering the data error, $\theta_T$ to be zero.  We will start by showing that we can come up with an indicator that satisfies the first condition in Theorem \ref{verf_thm_apost_bounds}.    The analysis in this section can be found in \cite[\S4.10.3]{verfurth2013posteriori}
 
 Let $\left(\textbf{u},p\right)\in X$ be the unique solution to (\ref{verf_eqns}) and $\left(\textbf{u}_T,p_T\right)\in X_T$ be the unique solution to (\ref{verf_eqns_approx}).  Now consider a $\left(\textbf{v},q\right)\in X$ and keep it fixed.  Our residual (more accurately an $L^2$-representation of our residual) is given by writing (\ref{verf_eqns_approx}) as a sum over the elements $K\in T$, integrating by parts and subtracting it from the right-hand side of \ref{verf_eqn_var_equiv} (see \cite{verfurth2013posteriori} \S 4.10.3):
 \begin{eqnarray}\label{L2-rep-residual}
@@ -910,7 +1010,7 @@ Hence,
 +&\sum_{K\in T}\int_{K}q \nabla \cdot \textbf{u}_T, 
 \end{aligned}
 \end{equation}
-where $Id$ stands for the identity operator from $X$ to $X$.  Now we use the Cauchy-Schwarz inequality on (\ref{verf-a-posteriori-bound}) to get
+where $Id$ stands for the identity operator on $X$.  Now we use the Cauchy-Schwarz inequality on (\ref{verf-a-posteriori-bound}) to get
 \begin{equation}\label{verf-a-posteriori-bound-cs}
 \begin{aligned}
 \langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y\leq
@@ -920,7 +1020,7 @@ where $Id$ stands for the identity operator from $X$ to $X$.  Now we use the Cau
 \end{aligned}
 \end{equation}
 We now introduce some further results from \cite{verfurth2013posteriori} which will help us bound the quantities $\left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_K$, $\left|\left|\textbf{v}-\mathcal{I}_T\textbf{v}\right|\right|_E$ and $\left|\left|q\right|\right|_K$ in terms of the norm $\left|\left|\left(\cdot,\cdot\right)\right|\right|_X$ introduced in (\ref{verf_eqns}).
-\begin{proposition}{(See \cite[ \S3.5]{verfurth2013posteriori}: Proposition 3.33)} \label{verf_prop_bounds} For every Lebesque exponent p, every element $K\in T$and every face $E\in\mathcal{E}_K$ thereof, the local error estimates
+\begin{proposition}{(See \cite[ \S3.5]{verfurth2013posteriori}: Proposition 3.33)} \label{verf_prop_bounds} For every Lebesque exponent p, every element $K\in T$ and every face $E\in\mathcal{E}_K$ thereof, the local error estimates
 \begin{equation}\label{proposition_bounds_verf}
 \begin{aligned}
 \left|\left|v-\mathcal{I}_Tv\right|\right|_{p;K}&\leq C_{A,1,p}\left(K\right)\left|\left|v\right|\right|_{p;\widetilde{\omega}_K}\\
@@ -950,7 +1050,7 @@ and $\theta_T$ given by
 \begin{equation}
 \theta_T=\left \lbrace \sum_{K\in T}h^2_K\left|\left|\textbf{f}-\textbf{f}_T\right|\right|^2_K \right \rbrace^{1/2}
 \end{equation}
-The constant $c_A$ depends only on the shape parameter of our triangulation.  Also note that in our case $\theta_T$ will be zero due to the fact we are choosing a piecewise polynomial $\textbf{f}$ which is exactly represented by $\textbf{f}_T$. 
+The constant $c_A$ depends only on the shape parameter of our triangulation.  Also note that in our case $\theta_T$ will be zero due to the fact that we are choosing a piecewise polynomial $\textbf{f}$ which is exactly represented by $\textbf{f}_T$. 
 
 
 Next, we consider the second condition of Theorem \ref{verf_thm_apost_bounds}.  Firstly, suppose that
@@ -958,7 +1058,7 @@ Next, we consider the second condition of Theorem \ref{verf_thm_apost_bounds}.  
 B_T\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=&B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)\text{ and that }\\
 \langle \ell_T,\psi_T \rangle_{Y_T}&=&\langle \ell,\psi_T \rangle_{Y}.
 \end{eqnarray}
-In this case, assuming Galerkin orthogonality holds, i.e.
+In this case,  Galerkin orthogonality holds, i.e.
 \begin{equation}
 B\left(\left(\textbf{u},p\right)-\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right) = 0
 \end{equation} 
@@ -972,9 +1072,7 @@ Hence, the second condition of Theorem \ref{verf_thm_apost_bounds} is also satis
 
 Before we proceed, it is worth noting that our proof so far has relied on the fact that our chosen spaces were continuous for both the pressure and the velocity and our discretization was $\textit{stable}$.   Had we allowed for the pressure to be discontinuous, we would have to have changed our variational form to reflect this.  More specifically, we would need to include stabilization terms.  This would also have an impact on our a-posteriori indicator.
 
-We will not include the details of the analysis for the lower bound in the a-posteriori indicator here.  The reason is that we have not made use of it in the implementation .  Interested readers can go through both this analysis and the one for the stabilized problem in \cite[\S 4.10.3]{verfurth2013posteriori}.  Instead, we will just include the lower bound in (Theorem \ref{verf_theorem_apost_err_ind}) along with the upper bound, the analysis for which we went through in this section.
-
-We summarise the a-posteriori analysis for the Stokes problem by including the relevant result from \cite{verfurth2013posteriori}.
+We will not include the details of the analysis for the lower bound in the a-posteriori indicator here.  The reason is that we have not made use of it in the implementation .  Interested readers can go through both this analysis and the one for the stabilized problem in \cite[\S 4.10.3]{verfurth2013posteriori}.  Instead, we will just include the lower bound in Theorem \ref{verf_theorem_apost_err_ind} along with the upper bound.  We summarise the a-posteriori analysis for the Stokes problem by including the relevant result from \cite{verfurth2013posteriori}.
 \begin{theorem}{(See \cite[\S4.10.3]{verfurth2013posteriori}: Theorem 4.70)}\label{verf_theorem_apost_err_ind}
 Denote by $\left(\textbf{u},p\right)$ the unique solution of the saddle-point formulation of the Stokes equations and by $\left(\textbf{u}_T,p_T\right)\in X_T$ its finite element approximation.  For every element $K\in T$ define the residual a-posteriori error indicator $\eta_{R,K}$ by
 \begin{equation}\small\label{a_posteriori_ind_stokes}
@@ -992,10 +1090,10 @@ hold for all $K\in T$.  Both $c^*$ and $c$ depend on the shape parameter $C_T$. 
 \end{theorem}
 
 
-\subsection{A-Posteriori for combined prob.}
+\subsection{A-Posteriori for combined problem}
 In this section we will present the a-posteriori analysis for the combined problem.  We will firstly summarise the framework for each of the two problems.  Then we will present the framework for the combined problem.   We will use this framework to carry out the a-posteriori analysis for the combined problem.  In doing so we will also present any assumptions that we deem necessary for the solvability of the problem.
 \subsubsection{Variational formulation}\label{sec_combi_var_form}
-The frame work used for the Stokes problem, which was introduced in (\ref{verf_eqns}) is 
+The framework used for the Stokes problem, which was introduced in (\ref{verf_eqns}) is 
 \begin{equation}\label{frame_stokes}
 \begin{aligned}
 X=Y&=\left[\textbf{H}^1_0\left(\Omega\right)\right]^d\times L^2_0\left(\Omega\right),\\
@@ -1047,24 +1145,22 @@ B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_
 \end{aligned}
 \end{equation}
  The reader will notice that the pressure is only defined over the Stokes part of the domain. This is also reflected in the norm we use.  
- We have to overcome this problem on two levels:  on an analysis level  and on an implementation level.  For  the analysis we use the interface (solvability) condition, (\ref{combi_cond_wellpos}), to get rid of the boundary contribution:
+ We have to overcome this problem on two levels:  on an analysis level  and on an implementation level.  For  the analysis we use the interface (solvability) condition, (\ref{combi_cond_wellpos}), to get rid of the interface contribution:
  \begin{equation}\label{interface_condition}
 \int_{\mathcal{I}} \left(pI \textbf{n}_S-\llbracket\nabla\textbf{u}\rrbracket\right)\cdot\textbf{v}= 0.
  \end{equation}
- By doing, this, we ensure that our problem is well-posed in the abstract variational framework.  
- 
- For the implementation part we extend the pressure space by $0$ to the Laplace part of the domain.  This trick was used by \cite{BangerthHartmannKanschat2007} in Tutorial 46.   In this way we can have pressures over the whole  domain: they are simply zero in the Laplace part.  We will provide details about this in \S \ref{sec_combi_implementation} where we will talk about the implementation of our problem in Deal.II (see \cite{BangerthHartmannKanschat2007}).
+ This ensures that our problem is well-posed in the abstract variational framework.  For the implementation  we extend the pressure space by $0$ to the Laplace part of the domain.  This trick was used by \cite{BangerthHartmannKanschat2007} in Tutorial 46.   In this way we can have pressures defined over the whole  domain: they are simply zero in the Laplace part.  This trick simply facilitates the use of Deal.II funcitonality over the whole domain and enables us to avoid  using conditional statements extensively in our code.  We will provide details about this in \S \ref{sec_combi_implementation}, where we will talk about the implementation of our problem in Deal.II (see \cite{BangerthHartmannKanschat2007}).
  \subsubsection{Well-Posedness}
- We will briefly show that the combined problem is well-posed in the abstract framework (we have already done this in \S \ref{combi_wellpos_generalframe} but not using the abstract framework).  Let us first look at the case where we are in the Stokes part of the domain.  In this case, the results we need to show well-posedness are Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle}.  
+ We will briefly show that the combined problem is well-posed in the abstract framework (we have already done this in \S \ref{combi_wellpos_generalframe} but not in the abstract framework).  Let us first look at the case where we are in the Stokes part of the domain.  In this case we need Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} in order to show the well-posedness of our abstract and discrete problems.  
  
- Firstly, we enforce the interface condition.  Then we observe that, if we are in $\Omega_S$, the framework for the combined problem introduce in (\ref{frame_combined}) is the same as that for the Stokes problem, for which the conditions in Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} are indeed satisfied.  Hence, the Stokes part of the problem is well-posed.
+ Firstly, we enforce the interface condition.  Then we observe that, if we are in $\Omega_S$, the framework for the combined problem introduced in (\ref{frame_combined}) is the same as that for the Stokes problem, for which the conditions in Propositions \ref{prop_well_pos_verf_saddle_1} and \ref{prop_well_pos_verf_saddle} are indeed satisfied.  Hence, the Stokes part of the problem is well-posed.
  
- Now, if we are in a Laplace part of the domain, after we enforce the interface condition, the combined problem framework introduced in (\ref{frame_combined}) reduces to that of the Laplace problem in (\ref{frame_laplace}.  The bilinear form for the Laplace problem is symmetric, coercive and bounded.  Hence, it automatically satisfies the well-posedness conditions of the abstract variational problem set forth in Proposition (\ref{prop_well_pos_verf}).  As a matter of fact, it satisfies even stronger conditions than this, since it satisfies Lax-Milgram. 
+ Now, if we are in a Laplace part of the domain, after we enforce the interface condition, the combined problem framework introduced in (\ref{frame_combined}) reduces to that of the Laplace problem in (\ref{frame_laplace}).  The bilinear form for the Laplace problem is symmetric, coercive and bounded.  Hence, it automatically satisfies the well-posedness conditions of the abstract variational problem set forth in Proposition \ref{prop_well_pos_verf}.  As a matter of fact, it satisfies even stronger conditions than these, since it satisfies Lax-Milgram. 
   Hence, since both the Stokes and the Laplace part of the problem are  well-posed, our combined problem is well-posed. 
  
-  Now we want to know whether or not the discretizations our stable.  Firstly, for the Stoke's part of the problem we choose the Taylor-Hood element just as we did for the Stokes problem in (\ref{frame_stokes_disc}), while for the Laplace part of the problem we choose quadratics over quadrilaterals as shown in (\ref{frame_laplace_disc}).
+  Now we want to know whether or not the discretization of the combined problem is stable.  Firstly, for the Stoke's part of the problem we choose the Taylor-Hood element just as we did for the Stokes problem in (\ref{frame_stokes_disc}), while for the Laplace part of the problem we choose quadratics over quadrilaterals as shown in (\ref{frame_laplace_disc}).
   
-  Let us start with the Taylor-Hood element.   The stability of our discretisation is shown by first showing that the discrete form  of (\ref{prop_well_pos_verf_saddle_1})  holds (after enforcing our interface condition) (see \cite[\S4.10.2]{verfurth2013posteriori}).  That is, that there exists a constant $\widetilde{\beta}$ such that for all triangulations $T$ which are obtained by global or adaptive refinement 
+  Let us start with the Taylor-Hood element.   This element results in a stable discretization since the conditions of Proposition (\ref{prop_well_pos_verf_saddle_1})  hold after enforcing the interface condition (\ref{interface_condition}) (see \cite[\S4.10.2]{verfurth2013posteriori}).  That is,  there exists a constant $\widetilde{\beta}$ such that for all triangulations $T$ which are obtained by global or adaptive refinement 
   \begin{equation}\label{verf_infsup_disc}
   \inf_{q_T\in \mathbb{P}_T\setminus \lbrace 0 \rbrace}\sup_{\textbf{v}_T\in \mathbb{V}_T\setminus \lbrace 0 \rbrace}\frac{\int_{\Omega}q_T\nabla\cdot\textbf{v}_T}{\left|\textbf{v}_T\right|_1 \left|\left|q_T\right|\right|_{L^2}}=\widetilde{\beta}>0.
   \end{equation}
@@ -1075,64 +1171,31 @@ B\left(\left(\textbf{u}_T,p_T\right),\left(\textbf{v}_T,q_T\right)\right)&=\int_
 \mathbb{P}_T&=\left(S^{1,0}\left(T\cap\Omega_S\right)\cap L^2_0\left(T\cap\Omega_S\right)\right).
  \end{aligned}\nonumber
  \end{equation}
- We have given a proof for (\ref{verf_infsup_disc}) in \S \ref{PDE_disc}.  Interested readers will find additional proofs that (\ref{verf_infsup_disc}) holds in \cite{verfurth1984error}, which was written by the same author as \cite{verfurth2013posteriori}.  Next, given that (\ref{verf_infsup_disc}) holds, we can show that the discrete form of (\ref{prop_well_pos_verf_saddle}) in the same way as was shown in the proof we included for Proposition \ref{prop_well_pos_verf_saddle} (see \cite[\S4.10.1]{verfurth2013posteriori}: Proposition 4.69).  
+ We have given a proof for (\ref{verf_infsup_disc}) in \S \ref{PDE_disc}.  Interested readers will find additional proofs that (\ref{verf_infsup_disc}) holds in \cite{verfurth1984error}.  Next, given that (\ref{verf_infsup_disc}) holds, we can show that the discrete form of our problem satisfies Proposition \ref{prop_well_pos_verf_saddle} in the same way as was shown in the proof we included for Proposition \ref{prop_well_pos_verf_saddle} (see \cite[\S4.10.1]{verfurth2013posteriori}: Proposition 4.69).  
  
- With regard to the well-posedness of the Laplace portion of the problem, after we enforce the interface condition,  the discrete bilinear form $B_T$ for our combined problem essentially reduces to the $B_T$ defined in (\ref{frame_laplace_disc}). This $B_T$, as \cite{verfurth2013posteriori} points out, is bounded, symmetric and coercive so it satisfies the conditions in Proposition (\ref{prop_well_pos_verf_disc}) so it results in a stable discretisation.
- Hence, the approximation of our combined problem is well-posed. 
+ With regard to the well-posedness of the Laplace portion of the problem, after we enforce the interface condition,  the discrete bilinear form $B_T$ for our combined problem essentially reduces to the $B_T$ defined in (\ref{frame_laplace_disc}). This $B_T$, as \cite{verfurth2013posteriori} points out, is bounded, symmetric and coercive so it satisfies the conditions in Proposition (\ref{prop_well_pos_verf_disc}).  Hence, the approximation of our combined problem is well-posed. 
 
-\subsubsection{A-posteriori indicator}
-In this section we will present the strategy for a-posteriori error control for our combined problem.  In deriving a-posteriori bounds we need to take into consideration that the error must be controlled in two respects: from a modelling perspective and from a discretisation perspective.  Essentially, our a-posteriori indicator must give us the capability to refine both our model and our mesh.  Hence, our a-posteriori indicator will also depend on which part of the domain we are in.  
+\subsubsection{A-posteriori indicator}\label{a_posteriori_combined_prob}
+In this section we will present the strategy for a-posteriori error control for our combined problem.  In deriving a-posteriori bounds we need to take into consideration that the error must be controlled in two respects: from a modelling perspective and from a discretisation perspective.  Ideally our a-posteriori indicator must give us the capability to refine both our model and our mesh.  Hence, our a-posteriori indicator will also depend on the model governing the flow in the part of the domain we are in.  
 
- In order to do this, we will firstly  decide which model we should be solving for a given celll $K$.  Then, we will decide on whether the level of error in that cell is within an acceptable tolerance.  If it is not, we will refine the cell.  This strategy is used in \cite[\S6: Algorithm 6.1]{giesselmann2017posteriori}.  
+ In order to do this, we will firstly  decide which model we should be solving for a given cell $K$.  Then, we will decide on whether the level of error in that cell is within an acceptable tolerance.  If it is not, we will refine the cell.  This strategy is used in \cite[\S6: Algorithm 6.1]{giesselmann2017posteriori}.  
  
-At this point we need to decide on our a-posteriori indicator.  There are two approaches we can take.  The first approach would be to  use the Stokes a-posteriori indicator in $\Omega_S$ and the Laplace a-posteriori indicator in $\Omega_L$.  In this way we would obtain an indicator $\eta_{R,K}$ for each $K\in T$ that would look like this:
+At this point we need to decide on our a-posteriori indicator. We will base our indicator on the Stokes a-posteriori indicator in $\Omega_S$ and the Laplace a-posteriori indicator in $\Omega_L$.  In this way we would obtain an indicator $\eta_{R,K}$ for each $K\in T$ that will look like this:
 \begin{equation}\small\label{approach1_indicator}
 \eta_{R,K}=\begin{cases}
 \left(h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T-\nabla p_T\right|\right|^2_K+\left|\left|\text{div} \textbf{u}_T\right|\right|^2_K+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}\setminus\mathcal{I}}h_E\left|\left| \llbracket \nabla \textbf{u}_T -p_T \rrbracket \right|\right|_E^2\right)^{1/2} \\\text{ if }K\in\Omega_S,\\
 \left(h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T\right|\right|^2_K+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}\setminus\mathcal{I}}h_E\left|\left| \llbracket \nabla \textbf{u}_T  \rrbracket \right|\right|_E^2\right)^{1/2}\text{ if }K\in\Omega_L
 \end{cases}
 \end{equation}
-The set $\mathcal{E}_{K,\Omega}$ is the set of of edges of $K$ that are interior in the mesh $T$ (i.e. not on the boundary).  Notice that the terms over the edges do not include the contribution from the edges on the interface, $\mathcal{I}$ since these are equal to zero.  
-
-The alternative is to go through the same analysis as we did for the Stokes problem in order to obtain the a-posteriori indicator in \S \ref{a_posteriori_stokes}.  The starting point of our analysis would be the $L^2$-representation of the residual.  This would be similar to what we did for the Stokes equations in (\ref{L2-rep-residual}).   More specifically, the $L^2$-representation of the combined problem residual would be
-\begin{eqnarray}\label{L2-rep-residual-mixed}
-\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(\textbf{v},q\right) \rangle_Y= &\sum_{K\in T}&\int_{K}\left(\textbf{f}+\Delta \textbf{u}_T\right)\cdot \textbf{v}\nonumber\\-&\sum_{K\in T\cap\Omega_S}&\int_{K}\nabla p_T\cdot \textbf{v}\nonumber\\-&\sum_{E\in \mathcal{E}_{\Omega}\setminus\mathcal{I}}&\int_{E}\llbracket\nabla \textbf{u}_T\rrbracket \cdot \textbf{v}+\sum_{E\in \mathcal{E}_{\Omega_S}\setminus\mathcal{I}}\int_{E}p_TI\textbf{n}_S\cdot \textbf{v}\nonumber\\
--&\sum_{K\in T\cap\Omega_S}&\int_{K}q \nabla \cdot \textbf{u}_T. \nonumber
-\end{eqnarray}
-Now we follow the same approach that we used for the Stokes a-posteriori indicator.  Namely, we use the restriction operator $Q_T$ defined in (\ref{restrict_operator}) and the bounds introduced in Proposition \ref{verf_prop_bounds} to obtain:
-
-\begin{equation}\small
-\begin{aligned}\small
-\langle \ell -L\left(\textbf{u}_T,p_T\right),\left(Id-Q_T\right)\left(\textbf{v},q\right) \rangle_Y\leq
-&\sum_{K\in T}\left|\left|\textbf{f}+\Delta \textbf{u}_T\right|\right|_K C_{A,2,2}\left(K\right)h_K \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_K}\\
-+&\sum_{K\in T\cap\Omega_S}\left|\left|\nabla p_T \right|\right|_K C_{A,2,2}\left(K\right)h_K \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_K}\\
-+&\sum_{E\in \mathcal{E}_{\Omega}}\left|\left|\llbracket\nabla \textbf{u}_T\rrbracket \right|\right|_EC_{A,4,2}\left(K\right)h_E^{1/2} \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_E}\\
-+&\sum_{E\in \mathcal{E}_{\Omega_S}}\left|\left| p_TI\textbf{n}_S\right|\right|_EC_{A,4,2}\left(K\right)h_E^{1/2} \left|\left|\nabla\textbf{v}\right|\right|_{2;\widetilde{\omega}_E}\\
-+&\sum_{K\in T\cap\Omega_S}\left|\left|q\right|\right|_K\left|\left|\nabla \cdot \textbf{u}_T\right|\right|_K\\
-\leq c\max \{C_{A,2,2}\left(K\right),C_{A,4,2}\left(E\right)\}\left|\left|\left(\textbf{v},q\right)\right|\right|_X\times\\ \{\sum_{K\in T}h^2_K\left|\left|\textbf{f}+\Delta \textbf{u}_T\right|\right|_K^2+\left|\left|\text{div }\textbf{u}_T\right|\right|^2_K+&\sum_{K\in T\cap\Omega_S}h^2_K\left|\left|\nabla p_T \right|\right|_K^2\\+\sum_{E\in \mathcal{E}_{\Omega}}h_E\left|\left|\llbracket\nabla \textbf{u}_T\rrbracket \right|\right|_E^2 +&\sum_{E\in \mathcal{E}_{\Omega_S}}h_E\left|\left|p_TI\textbf{n}_S\right|\right|_E^2\}^{1/2},
-\end{aligned}
-\end{equation}
-where $c$ is a constant that depends on the shape parameter of our triangulation, $T$ and the norm $\left|\left|\left(\textbf{v},q\right)\right|\right|_X$ is as defined in (\ref{frame_combined}).
-
-The final step is to obtain the a-posteriori error indicator, $\eta_{R,K}$ for the combined problem, which is given by
-\begin{equation}\small
-\begin{aligned}
-\eta_{R,K}^2=h^2_K\left|\left|\textbf{f}_T+\Delta \textbf{u}_T\right|\right|^2_K+h^2_K\left|\left|\nabla p_T\right|\right|^2_K+\left|\left|\text{div} \textbf{u}_T\right|\right|^2_K\\+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega}\setminus\mathcal{I}}h_E\left|\left| \llbracket \nabla \textbf{u}_T \rrbracket \right|\right|_E^2+\frac{1}{2}\sum_{E\in\mathcal{E}_{K,\Omega_S}\setminus\mathcal{I}}h_E\left|\left|p_T I\textbf{n}_S \right|\right|_E^2,
-\end{aligned}
-\end{equation}
-where the pressure terms are only defined over $\Omega_S$.  Between the two approaches, we will use the first one, whereby we will first decide what model we are using for a given cell and then using the a-posteriori indicator from that model, as shown in (\ref{approach1_indicator}).  The reason for this choice is twofold.  Firstly, it will make for a simpler, cleaner implementation.  Furthermore, it will most likely result in a sharper bound as we have not used a triangle inequality to isolate  the pressure terms in the indicator.
-As we mentioned earlier in this section, the first step is to decide on which model we are solving.  We will use a similar algorithm to that used in \cite[\S 6: Algorithm 6.1]{giesselmann2017posteriori}.  
-
-Firstly, we will break our indicator into a modelling and discretisation error $\mathcal{E}_M$ and $\mathcal{E}_D$ respectively.   The modelling error will be given by 
+The set $\mathcal{E}_{K,\Omega}$ is the set of edges of $K$ that are interior in the mesh $T$ (i.e. not on the boundary).  Notice that the sums over the edges do not include the contribution from the edges on the interface, $\mathcal{I}$ since these are equal to zero.   The next step is to decide on which model we are using for  a particular cell.  We will use a similar algorithm to that used in \cite[\S 6: Algorithm 6.1]{giesselmann2017posteriori}.  Firstly, we will break our indicator into a modelling and discretisation error $\mathcal{E}_M$ and $\mathcal{E}_D$ respectively.   The modelling error will be given by 
 \begin{equation}
 \mathcal{E}_M= \left|\left|\text{div }\textbf{u}\right|\right|_K.
 \end{equation}
+After each cycle of computations, we evaluate $\mathcal{E}_M$ for a given cell.  Since the Laplace model is supposed to be divergenceless, if $\mathcal{E}_M$ is within a predefined tolerance then we assign an appropriate flag for that cell, which will correspond to the Laplace model.  If $\mathcal{E}_M$ is not within the tolerance we will flag that cell with an index corresponding to the Stokes model. This flag will determine the model that will be solved on that cell for the next computation cycle.  
 
-After each cycle of computations, we will be to evaluate $\mathcal{E}_M$ for a given cell.  Since the Laplace model is supposed to be divergenceless, if $\mathcal{E}_M$ is within a predefined tolerance then we assign an appropriate flag for that cell, which will correspond to the Laplace model.  If $\mathcal{E}_M$ is higher than the tolerance we will flag that cell with an index corresponding to the Stokes Model and the Stokes model will be solved on that cell for the next computation cycle.  
+Then, we check the combined $\mathcal{E}_M+\mathcal{E}_D$ for a given cell.  The quantity $\mathcal{E}_D$ is the portion of $\eta_{R,K}$ (\ref{approach1_indicator}) for a given cell that is not included in $\mathcal{E}_M$.  In the Stokes indicator, $\mathcal{E}_M$ is part of the indicator whereas for the Laplace indicator, it is not.  If this value is not within a predefined tolerance we will refine this cell and if it is we will do nothing.  Deal.II allows for both global refinement and adaptive refinement.  In the case of adaptive refinement we have the option of selecting how many cells we want to have refined.  
 
-Then, we check the combined $\mathcal{E}_M+\mathcal{E}_D$ for a given cell.  Notice that this will be the corresponding a-posteriori indicator $\eta_{R,K}$ for that cell, given by (\ref{approach1_indicator}).  If this value is higher than a predefined tolerance we will refine this cell and if it is not we will leave it as is.  Deal.II allows for both global refinement and adaptive refinement.  In the case of adaptive refinement we have the option of selecting how many cells we want to have refined.  
-
-Basically, the cells are ranked  from highest to lowest in terms of error.  Then we choose which cells will be refined based on the proportion of the total error that corresponds to that cell.  For example, by specifying a coefficient of 0.3 we ask that the cells which, when arranged in ascending order cumulatively correspond to $0.3\left(\mathcal{E}_M+\mathcal{E}_D\right)$, will be refined in the next cycle.  This procedure is summarised in pseudocode form in Algorithm \ref{Algorithm_MM_adaptivity}.
+Basically, we rank the cells in ascending order in terms of error contribution.  Then we choose which cells will be refined based on the proportion of the total error we would like to refine.  For example, by specifying a coefficient of 0.3 we ask that the cells which, when arranged in ascending order cumulatively correspond to $0.3\left(\mathcal{E}_M+\mathcal{E}_D\right)$, will be refined in the next cycle.  This procedure is summarised in pseudocode form in Algorithm \ref{Algorithm_MM_adaptivity}.
  \begin{algorithm}[t]
  	\caption{Model-Mesh Adaptivity (see \cite[\S6: Algorithm 6.1]{giesselmann2017posteriori})}\label{Algorithm_MM_adaptivity}
  	\begin{algorithmic}
@@ -1166,11 +1229,11 @@ Basically, the cells are ranked  from highest to lowest in terms of error.  Then
  	\end{algorithmic}
  \end{algorithm}
  \subsubsection{Implementation}\label{sec_combi_implementation}
-In this section we will discuss how will implement our combined problem in Deal.II.   Deal.II is a C++, open-source, finite element library which we will be using for the implementation of the computational aspects of this project.   
+In this section we will discuss how we will implement our combined problem in Deal.II.   Deal.II is a C++, open-source, finite element library which we will be using for the implementation of the computational aspects of this project.   
 
 There will be differences between the way in which we have conducted the analysis for our combined problem and the way we will implement it.  The most important difference is the way we will implement pressure.  In \S \ref{sec_combi_var_form}, where we specified the variational forms for both our continuous problem and its approximation, we mentioned that pressure is defined only in the Stokes part of the domain, $\Omega_S$.  However from an implementation perspective we will do things slightly differently.
 
-Specifically, we will define pressure globally by extending it by $0$ to the Laplace part of the domain, $\Omega_L$.  In order to do this, let us firs introduce the space of functions which are (constant) zero on a cell, $\textbf{Z}$:
+Specifically, we will define pressure globally by extending it by $0$ to the Laplace part of the domain, $\Omega_L$.  In order to do this, let us first introduce the space of functions which are (constant) zero on a cell, $\textbf{Z}$:
 \begin{equation}
 \textbf{Z}=\left\lbrace  f: f\left(x\right)=0 \right\rbrace.
 \end{equation}
@@ -1182,7 +1245,7 @@ Specifically, we will define pressure globally by extending it by $0$ to the Lap
 \begin{equation}\label{extended_pressure_space}
 \mathbb{P}=\left\lbrace p: \quad \restr{p}{{\Omega_S}}\in L^2_0\left(\Omega_S\right),\quad  \restr{p}{{\Omega_L}}\in\textbf{Z}\left(\Omega_L\right)\right\rbrace.
 \end{equation}
-Now we can introduce the framework we will use for the combined problem, which is similar to \ref{frame_combi_disc} but in this case pressure is defined globally:
+Now we can introduce the framework we will use for the combined problem, which is similar to (\ref{frame_combi_disc}) but in this case pressure is defined globally:
 \begin{equation}
 \begin{aligned}
 X_T=Y_T&=S_0^{2,0}\left(T\right)^d\times \begin{cases}
@@ -1201,7 +1264,7 @@ where
 
 
 \section{Deal.II}\label{sec_numerics}
-Deal.II is a C++, open-source, finite element library which we will be using for the implementation of the computational aspects of this project.   In this section we will describe the models we constructed in Deal.II and the tests we carried out on them.  This section will be structured as follows.  In  \S \ref{sec_dealii_tests} we will describe the models we built.  In \S \ref{sec_dealii_results} we will present the results from these models.  Lastly, we will conclude this section with a discussion of the results in \S \ref{sec_dealii_discussion}.  
+In this section we will describe the models we constructed in Deal.II and the tests we carried out on them.  This section will be structured as follows.  In  \S \ref{sec_dealii_tests} we will describe the models we built.  In \S \ref{sec_dealii_results} we will present the results from these models.  Lastly, we will conclude this section with a discussion of the results in \S \ref{sec_dealii_discussion}.  
 \subsection{Tests}\label{sec_dealii_tests}
 \subsubsection{Stokes Model}\label{sec_test_stokes}
 The first test we ran is a simple Stokes model with homogeneous Dirichlet boundary conditions and a forcing, $\textbf{f}$ on the right-hand side.  This is given by:
@@ -1213,10 +1276,10 @@ The first test we ran is a simple Stokes model with homogeneous Dirichlet bounda
 \end{bmatrix} \text{ and}\\\label{benchmark_p}
 p &=& 10\left(x-1/2\right)^3y^2+\left(1-x\right)^3\left(y-1/2\right)^3,
 \end{eqnarray}
-where $\textbf{x}=\left(x,y\right)^T$.    We will substitute (\ref{benchmark_u}) and (\ref{benchmark_p}) as exact solutions to (\ref{stokes_eq}) to obtain the forcing $\textbf{f}$.  We have used this benchmark example to test for convergence in our model.  The reason for this choice of $\left(\textbf{u},p\right)$ is that $\textbf{u}$ has zero divergence.
+where $\textbf{x}=\left(x,y\right)^T$.    We substitute (\ref{benchmark_u}) and (\ref{benchmark_p}) as exact solutions to (\ref{stokes_eq}) to obtain the forcing $\textbf{f}$.  We have used this benchmark example to test for convergence in our model.  The reason for this choice of $\textbf{u}$ is that it has zero divergence.
 \subsubsection{Combined Model with fixed Interface}\label{sec_test_combi_fixed}
 This  test is the first step towards implementing model adaptivity.  We divided our (unit square) domain into two halves at $y=0.5$: in the lower half we are solving the Laplace model and in the upper-half we are solving the Stokes model.  This test serves a number of purposes.
-Firstly, we see how we can implement and work with the interface condition.   Secondly, to see how we can implement and evaluate our a-posterior error indicator in Deal.II.  The $\left(\textbf{u},p\right)$ we are using in this case is given by:
+Firstly, we see how we can implement and work with the interface condition.   Secondly, to see how we can implement and evaluate our a-posterior error indicator in Deal.II.   The $\left(\textbf{u},p\right)$ we are using in this case is given by:
 \begin{eqnarray}
 \label{benchmark_u_mm1}
 \textbf{u}\left(\textbf{x}\right)&=&\begin{bmatrix}
@@ -1225,15 +1288,15 @@ Firstly, we see how we can implement and work with the interface condition.   Se
 \end{bmatrix} \text{ and}\\\label{benchmark_p_mm1}
 p &=& x\left(x-0.5\right)\left(x-1\right)\left(y^2-y+1/6\right),
 \end{eqnarray}
-The reason for this choice of $\left(\textbf{u},p\right)$ is that $\textbf{u}$ is divergenceless and that $p$ is in $L^2_0$ in the whole of $\Omega$ and also when restricted to $\Omega_S$ or on the interface $\mathcal{I}$.  The reason we need such a $p$ is in order for the interface condition (\ref{interface_condition}) to be satisfied exactly on the interface $\mathcal{I}$ to enable us to test for convergence in this problem.
+The reason for this choice of $\left(\textbf{u},p\right)$ is that $\textbf{u}$ is divergenceless and that $p$ is in $L^2_0$ in the whole of $\Omega$ and also when restricted to $\Omega_S$ or on the interface $\mathcal{I}$.  The reason we need a $p$ in $L^2_0\left(\Omega\right)$ is in order for the interface condition (\ref{interface_condition}) to be satisfied exactly on the interface $\mathcal{I}$.  This enables us to test for convergence in this problem.
 \subsection{Computational results}\label{sec_dealii_results}
 In this section we will solve the simple Stokes model and the combined model with a fixed interface that we presented in \S \ref{sec_test_stokes} and \S \ref{sec_test_combi_fixed} respectively. 
 \subsubsection{Stokes model}
-Figure \ref{fig_stokes_sol}  shows the magnitude of $\textbf{u}$ plotted at each of 5 refinement cycles required to solve the problem for $\left(\textbf{u}, p\right)$ given by (\ref{benchmark_u}) and (\ref{benchmark_p}).  The convergence results are listed in Table \ref{tablebenchmark_convergence} and illustrated in Figure \ref{fig_errors}.
+Figure \ref{fig_stokes_sol}  shows the magnitude of the computed solution $\textbf{u}_h$ to problem (\ref{frame_stokes_disc}) with exact solution  $\left(\textbf{u}, p\right)$ given by (\ref{benchmark_u}) and (\ref{benchmark_p}).  The convergence results are listed in Table \ref{tablebenchmark_convergence} and illustrated in Figure \ref{fig_errors}.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=10cm]{stokes_cg_velocities}
-	\caption{The magnitude of $\textbf{u}$ plotted at each refinement cycle to (\ref{stokes_eq}) with $\textbf{u}$ given by (\ref{benchmark_u}).}
+	\caption{The magnitude of the computed solution $\textbf{u}_h$ to problem (\ref{frame_stokes_disc}) with exact solution  $\left(\textbf{u},p\right)$ given by (\ref{benchmark_u}) and (\ref{benchmark_p}).}
 	\label{fig_stokes_sol}
 \end{figure}
 \begin{table}[H]
@@ -1247,7 +1310,7 @@ Figure \ref{fig_stokes_sol}  shows the magnitude of $\textbf{u}$ plotted at each
 			4 & 2128 & 21115 & 1.1988e-02 & 6.2091e-04 & 5.2756e-02\\ \hline
 			5 & 5128 & 50427 & 2.4096e-03 & 8.6223e-05 & 1.5147e-02\\ \hline
 		\end{tabular}
-		\caption{Convergence for $\textbf{u}$ and $p$ in different norms for the simple Stokes model.}
+		\caption{Convergence for $\textbf{u}$ and $p$ in different norms for the simple Stokes model (for the first 5 refinement cycles).}
 		\label{tablebenchmark_convergence}
 	\end{center}
 \end{table}
@@ -1273,19 +1336,60 @@ Figure \ref{fig_stokes_sol}  shows the magnitude of $\textbf{u}$ plotted at each
 	\caption{loglog plots of errors }
 	\label{fig_errors}
 \end{figure}
-\subsubsection{Combined Problem with fixed Interface}
-Figure \ref{fig_stokes_sol}  shows a surface plot of the magnitude of $\textbf{u}$ plotted at the last of $5$ refinement cycles for $\left(\textbf{u}, p\right)$ given by (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}).
+\subsubsection{Combined model with fixed interface}
+Figures \ref{fig_combi_sol}  and \ref{fig_combi_sol_p} show surface plots of the magnitude of the computed solutions $\textbf{u}_h$  and $p_h$ respectively to problem (\ref{frame_combi_disc}) with exact solutions $\left(\textbf{u}, p\right)$ given by (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}).
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=10cm]{combi_u}
-	\caption{The magnitude of $\textbf{u}$ plotted at each refinement cycle to (\ref{stokes_eq}) with $\textbf{u}$ given by (\ref{benchmark_u_mm1}).}
+	\caption{The magnitude of the computed solution $\textbf{u}_h$ to problem (\ref{frame_combi_disc}) with exact solution $\left(\textbf{u},p\right)$ given by (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}).}
 	\label{fig_combi_sol}
 \end{figure}
-Notice that although the chosen pressure is in  $L^2_0\left(\Omega\right)$, $L^2_0\left(\Omega_S\right)$ and also $L^2_0\left(\mathcal{I}\right)$, the interface condition seems to be satisfied as though it is not since the jum in the gradient across the interface is non-zero.  The pressure plot is not included here as it has no relevance to the right-hand side that was prescribed and behaves extremely erratically.  Instead, we include it along with the other convergence results in 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{combi_p}
+	\caption{The magnitude of the computed solution $p_h$ for problem (\ref{frame_combi_disc}) with exact solution $\left(\textbf{u},p\right)$ given by (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}).}
+	\label{fig_combi_sol_p}
+\end{figure}
+The convergence results are tabulated in Table \ref{tablebenchmark_convergence_mm1}.  
+\begin{table}[H]
+	\begin{center}
+	\begin{tabular}{|c|c|c|c|c|c|} \hline
+		refinement cycle & cells & dofs & $||p-p_h||_{L^2}$ & $||u-u_h||_{L^2}$ & $||u-u_h||_{Hdiv}$\\ \hline
+		0 & 1024 & 20963 & 1.1118e+00 & 0.0964 & 0.4363\\ \hline
+		1 & 2128 & 44039 & 1.1123e+00 & 0.0964 & 0.4360\\ \hline
+		2 & 4408 & 91583 & 1.1125e+00 & 0.0964 & 0.4359\\ \hline
+		3 & 9268 & 192207 & 1.1126e+00 & 0.0964 & 0.4359\\ \hline
+		4 & 19480 & 403647 & 1.1126e+00 & 0.0964 & 0.4359\\ \hline
+	\end{tabular}
+		\caption{Convergence for $\textbf{u}$ and $p$ in different norms for the combined model with a fixed interface.}
+		\label{tablebenchmark_convergence_mm1}
+	\end{center}
+\end{table}
+\vspace{-10mm}
 
 \subsection{Discussion}\label{sec_dealii_discussion}
+The solution for the simple Stokes problem converges as we would expect for both velocity and pressure.  In contrast, for the combined problem both the velocity and the pressure do converge, but not to the solution we would expect given the right-hand side we have prescribed.   We can readily observe this by examining Figures \ref{fig_combi_sol} and \ref{fig_combi_sol_p} and comparing them with the prescribed data (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}). 
+
+
+Although the chosen pressure is in  $L^2_0\left(\Omega\right)$, $L^2_0\left(\Omega_S\right)$ and also $L^2_0\left(\mathcal{I}\right)$, this is not reflected in the computed solution.  We can see this from Figure \ref{fig_combi_sol}, where the jump in the gradient of the velocity across the interface is non-zero.  This is equivalent to sayng that the jump of the velocity gradient across the interface must integrate to something that is non-zero in order to balance the contribution from the pressure at the interface.  This should not be the case if the pressure was indeed in $L^2_0\left(\Omega_S\right)$ (and also in $L^2_0\left(\mathcal{I}\right)$ too). Furthermore, the pressure itself is not behaving according to the data we are prescribing in  (\ref{benchmark_u_mm1}) and (\ref{benchmark_p_mm1}), as we can see in Figure \ref{fig_combi_sol_p}.  It is attaining larger values than it should at the edges of the interface.  
+
+A noteworthy feature of the results in Table \ref{tablebenchmark_convergence_mm1} is that, although we have convergence in both pressure and velocity in the $L^2$ norm, neither converges to what we would expect given the right hand side we prescribed.  We can see this as the error stabilizes but does not decrease.  Furthermore, the computed velocity solution is not divergenceless.
+
+
+
+
+It has not been possible to accurately pinpoint the reason for this discrepancy.    However, it is noteworthy that this occurs most noticeably at the interface.  Recall that the interface condition in this case was prescribed such that the pressure would integrate to zero along the interface.  The intention behind this was that the jump in the velocity gradient across the interface would also integrate to zero.  This does not happen.  In fact, the solution is behaving as though there is a non-zero gradient jump across the interface.  
+
+There are multiple possibilities for this behaviour.  It could be a bug in the code or of the analysis.  For example, the boundary conditions could be incompatible with the interface condition. 
+
+
+
 \section{Concluding remarks and next steps}\label{sec_conclusion}
-In this report we have shown the well-posedness of the Stokes problem and of the adaptive continuous problem.  We have also implemented the Stokes problem in Deal.II in order to acquire some familiarity with this software library.  The next steps will be to carry out the a-posteriori analysis of Stokes and for adaptive Stokes and to implement the latter  in Deal.II.  
+In this report we have shown the well-posedness of the combined Stokes-Laplace problem.  Furthermore, we have derived an a-posteriori indicator for the combined problem based on the abstract variational framework from \cite{verfurth2013posteriori}.  This indicator can drive both model and mesh-adaptivity.  It is based on the approach of \cite{giesselmann2017posteriori}, where the indicator is also built to drive both mesh and model adaptivity.  Lastly, we have created a model  for the combined problem in Deal.II with a fixed interface in order to test the indicator.  The model exhibited  behavior which was unexpected given the interface condition and the problem data we prescribed.  The next step would be to to find the reasons behind this behaviour.  
+
+More specifically, the pressure attains values it should not be attaining at the points where our interface ($y=0.5$) intersects the boundary, where we prescribe homogeneous Dirichlet boundary conditions for the velocity.  The velocity also exhibits a jump in gradient across the interface.  The next step would be to see what the effect of the boundary conditions is on this bahaviour.  We need to carry out more tests, including varying the shape of the interface and see what happens when the interface has no contact with the boundary.  Another possibility is to multiply the second derivatives of the model by a parameter and let it go to zero, to see if this will eliminate the jump in the velocity-gradient.  
+
+Once the reasons behind this behaviour are understood we can  take the project towards full model and mesh adaptiviy in three steps.  These are to firstly use the indicator just for mesh adaptivity, then just for model adaptivity and finally for both,  without fixing the interface.  The expectation from this indicator is to enable us to use the complex (Stokes) model in the parts of the domain where it is necessary while maintaining the computational expenses low by using the simpler (Laplace) model everywhere else.  If this is succesful then we can use the knowledge and rationale behind this project to more complex models with more direct applications to climate simulation.
 
 %\noindent\begin{minipage}{\textwidth} %
 %	\begin{minipage}{0.5\textwidth}
