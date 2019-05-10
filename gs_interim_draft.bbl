@@ -1,0 +1,90 @@
+\begin{thebibliography}{10}
+
+\bibitem{giesselmann2017posteriori}
+J.~Giesselmann and T.~Pryer, ``A posteriori analysis for dynamic model
+  adaptation in convection-dominated problems,'' {\em Mathematical Models and
+  Methods in Applied Sciences}, vol.~27, no.~13, pp.~2381--2423, 2017.
+
+\bibitem{coclici2001analysis}
+C.~A. Coclici and W.~L. Wendland, ``Analysis of a heterogeneous domain
+  decomposition for compressible viscous flow,'' {\em Mathematical Models and
+  Methods in Applied Sciences}, vol.~11, no.~04, pp.~565--599, 2001.
+
+\bibitem{utzmann2006heterogeneous}
+J.~Utzmann, T.~Schwartzkopff, M.~Dumbser, and C.-D. Munz, ``Heterogeneous
+  domain decomposition for numerical aeroacoustics,'' in {\em Multifield
+  problems in solid and fluid mechanics}, pp.~429--459, Springer, 2006.
+
+\bibitem{verfurth2013posteriori}
+R.~Verf{\"u}rth, {\em A posteriori error estimation techniques for finite
+  element methods}.
+\newblock OUP Oxford, 2013.
+
+\bibitem{logg2012automated}
+A.~Logg, K.-A. Mardal, and G.~Wells, {\em Automated solution of differential
+  equations by the finite element method: The FEniCS book}, vol.~84.
+\newblock Springer Science \& Business Media, 2012.
+
+\bibitem{brenner2007mathematical}
+S.~Brenner and R.~Scott, {\em The mathematical theory of finite element
+  methods}, vol.~15.
+\newblock Springer Science \& Business Media, 2007.
+
+\bibitem{ern2013theory}
+A.~Ern and J.-L. Guermond, {\em Theory and practice of finite elements},
+  vol.~159.
+\newblock Springer Science \& Business Media, 2013.
+
+\bibitem{elman2014finite}
+H.~C. Elman, D.~J. Silvester, and A.~J. Wathen, {\em Finite elements and fast
+  iterative solvers: with applications in incompressible fluid dynamics}.
+\newblock Numerical Mathematics and Scientific Computation, 2014.
+
+\bibitem{braess2007finite}
+D.~Braess, {\em Finite elements: Theory, fast solvers, and applications in
+  solid mechanics}.
+\newblock Cambridge University Press, 2007.
+
+\bibitem{braack2003posteriori}
+M.~Braack and A.~Ern, ``A posteriori control of modeling errors and
+  discretization errors,'' {\em Multiscale Modeling \& Simulation}, vol.~1,
+  no.~2, pp.~221--238, 2003.
+
+\bibitem{becker2001optimal}
+R.~Becker and R.~Rannacher, ``An optimal control approach to a posteriori error
+  estimation in finite element methods,'' {\em Acta numerica}, vol.~10,
+  pp.~1--102, 2001.
+
+\bibitem{becker2007mesh}
+R.~Becker, M.~Braack, R.~Rannacher, and T.~Richter, ``Mesh and model adaptivity
+  for flow problems,'' in {\em Reactive Flows, Diffusion and Transport},
+  pp.~47--75, Springer, 2007.
+
+\bibitem{bohinc2009model}
+U.~Bohinc, A.~Ibrahimbegovic, and B.~Brank, ``Model adaptivity for finite
+  element analysis of thin or thick plates based on equilibrated boundary
+  stress resultants,'' {\em Engineering Computations}, vol.~26, no.~1/2,
+  pp.~69--99, 2009.
+
+\bibitem{hadamard1932probleme}
+J.~Hadamard, {\em Le probleme de Cauchy et les {\'e}quations aux
+  d{\'e}riv{\'e}es partielles lin{\'e}aires hyperboliques}.
+\newblock Hermann Paris, 1932.
+
+\bibitem{Chen2016}
+L.~Chen, {\em Finite Element Methods for Stoke's Equations}, 2016 (accessed
+  February , 2018).
+\newblock Available from:
+  \url{https://www.math.uci.edu/~chenlong/226/FEMStokes.pdf}.
+
+\bibitem{BangerthHartmannKanschat2007}
+W.~Bangerth, R.~Hartmann, and G.~Kanschat, ``{deal.II} -- a general purpose
+  object oriented finite element library,'' {\em ACM Trans. Math. Softw.},
+  vol.~33, no.~4, pp.~24/1--24/27, 2007.
+
+\bibitem{verfurth1984error}
+R.~Verf{\"u}rth, ``Error estimates for a mixed finite element approximation of
+  the stokes equations,'' {\em RAIRO. Analyse num{\'e}rique}, vol.~18, no.~2,
+  pp.~175--182, 1984.
+
+\end{thebibliography}
